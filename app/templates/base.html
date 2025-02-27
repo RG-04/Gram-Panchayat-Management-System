@@ -5,191 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Gram Panchayat Management System{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #006400;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
-        .user-info span {
-            margin-right: 15px;
-        }
-        .user-info a {
-            color: white;
-            text-decoration: none;
-            padding: 5px 10px;
-            border: 1px solid white;
-            border-radius: 4px;
-        }
-        .user-info a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .navbar {
-            background-color: #004d00;
-            padding: 10px 20px;
-        }
-        .navbar ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-        .navbar li {
-            margin-right: 20px;
-        }
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            padding: 5px 0;
-        }
-        .navbar a:hover {
-            border-bottom: 2px solid white;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .flash-messages {
-            margin-bottom: 20px;
-        }
-        .flash-message {
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        .flash-message.success {
-            background-color: #dff0d8;
-            color: #3c763d;
-            border: 1px solid #d6e9c6;
-        }
-        .flash-message.error {
-            background-color: #f2dede;
-            color: #a94442;
-            border: 1px solid #ebccd1;
-        }
-        .flash-message.info {
-            background-color: #d9edf7;
-            color: #31708f;
-            border: 1px solid #bce8f1;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #006400;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .button:hover {
-            background-color: #004d00;
-        }
-        .button.secondary {
-            background-color: #6c757d;
-        }
-        .button.secondary:hover {
-            background-color: #5a6268;
-        }
-        .button.danger {
-            background-color: #dc3545;
-        }
-        .button.danger:hover {
-            background-color: #c82333;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-group textarea {
-            height: 100px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/statistics.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block head %}{% endblock %}
 </head>
 <body>
-    <div class="header">
-        <h1>Gram Panchayat Management System</h1>
-        <div class="user-info">
+    <header>
+        <div class="header-container">
+            <h1 class="site-title">Gram Panchayat Management System</h1>
             {% if session.username %}
-                <span>Welcome, {{ session.username }} ({{ session.role }})</span>
-                <a href="{{ url_for('auth.logout') }}">Logout</a>
+                <div class="user-menu">
+                    <span class="username">{{ session.name }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
+                </div>
             {% endif %}
         </div>
-    </div>
+    </header>
     
     {% if session.role %}
-        <div class="navbar">
-            <ul>
-                {% if session.role == 'admin' %}
-                    <li><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url_for('admin.users') }}">Manage Users</a></li>
-                {% elif session.role == 'official' %}
-                    <li><a href="{{ url_for('official.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url_for('official.complaints') }}">Complaints</a></li>
-                {% elif session.role == 'citizen' %}
-                    <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
-                    <li><a href="{{ url_for('citizen.my_complaints') }}">My Complaints</a></li>
-                    <li><a href="{{ url_for('citizen.file_complaint') }}">File Complaint</a></li>
-                    <li><a href="{{ url_for('citizen.projects') }}">Projects</a></li>
-                {% endif %}
-                <li><a href="{{ url_for('citizen.profile') }}">Profile</a></li>
-            </ul>
-        </div>
+        <nav>
+            <div class="nav-container">
+                <ul class="nav-links">
+                    {% if session.role == 'citizen' %}
+                        <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url_for('citizen.profile') }}">My Profile</a></li>
+                        <li><a href="{{ url_for('citizen.certificates') }}">Certificates</a></li>
+                        <li><a href="{{ url_for('citizen.schemes') }}">Schemes</a></li>
+                        <li><a href="{{ url_for('citizen.education') }}">Education</a></li>
+                    {% elif session.role == 'employee' %}
+                        <li><a href="{{ url_for('employee.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url_for('employee.citizens') }}">Citizens</a></li>
+                        <li><a href="{{ url_for('employee.certificates') }}">Certificates</a></li>
+                        <li><a href="{{ url_for('employee.schemes') }}">Schemes</a></li>
+                        <li><a href="{{ url_for('employee.land_records') }}">Land Records</a></li>
+                    {% elif session.role == 'monitor' %}
+                        <li><a href="{{ url_for('monitor.dashboard') }}">Dashboard</a></li>
+                        <li><a href="{{ url_for('monitor.citizens') }}">Citizens</a></li>
+                        <li><a href="{{ url_for('monitor.employees') }}">Employees</a></li>
+                        <li><a href="{{ url_for('monitor.schemes') }}">Schemes</a></li>
+                        <li><a href="{{ url_for('monitor.report') }}">Reports</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
     {% endif %}
     
-    <div class="container">
+    <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="flash-messages">
@@ -201,7 +63,13 @@
         {% endwith %}
         
         {% block content %}{% endblock %}
-    </div>
+    </main>
+    
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2025 Gram Panchayat Management System. All rights reserved.</p>
+        </div>
+    </footer>
     
     {% block scripts %}{% endblock %}
 </body>

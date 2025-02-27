@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from app.utils.auth_utils import role_required
 from app import db
+from datetime import datetime
 
 citizen_bp = Blueprint('citizen', __name__)
 
@@ -8,159 +9,76 @@ citizen_bp = Blueprint('citizen', __name__)
 @role_required(['citizen'])
 def dashboard():
     """Citizen dashboard page."""
-    # Get citizen personal information
-    citizen_query = """
-        SELECT c.Aadhaar, c.Name, c.DOB, c.Gender, c.Income, c.Occupation, c.Phone, h.Address
-        FROM Citizen c
-        LEFT JOIN Households h ON c.HouseholdID = h.HouseholdID
-        WHERE c.Aadhaar = %s
-    """
-    citizen_info = db.execute_query(citizen_query, (session['citizen_id'],))
-    
-    # Get certificates issued to the citizen
-    cert_query = """
-        SELECT CertificateID, Type, DateIssued
-        FROM Certificates
-        WHERE CitizenID = %s
-        ORDER BY DateIssued DESC
-    """
-    certificates = db.execute_query(cert_query, (session['citizen_id'],))
-    
-    # Get land owned by the citizen
-    land_query = """
-        SELECT LandID, Size, Location
-        FROM Land
-        WHERE OwnerID = %s
-    """
-    land_records = db.execute_query(land_query, (session['citizen_id'],))
-    
-    # Get schemes the citizen is enrolled in
-    schemes_query = """
-        SELECT se.EnrollmentID, s.SchemeID, s.Description, se.Date
-        FROM "Scheme-Enrollment" se
-        JOIN Schemes s ON se.SchemeID = s.SchemeID
-        WHERE se.CitizenID = %s
-        ORDER BY se.Date DESC
-    """
-    schemes = db.execute_query(schemes_query, (session['citizen_id'],))
-    
-    # Get education details
-    education_query = """
-        SELECT a.SchoolID, s.Name as SchoolName, a.Qualification, a."Pass Date"
-        FROM "Attends-School" a
-        JOIN Schools s ON a.SchoolID = s.SchoolID
-        WHERE a.CitizenID = %s
-    """
-    education = db.execute_query(education_query, (session['citizen_id'],))
-    
-    return render_template(
-        'citizen/dashboard.html',
-        citizen=citizen_info[0] if citizen_info else None,
-        certificates=certificates,
-        land_records=land_records,
-        schemes=schemes,
-        education=education
-    )
+    # Get current date for footer
+    current_date = datetime.now().strftime('%d %B %Y')
+    return render_template('citizen/dashboard.html', current_date=current_date)
 
-@citizen_bp.route('/certificates')
+@citizen_bp.route('/statistics')
 @role_required(['citizen'])
-def certificates():
-    """View certificates page."""
-    cert_query = """
-        SELECT CertificateID, Type, DateIssued
-        FROM Certificates
-        WHERE CitizenID = %s
-        ORDER BY DateIssued DESC
-    """
-    certificates = db.execute_query(cert_query, (session['citizen_id'],))
+def statistics():
+    """Display statistics based on category."""
+    category = request.args.get('category', 'education')
     
-    return render_template('citizen/certificates.html', certificates=certificates)
-
-@citizen_bp.route('/certificate/<int:cert_id>')
-@role_required(['citizen'])
-def view_certificate(cert_id):
-    """View a specific certificate."""
-    cert_query = """
-        SELECT CertificateID, Type, DateIssued, File
-        FROM Certificates
-        WHERE CertificateID = %s AND CitizenID = %s
-    """
-    certificate = db.execute_query(cert_query, (cert_id, session['citizen_id']))
+    # Validate category
+    valid_categories = ['education', 'health', 'agriculture']
+    if category not in valid_categories:
+        category = 'education'  # Default to education if invalid
     
-    if not certificate:
-        flash('Certificate not found', 'error')
-        return redirect(url_for('citizen.certificates'))
+    # Based on the category, fetch different statistics
+    if category == 'education':
+        # Example education statistics
+        # In a real application, you would fetch this data from your database
+        education_stats = {
+            'total_schools': 5,
+            'total_students': 1250,
+            'literacy_rate': 78.5,
+            'schools': [
+                {'name': 'Sundarpur Primary School', 'students': 500, 'teachers': 15},
+                {'name': 'Chandanagar High School', 'students': 750, 'teachers': 25}
+            ]
+        }
+        return render_template(
+            'citizen/statistics.html',
+            category=category,
+            category_title='Education Statistics',
+            stats=education_stats
+        )
     
-    return render_template('citizen/view_certificate.html', certificate=certificate[0])
-
-@citizen_bp.route('/schemes')
-@role_required(['citizen'])
-def schemes():
-    """View and apply for schemes."""
-    # Get all available schemes
-    all_schemes_query = """
-        SELECT s.SchemeID, s.Description, f.Fee,
-               CASE WHEN se.EnrollmentID IS NOT NULL THEN true ELSE false END as enrolled
-        FROM Schemes s
-        LEFT JOIN Forms f ON s.SchemeID = f.SchemeID
-        LEFT JOIN "Scheme-Enrollment" se ON s.SchemeID = se.SchemeID AND se.CitizenID = %s
-        ORDER BY s.SchemeID
-    """
-    schemes = db.execute_query(all_schemes_query, (session['citizen_id'],))
+    elif category == 'health':
+        # Example health statistics
+        health_stats = {
+            'total_hospitals': 2,
+            'total_beds': 75,
+            'vaccination_rate': 85.2,
+            'hospitals': [
+                {'name': 'Sundarpur Primary Health Center', 'beds': 25, 'doctors': 5},
+                {'name': 'Chandanagar General Hospital', 'beds': 50, 'doctors': 12}
+            ]
+        }
+        return render_template(
+            'citizen/statistics.html',
+            category=category,
+            category_title='Health Statistics',
+            stats=health_stats
+        )
     
-    # Get citizen's enrolled schemes
-    enrolled_query = """
-        SELECT se.EnrollmentID, s.SchemeID, s.Description, se.Date
-        FROM "Scheme-Enrollment" se
-        JOIN Schemes s ON se.SchemeID = s.SchemeID
-        WHERE se.CitizenID = %s
-        ORDER BY se.Date DESC
-    """
-    enrolled = db.execute_query(enrolled_query, (session['citizen_id'],))
-    
-    return render_template(
-        'citizen/schemes.html',
-        schemes=schemes,
-        enrolled=enrolled
-    )
-
-@citizen_bp.route('/apply_scheme/<int:scheme_id>', methods=['POST'])
-@role_required(['citizen'])
-def apply_scheme(scheme_id):
-    """Apply for a scheme."""
-    # Check if already enrolled
-    check_query = """
-        SELECT COUNT(*) FROM "Scheme-Enrollment"
-        WHERE SchemeID = %s AND CitizenID = %s
-    """
-    count = db.execute_query(check_query, (scheme_id, session['citizen_id']))[0][0]
-    
-    if count > 0:
-        flash('You are already enrolled in this scheme', 'info')
-        return redirect(url_for('citizen.schemes'))
-    
-    # Insert new enrollment
-    insert_query = """
-        INSERT INTO "Scheme-Enrollment" (SchemeID, CitizenID, Date)
-        VALUES (%s, %s, CURRENT_DATE)
-    """
-    db.execute_query(insert_query, (scheme_id, session['citizen_id']), fetch=False)
-    
-    flash('Successfully applied for the scheme', 'success')
-    return redirect(url_for('citizen.schemes'))
-
-@citizen_bp.route('/land')
-@role_required(['citizen'])
-def land():
-    """View land records."""
-    land_query = """
-        SELECT LandID, Size, Location
-        FROM Land
-        WHERE OwnerID = %s
-    """
-    land_records = db.execute_query(land_query, (session['citizen_id'],))
-    
-    return render_template('citizen/land.html', land_records=land_records)
+    elif category == 'agriculture':
+        # Example agriculture statistics
+        agriculture_stats = {
+            'total_land_area': 3500,
+            'irrigated_area': 2200,
+            'main_crops': ['Rice', 'Wheat', 'Vegetables'],
+            'schemes': [
+                {'name': 'Farmers Subsidy Program', 'beneficiaries': 150},
+                {'name': 'Irrigation Development Scheme', 'beneficiaries': 85}
+            ]
+        }
+        return render_template(
+            'citizen/statistics.html',
+            category=category,
+            category_title='Agriculture Statistics',
+            stats=agriculture_stats
+        )
 
 @citizen_bp.route('/profile')
 @role_required(['citizen'])
@@ -188,6 +106,117 @@ def profile():
         'citizen/profile.html',
         profile=profile[0] if profile else None,
         user=user[0] if user else None
+    )
+
+@citizen_bp.route('/certificates')
+@role_required(['citizen'])
+def certificates():
+    """View certificates page."""
+    cert_query = """
+        SELECT Type, CitizenID, DateIssued
+        FROM Certificates
+        WHERE CitizenID = %s
+        ORDER BY DateIssued DESC
+    """
+    certificates = db.execute_query(cert_query, (session['citizen_id'],))
+    
+    return render_template('citizen/certificates.html', certificates=certificates)
+
+@citizen_bp.route('/certificate/<certificate_type>')
+@role_required(['citizen'])
+def view_certificate(certificate_type):
+    """View a specific certificate."""
+    cert_query = """
+        SELECT Type, CitizenID, DateIssued, File
+        FROM Certificates
+        WHERE Type = %s AND CitizenID = %s
+    """
+    certificate = db.execute_query(cert_query, (certificate_type, session['citizen_id']))
+    
+    if not certificate:
+        flash('Certificate not found', 'error')
+        return redirect(url_for('citizen.certificates'))
+    
+    return render_template('citizen/view_certificate.html', certificate=certificate[0])
+
+@citizen_bp.route('/schemes')
+@role_required(['citizen'])
+def schemes():
+    """View and apply for schemes."""
+    # Get all available schemes
+    all_schemes_query = """
+        SELECT s.SchemeID, s.Description, f.Fee,
+               CASE WHEN se.CitizenID IS NOT NULL THEN true ELSE false END as enrolled
+        FROM Schemes s
+        LEFT JOIN Forms f ON s.SchemeID = f.SchemeID
+        LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID AND se.CitizenID = %s
+        ORDER BY s.SchemeID
+    """
+    schemes = db.execute_query(all_schemes_query, (session['citizen_id'],))
+    
+    # Get citizen's enrolled schemes
+    enrolled_query = """
+        SELECT se.SchemeID, s.Description, se.Date
+        FROM SchemeEnrollment se
+        JOIN Schemes s ON se.SchemeID = s.SchemeID
+        WHERE se.CitizenID = %s
+        ORDER BY se.Date DESC
+    """
+    enrolled = db.execute_query(enrolled_query, (session['citizen_id'],))
+    
+    return render_template(
+        'citizen/schemes.html',
+        schemes=schemes,
+        enrolled=enrolled
+    )
+
+@citizen_bp.route('/apply_scheme/<int:scheme_id>', methods=['POST'])
+@role_required(['citizen'])
+def apply_scheme(scheme_id):
+    """Apply for a scheme."""
+    # Check if already enrolled
+    check_query = """
+        SELECT COUNT(*) FROM SchemeEnrollment
+        WHERE SchemeID = %s AND CitizenID = %s
+    """
+    count = db.execute_query(check_query, (scheme_id, session['citizen_id']))[0][0]
+    
+    if count > 0:
+        flash('You are already enrolled in this scheme', 'info')
+        return redirect(url_for('citizen.schemes'))
+    
+    # Insert new enrollment
+    insert_query = """
+        INSERT INTO SchemeEnrollment (SchemeID, CitizenID, Date)
+        VALUES (%s, %s, CURRENT_DATE)
+    """
+    db.execute_query(insert_query, (scheme_id, session['citizen_id']), fetch=False)
+    
+    flash('Successfully applied for the scheme', 'success')
+    return redirect(url_for('citizen.schemes'))
+
+@citizen_bp.route('/education')
+@role_required(['citizen'])
+def education():
+    """View education details."""
+    education_query = """
+        SELECT a.CitizenID, a.SchoolID, s.Name as SchoolName, 
+               a.Qualification, a.PassDate
+        FROM AttendsSchool a
+        JOIN Schools s ON a.SchoolID = s.SchoolID
+        WHERE a.CitizenID = %s
+        ORDER BY a.PassDate DESC
+    """
+    education = db.execute_query(education_query, (session['citizen_id'],))
+    
+    # Get list of schools for form
+    schools_query = "SELECT SchoolID, Name FROM Schools ORDER BY Name"
+    schools = db.execute_query(schools_query)
+    
+    return render_template(
+        'citizen/education.html',
+        education=education,
+        schools=schools
     )
 
 @citizen_bp.route('/update_password', methods=['GET', 'POST'])
@@ -243,27 +272,3 @@ def update_password():
         return redirect(url_for('citizen.profile'))
     
     return render_template('citizen/update_password.html')
-
-@citizen_bp.route('/education')
-@role_required(['citizen'])
-def education():
-    """View education details."""
-    education_query = """
-        SELECT a.AttendanceID, a.SchoolID, s.Name as SchoolName, 
-               a.Qualification, a."Pass Date"
-        FROM "Attends-School" a
-        JOIN Schools s ON a.SchoolID = s.SchoolID
-        WHERE a.CitizenID = %s
-        ORDER BY a."Pass Date" DESC
-    """
-    education = db.execute_query(education_query, (session['citizen_id'],))
-    
-    # Get list of schools for form
-    schools_query = "SELECT SchoolID, Name FROM Schools ORDER BY Name"
-    schools = db.execute_query(schools_query)
-    
-    return render_template(
-        'citizen/education.html',
-        education=education,
-        schools=schools
-    )

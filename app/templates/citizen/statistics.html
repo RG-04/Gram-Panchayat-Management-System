@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category_title }} - Gram Panchayat Management System{% endblock %}
+
+{% block content %}
+<div class="statistics-container">
+    <div class="statistics-header">
+        <h1>{{ category_title }}</h1>
+        <div class="category-nav">
+            <a href="{{ url_for('citizen.statistics', category='education') }}" class="category-link {% if category == 'education' %}active{% endif %}">Education</a>
+            <a href="{{ url_for('citizen.statistics', category='health') }}" class="category-link {% if category == 'health' %}active{% endif %}">Health</a>
+            <a href="{{ url_for('citizen.statistics', category='agriculture') }}" class="category-link {% if category == 'agriculture' %}active{% endif %}">Agriculture</a>
+        </div>
+    </div>
+
+    <div class="statistics-content">
+        {% if category == 'education' %}
+            <div class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_schools }}</div>
+                    <div class="summary-label">Schools</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_students }}</div>
+                    <div class="summary-label">Students</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.literacy_rate }}%</div>
+                    <div class="summary-label">Literacy Rate</div>
+                </div>
+            </div>
+            
+            <h2>Schools in Your Area</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>School Name</th>
+                            <th>Students</th>
+                            <th>Teachers</th>
+                            <th>Student-Teacher Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for school in stats.schools %}
+                        <tr>
+                            <td>{{ school.name }}</td>
+                            <td>{{ school.students }}</td>
+                            <td>{{ school.teachers }}</td>
+                            <td>{{ (school.students / school.teachers)|round(1) }}:1</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% elif category == 'health' %}
+            <div class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_hospitals }}</div>
+                    <div class="summary-label">Hospitals</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_beds }}</div>
+                    <div class="summary-label">Hospital Beds</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.vaccination_rate }}%</div>
+                    <div class="summary-label">Vaccination Rate</div>
+                </div>
+            </div>
+            
+            <h2>Healthcare Facilities</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Facility Name</th>
+                            <th>Beds</th>
+                            <th>Doctors</th>
+                            <th>Beds per Doctor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hospital in stats.hospitals %}
+                        <tr>
+                            <td>{{ hospital.name }}</td>
+                            <td>{{ hospital.beds }}</td>
+                            <td>{{ hospital.doctors }}</td>
+                            <td>{{ (hospital.beds / hospital.doctors)|round(1) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        {% elif category == 'agriculture' %}
+            <div class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_land_area }}</div>
+                    <div class="summary-label">Total Land Area (hectares)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.irrigated_area }}</div>
+                    <div class="summary-label">Irrigated Area (hectares)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ (stats.irrigated_area / stats.total_land_area * 100)|round(1) }}%</div>
+                    <div class="summary-label">Irrigation Coverage</div>
+                </div>
+            </div>
+            
+            <h2>Main Crops</h2>
+            <div class="main-crops">
+                {% for crop in stats.main_crops %}
+                <div class="crop-tag">{{ crop }}</div>
+                {% endfor %}
+            </div>
+            
+            <h2>Agricultural Schemes</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Scheme Name</th>
+                            <th>Beneficiaries</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scheme in stats.schemes %}
+                        <tr>
+                            <td>{{ scheme.name }}</td>
+                            <td>{{ scheme.beneficiaries }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="statistics-footer">
+        <a href="{{ url_for('citizen.dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

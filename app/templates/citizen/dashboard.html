@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Citizen Dashboard - Gram Panchayat Management System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome to Gram Panchayat Portal</h1>
+        <p>Access information and services related to your gram panchayat</p>
+    </div>
+
+    <div class="dashboard-cards">
+        <a href="{{ url_for('citizen.statistics', category='education') }}" class="dashboard-card">
+            <div class="card-icon education-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="card-content">
+                <h2>Education</h2>
+                <p>View educational statistics, schools, and programs available in your gram panchayat</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('citizen.statistics', category='health') }}" class="dashboard-card">
+            <div class="card-icon health-icon">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <div class="card-content">
+                <h2>Health</h2>
+                <p>Access health-related information, facilities, and services in your area</p>
+            </div>
+        </a>
+
+        <a href="{{ url_for('citizen.statistics', category='agriculture') }}" class="dashboard-card">
+            <div class="card-icon agriculture-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="card-content">
+                <h2>Agriculture</h2>
+                <p>Find agricultural resources, schemes, and statistics relevant for farmers</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="dashboard-footer">
+        <p>Last updated: {{ current_date }}</p>
+    </div>
+</div>
+{% endblock %}

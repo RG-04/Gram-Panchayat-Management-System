@@ -76,7 +76,8 @@ CREATE TABLE Schools (
 CREATE TABLE Hospitals (
     HospitallD SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
-    Address TEXT
+    Address TEXT,
+    Beds INTEGER
 );
 
 -- Create Schemes table
