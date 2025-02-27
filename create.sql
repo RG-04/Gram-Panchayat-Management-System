@@ -90,6 +90,8 @@ CREATE TABLE Land (
     LandID SERIAL PRIMARY KEY,
     OwnerID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Size DECIMAL(10, 2),
+    Crop VARCHAR(100),
+    AnnualYield DECIMAL(10, 2), -- in kg
     Location TEXT
 );
 

@@ -28,8 +28,8 @@ INSERT INTO "User" (CitizenID, MonitorID, username, password, auth, salt) VALUES
 (NULL, 1, 'monitor1', 'f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b', 'monitor', 'salt123'),
 (NULL, 2, 'monitor2', 'f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b', 'monitor', 'salt123');
 
--- Insert employee-citizens
-INSERT INTO "Employee-Citizens" (EmployeeID, CitizenID, "Start Date", "Term-Duration") VALUES
+-- Insert EmployeeCitizens
+INSERT INTO EmployeeCitizens (EmployeeID, CitizenID, StartDate, TermDuration) VALUES
 (1, '456789012345', '2020-06-01', 36),
 (2, '567890123456', '2021-03-15', 36);
 
@@ -56,10 +56,10 @@ INSERT INTO Land (LandID, OwnerID, Size, Location) VALUES
 (3, '345678901234', 3.0, 'Riverside, Chandanagar');
 
 -- Insert certificates
-INSERT INTO Certificates (CertificateID, Type, CitizenID, DateIssued, File) VALUES
-(1, 'Birth Certificate', '123456789012', '1980-06-10', NULL),
-(2, 'Income Certificate', '234567890123', '2023-01-15', NULL),
-(3, 'Land Ownership', '345678901234', '2022-05-20', NULL);
+INSERT INTO Certificates (Type, CitizenID, DateIssued, File) VALUES
+('Birth Certificate', '123456789012', '1980-06-10', NULL),
+('Income Certificate', '234567890123', '2023-01-15', NULL),
+('Land Ownership', '345678901234', '2022-05-20', NULL);
 
 -- Insert forms
 INSERT INTO Forms (FormID, SchemeID, Fee) VALUES
@@ -68,12 +68,12 @@ INSERT INTO Forms (FormID, SchemeID, Fee) VALUES
 (3, 3, 75.00);
 
 -- Insert scheme enrollments
-INSERT INTO "Scheme-Enrollment" (EnrollmentID, SchemeID, CitizenID, Date) VALUES
-(1, 1, '123456789012', '2023-02-10'),
-(2, 2, '123456789012', '2023-03-15'),
-(3, 3, '234567890123', '2023-01-05');
+INSERT INTO SchemeEnrollment (SchemeID, CitizenID, Date) VALUES
+(1, '123456789012', '2023-02-10'),
+(2, '123456789012', '2023-03-15'),
+(3, '234567890123', '2023-01-05');
 
 -- Insert school attendance records
-INSERT INTO "Attends-School" (AttendanceID, CitizenID, SchoolID, Qualification, "Pass Date") VALUES
-(1, '123456789012', 1, 'Primary', '1990-04-15'),
-(2, '234567890123', 2, 'High School', '2000-03-20');
+INSERT INTO AttendsSchool (CitizenID, SchoolID, Qualification, PassDate) VALUES
+('123456789012', 1, 'Primary', '1990-04-15'),
+('234567890123', 2, 'High School', '2000-03-20');
