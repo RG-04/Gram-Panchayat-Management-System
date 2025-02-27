@@ -50,7 +50,7 @@ def authenticate_user(username, password):
             is_employee = False
             if citizen_id:
                 employee_query = """
-                    SELECT EmployeeID FROM "Employee-Citizens" 
+                    SELECT EmployeeID FROM EmployeeCitizens 
                     WHERE CitizenID = %s
                 """
                 employee_result = db.execute_query(employee_query, (citizen_id,))
@@ -115,7 +115,7 @@ def get_current_user():
         is_employee = False
         if citizen_id:
             employee_query = """
-                SELECT EmployeeID FROM "Employee-Citizens" 
+                SELECT EmployeeID FROM EmployeeCitizens 
                 WHERE CitizenID = %s
             """
             employee_result = db.execute_query(employee_query, (citizen_id,))
