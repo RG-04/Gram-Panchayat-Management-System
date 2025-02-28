@@ -69,7 +69,8 @@ CREATE TABLE EmployeeCitizens (
 CREATE TABLE Schools (
     SchoolID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
-    Capacity INTEGER
+    Capacity INTEGER,
+    Income INTEGER
 );
 
 -- Create Hospitals table
