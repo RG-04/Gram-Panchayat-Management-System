@@ -501,8 +501,178 @@ def upload_certificate(aadhaar):
         categories=categories,
     )
 
+# Add these routes to your employee blueprint
 
 @employee_bp.route("/schemes")
 @role_required(["employee"])
 def schemes():
-    return render_template("employee/schemes.html")
+    """Manage government schemes page."""
+    # Get all schemes with enrollment counts
+    schemes_query = """
+    SELECT s.SchemeID, s.Name, s.Type, s.Description, 
+           COUNT(se.CitizenID) AS EnrollmentCount
+    FROM Schemes s
+    LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
+    GROUP BY s.SchemeID, s.Name, s.Type, s.Description
+    ORDER BY s.Name;
+    """
+    
+    # Get unique scheme types
+    scheme_types_query = """
+    SELECT DISTINCT Type FROM Schemes WHERE Type IS NOT NULL ORDER BY Type;
+    """
+    
+    # Get total enrollments
+    total_enrollments_query = """
+    SELECT COUNT(*) FROM SchemeEnrollment;
+    """
+    
+    # Execute queries
+    schemes_result = db.execute_query(schemes_query)
+    scheme_types_result = db.execute_query(scheme_types_query)
+    total_enrollments_result = db.execute_query(total_enrollments_query)
+    
+    # Process results
+    schemes = []
+    for row in schemes_result:
+        schemes.append({
+            'id': row[0],
+            'name': row[1],
+            'type': row[2] or 'Uncategorized',
+            'description': row[3],
+            'enrollments': row[4]
+        })
+    
+    scheme_types = [row[0] for row in scheme_types_result]
+    if 'Uncategorized' not in scheme_types and any(scheme['type'] == 'Uncategorized' for scheme in schemes):
+        scheme_types.append('Uncategorized')
+    
+    total_enrollments = total_enrollments_result[0][0] if total_enrollments_result else 0
+    
+    return render_template(
+        "employee/manage_schemes.html",
+        schemes=schemes,
+        scheme_types=scheme_types,
+        total_schemes=len(schemes),
+        total_enrollments=total_enrollments
+    )
+
+@employee_bp.route("/schemes/add", methods=["POST"])
+@role_required(["employee"])
+def add_scheme():
+    """Add a new scheme."""
+    name = request.form.get("name")
+    type_value = request.form.get("type")
+    
+    # Check if a new type is being added
+    if type_value == "new":
+        type_value = request.form.get("new_type")
+    
+    description = request.form.get("description")
+    
+    # Validate inputs
+    if not name or not description:
+        flash("Scheme name and description are required", "error")
+        return redirect(url_for("employee.schemes"))
+    
+    # Insert new scheme
+    insert_query = """
+    INSERT INTO Schemes (Name, Type, Description)
+    VALUES (%s, %s, %s)
+    RETURNING SchemeID;
+    """
+    
+    try:
+        result = db.execute_query(insert_query, (name, type_value, description))
+        scheme_id = result[0][0] if result else None
+        
+        if scheme_id:
+            flash(f"Scheme '{name}' added successfully", "success")
+        else:
+            flash("Failed to add scheme", "error")
+            
+    except Exception as e:
+        flash(f"Error adding scheme: {str(e)}", "error")
+    
+    return redirect(url_for("employee.schemes"))
+
+@employee_bp.route("/schemes/update", methods=["POST"])
+@role_required(["employee"])
+def update_scheme():
+    """Update an existing scheme."""
+    scheme_id = request.form.get("scheme_id")
+    name = request.form.get("name")
+    type_value = request.form.get("type")
+    
+    # Check if a new type is being added
+    if type_value == "new":
+        type_value = request.form.get("new_type")
+    
+    description = request.form.get("description")
+    
+    # Validate inputs
+    if not scheme_id or not name or not description:
+        flash("Scheme ID, name, and description are required", "error")
+        return redirect(url_for("employee.schemes"))
+    
+    # Update scheme
+    update_query = """
+    UPDATE Schemes
+    SET Name = %s, Type = %s, Description = %s
+    WHERE SchemeID = %s;
+    """
+    
+    try:
+        db.execute_query(update_query, (name, type_value, description, scheme_id))
+        flash(f"Scheme '{name}' updated successfully", "success")
+    except Exception as e:
+        flash(f"Error updating scheme: {str(e)}", "error")
+    
+    return redirect(url_for("employee.schemes"))
+
+@employee_bp.route("/schemes/delete", methods=["POST"])
+@role_required(["employee"])
+def delete_scheme():
+    """Delete a scheme and all associated enrollments."""
+    scheme_id = request.form.get("scheme_id")
+    
+    if not scheme_id:
+        flash("Scheme ID is required", "error")
+        return redirect(url_for("employee.schemes"))
+    
+    try:
+        # First get the scheme name for the success message
+        name_query = "SELECT Name FROM Schemes WHERE SchemeID = %s;"
+        name_result = db.execute_query(name_query, (scheme_id,))
+        scheme_name = name_result[0][0] if name_result else "Unknown"
+        
+        # Use a transaction to ensure atomicity
+        conn = db.get_connection()
+        try:
+            with conn.cursor() as cursor:
+                # Delete scheme enrollments first (foreign key constraint)
+                cursor.execute("DELETE FROM SchemeEnrollment WHERE SchemeID = %s;", (scheme_id,))
+                
+                # Then delete forms associated with the scheme (if any)
+                cursor.execute("DELETE FROM Forms WHERE SchemeID = %s;", (scheme_id,))
+                
+                # Finally delete the scheme itself
+                cursor.execute("DELETE FROM Schemes WHERE SchemeID = %s;", (scheme_id,))
+                
+                # Commit the transaction
+                conn.commit()
+                
+                flash(f"Scheme '{scheme_name}' and all associated records deleted successfully", "success")
+                
+        except Exception as e:
+            # Rollback in case of error
+            conn.rollback()
+            raise e
+        finally:
+            # Release the connection back to the pool
+            db.release_connection(conn)
+            
+    except Exception as e:
+        flash(f"Error deleting scheme: {str(e)}", "error")
+    
+    return redirect(url_for("employee.schemes"))
