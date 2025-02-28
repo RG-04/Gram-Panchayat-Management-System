@@ -110,16 +110,99 @@ def statistics():
         )
     
     elif category == 'agriculture':
-        # Example agriculture statistics
-        agriculture_stats = {
-            'total_land_area': 3500,
-            'irrigated_area': 2200,
-            'main_crops': ['Rice', 'Wheat', 'Vegetables'],
-            'schemes': [
-                {'name': 'Farmers Subsidy Program', 'beneficiaries': 150},
-                {'name': 'Irrigation Development Scheme', 'beneficiaries': 85}
-            ]
+
+        total_land_query = """
+        SELECT SUM(Size) FROM Land;
+        """
+        
+        agricultural_area_query = """
+        SELECT SUM(Area) FROM LandCrop;
+        """
+        
+        agricultural_percentage_query = """
+        SELECT ROUND(((SELECT SUM(Area) FROM LandCrop)/(SELECT SUM(Size) FROM Land))*100, 2) AS AgriPercentage; 
+        """
+        
+        organic_percentage_query = """
+        SELECT ROUND(((SELECT SUM(Area) FROM LandCrop WHERE isOrganic = TRUE)/(SELECT SUM(Area) FROM LandCrop))*100, 2) AS OrganicPercentage;
+        """
+        
+        crop_types_query = """
+        SELECT DISTINCT Type FROM Crop WHERE Type IS NOT NULL;
+        """
+        
+        crops_detail_query = """
+        SELECT c.CropID, c.Name, c.Type, SUM(lc.Area) AS TotalArea, 
+               SUM(lc.AnnualYield) AS TotalYield,
+               ROUND(SUM(lc.AnnualYield)/SUM(lc.Area), 2) AS YieldPerHectare,
+               CASE WHEN COUNT(lc.isOrganic) = SUM(CASE WHEN lc.isOrganic THEN 1 ELSE 0 END) THEN TRUE ELSE FALSE END AS IsOrganic
+        FROM Crop c
+        JOIN LandCrop lc ON c.CropID = lc.CropID
+        GROUP BY c.CropID, c.Name, c.Type
+        ORDER BY TotalArea DESC;
+        """
+        
+        top_crops_query = """
+        SELECT c.Name, SUM(lc.Area) AS TotalArea
+        FROM Crop c
+        JOIN LandCrop lc ON c.CropID = lc.CropID
+        GROUP BY c.CropID, c.Name
+        ORDER BY TotalArea DESC
+        LIMIT 3;
+        """
+        
+        # Execute queries
+        total_land = db.execute_query(total_land_query)[0][0] or 0
+        agricultural_area = db.execute_query(agricultural_area_query)[0][0] or 0
+        agricultural_percentage = db.execute_query(agricultural_percentage_query)[0][0] or 0
+        organic_percentage = db.execute_query(organic_percentage_query)[0][0] or 0
+        crop_types = [row[0] for row in db.execute_query(crop_types_query)]
+        
+        # Get crops details
+        crops_result = db.execute_query(crops_detail_query)
+        crops = []
+        for row in crops_result:
+            crops.append({
+                'id': row[0],
+                'name': row[1],
+                'type': row[2] or 'Uncategorized',
+                'area': round(row[3], 2),
+                'yield': round(row[4], 2),
+                'yield_per_hectare': round(row[5], 2),
+                'organic': row[6]
+            })
+        
+        # Get top crops for pie chart
+        top_crops = db.execute_query(top_crops_query)
+        crop_pie_data = {
+            'labels': [row[0] for row in top_crops],
+            'values': [float(row[1]) for row in top_crops]
         }
+        
+        # If we have less than 3 crops, we don't need an "Others" category
+        if len(crops) <= 3:
+            pass
+        else:
+            # Calculate "Others" category
+            other_area = float(agricultural_area) - sum(crop_pie_data['values'])
+            if other_area > 0:
+                crop_pie_data['labels'].append('Others')
+                crop_pie_data['values'].append(float(other_area))
+    
+        
+        # Build agriculture statistics dictionary
+        agriculture_stats = {
+            'total_land_area': round(total_land, 2),
+            'agricultural_area': round(agricultural_area, 2),
+            'agricultural_percentage': agricultural_percentage,
+            'organic_percentage': organic_percentage,
+            'irrigated_area': round(float(agricultural_area) * 0.6, 2),  # Placeholder - replace with actual query
+            'crop_types': crop_types,
+            'crops': crops,
+            'crop_pie_data': crop_pie_data,
+            'main_crops': [crop['name'] for crop in crops[:5]],
+        }
+        
         return render_template(
             'citizen/statistics.html',
             category=category,

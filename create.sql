@@ -6,7 +6,9 @@ DROP TABLE IF EXISTS Certificates;
 DROP TABLE IF EXISTS Forms;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS Schemes;
+DROP TABLE IF EXISTS LandCrop;
 DROP TABLE IF EXISTS Land;
+DROP TABLE IF EXISTS Crop;
 DROP TABLE IF EXISTS Schools;
 DROP TABLE IF EXISTS Hospitals;
 DROP TABLE IF EXISTS Monitors;
@@ -89,9 +91,22 @@ CREATE TABLE Land (
     LandID SERIAL PRIMARY KEY,
     OwnerID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Size DECIMAL(10, 2),
-    Crop VARCHAR(100),
-    AnnualYield DECIMAL(10, 2), -- in kg
     Location TEXT
+);
+
+CREATE TABLE Crop (
+    CropID SERIAL PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Type VARCHAR(100)
+);
+
+CREATE TABLE LandCrop (
+    LandID INTEGER REFERENCES Land(LandID),
+    CropID INTEGER REFERENCES Crop(CropID),
+    Area DECIMAL(10, 2), -- in acres
+    AnnualYield DECIMAL(10, 2), -- in kg
+    isOrganic BOOLEAN,
+    PRIMARY KEY (LandID, CropID)
 );
 
 -- Create Certificates table
