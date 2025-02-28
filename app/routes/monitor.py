@@ -18,7 +18,7 @@ def dashboard():
     
     # Count statistics
     citizen_count = db.execute_query("SELECT COUNT(*) FROM Citizen")[0][0]
-    employee_count = db.execute_query('SELECT COUNT(*) FROM "Employee-Citizens"')[0][0]
+    employee_count = db.execute_query('SELECT COUNT(*) FROM EmployeeCitizens')[0][0]
     scheme_count = db.execute_query("SELECT COUNT(*) FROM Schemes")[0][0]
     land_count = db.execute_query("SELECT COUNT(*) FROM Land")[0][0]
     
@@ -102,7 +102,7 @@ def view_citizen(aadhaar):
     # Get schemes
     schemes_query = """
         SELECT se.EnrollmentID, s.Description, se.Date
-        FROM "Scheme-Enrollment" se
+        FROM SchemeEnrollment se
         JOIN Schemes s ON se.SchemeID = s.SchemeID
         WHERE se.CitizenID = %s
         ORDER BY se.Date DESC
@@ -112,7 +112,7 @@ def view_citizen(aadhaar):
     # Get education details
     education_query = """
         SELECT a.SchoolID, s.Name as SchoolName, a.Qualification, a."Pass Date"
-        FROM "Attends-School" a
+        FROM AttendsSchool a
         JOIN Schools s ON a.SchoolID = s.SchoolID
         WHERE a.CitizenID = %s
     """
@@ -120,8 +120,8 @@ def view_citizen(aadhaar):
     
     # Check if citizen is an employee
     employee_query = """
-        SELECT ec.EmployeeID, ec."Start Date", ec."Term-Duration"
-        FROM "Employee-Citizens" ec
+        SELECT ec.EmployeeID, ec.StartDate, ec.TermDuration
+        FROM EmployeeCitizens ec
         WHERE ec.CitizenID = %s
     """
     employee = db.execute_query(employee_query, (aadhaar,))
@@ -148,16 +148,16 @@ def employees():
     
     # Count total employees for pagination
     total_count = db.execute_query(
-        'SELECT COUNT(*) FROM "Employee-Citizens"'
+        'SELECT COUNT(*) FROM EmployeeCitizens'
     )[0][0]
     
     # Get employees with citizen info
     employees_query = """
-        SELECT ec.EmployeeID, ec.CitizenID, c.Name, ec."Start Date", 
-               ec."Term-Duration", c.Phone
-        FROM "Employee-Citizens" ec
+        SELECT ec.EmployeeID, ec.CitizenID, c.Name, ec.StartDate, 
+               ec.TermDuration, c.Phone
+        FROM EmployeeCitizens ec
         JOIN Citizen c ON ec.CitizenID = c.Aadhaar
-        ORDER BY ec."Start Date" DESC
+        ORDER BY ec.StartDate DESC
         LIMIT %s OFFSET %s
     """
     employees_list = db.execute_query(employees_query, (per_page, offset))
@@ -179,7 +179,7 @@ def schemes():
     schemes_query = """
         SELECT s.SchemeID, s.Description, COUNT(se.EnrollmentID) as enrollment_count
         FROM Schemes s
-        LEFT JOIN "Scheme-Enrollment" se ON s.SchemeID = se.SchemeID
+        LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
         GROUP BY s.SchemeID, s.Description
         ORDER BY s.SchemeID
     """
@@ -206,7 +206,7 @@ def scheme_enrollments(scheme_id):
     # Get enrollments
     enrollments_query = """
         SELECT se.EnrollmentID, se.CitizenID, c.Name, se.Date, c.Income
-        FROM "Scheme-Enrollment" se
+        FROM SchemeEnrollment se
         JOIN Citizen c ON se.CitizenID = c.Aadhaar
         WHERE se.SchemeID = %s
         ORDER BY se.Date DESC
@@ -260,7 +260,7 @@ def schools():
     schools_query = """
         SELECT s.SchoolID, s.Name, s.Capacity, COUNT(a.AttendanceID) as student_count
         FROM Schools s
-        LEFT JOIN "Attends-School" a ON s.SchoolID = a.SchoolID
+        LEFT JOIN AttendsSchool a ON s.SchoolID = a.SchoolID
         GROUP BY s.SchoolID, s.Name, s.Capacity
         ORDER BY s.Name
     """
@@ -287,7 +287,7 @@ def school_students(school_id):
     # Get students
     students_query = """
         SELECT a.AttendanceID, a.CitizenID, c.Name, a.Qualification, a."Pass Date"
-        FROM "Attends-School" a
+        FROM AttendsSchool a
         JOIN Citizen c ON a.CitizenID = c.Aadhaar
         WHERE a.SchoolID = %s
         ORDER BY a."Pass Date" DESC
@@ -353,7 +353,7 @@ def report():
     scheme_stats_query = """
         SELECT s.Description, COUNT(se.EnrollmentID) as count
         FROM Schemes s
-        LEFT JOIN "Scheme-Enrollment" se ON s.SchemeID = se.SchemeID
+        LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
         GROUP BY s.SchemeID, s.Description
         ORDER BY count DESC
     """
@@ -382,7 +382,7 @@ def profile():
     # Get user account data
     user_query = """
         SELECT username, auth
-        FROM "User"
+        FROM users
         WHERE MonitorID = %s
     """
     user = db.execute_query(user_query, (session['monitor_id'],))
@@ -415,7 +415,7 @@ def update_password():
         from app.utils.auth_utils import verify_password, hash_password
         
         # Get current password hash and salt
-        query = 'SELECT password, salt FROM "User" WHERE UserID = %s'
+        query = 'SELECT password, salt FROM users WHERE UserID = %s'
         result = db.execute_query(query, (session['user_id'],))
         
         if not result:
@@ -432,7 +432,7 @@ def update_password():
         new_hash, new_salt = hash_password(new_password)
         
         update_query = """
-            UPDATE "User"
+            UPDATE users
             SET password = %s, salt = %s
             WHERE UserID = %s
         """

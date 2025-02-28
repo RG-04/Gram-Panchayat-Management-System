@@ -1,13 +1,10 @@
 -- Drop tables if they exist (for clean setup)
-DROP TABLE IF EXISTS "Attends-School";
 DROP TABLE IF EXISTS AttendsSchool;
-DROP TABLE IF EXISTS "Scheme-Enrollment";
 DROP TABLE IF EXISTS SchemeEnrollment;
-DROP TABLE IF EXISTS "Employee-Citizens";
 DROP TABLE IF EXISTS EmployeeCitizens;
 DROP TABLE IF EXISTS Certificates;
 DROP TABLE IF EXISTS Forms;
-DROP TABLE IF EXISTS "User";
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS Schemes;
 DROP TABLE IF EXISTS Land;
 DROP TABLE IF EXISTS Schools;
@@ -43,7 +40,7 @@ CREATE TABLE Monitors (
 );
 
 -- Create User table
-CREATE TABLE "User" (
+CREATE TABLE users (
     UserID SERIAL PRIMARY KEY,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     MonitorID INTEGER REFERENCES Monitors(MonitorID),

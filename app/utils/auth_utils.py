@@ -34,7 +34,7 @@ def authenticate_user(username, password):
                     WHEN u.MonitorID IS NOT NULL THEN m.Name
                     ELSE NULL
                END as Name
-        FROM "User" u
+        FROM users u
         LEFT JOIN Citizen c ON u.CitizenID = c.Aadhaar
         LEFT JOIN Monitors m ON u.MonitorID = m.MonitorID
         WHERE u.username = %s
@@ -100,7 +100,7 @@ def get_current_user():
                     WHEN u.MonitorID IS NOT NULL THEN m.Name
                     ELSE NULL
                END as Name
-        FROM "User" u
+        FROM users u
         LEFT JOIN Citizen c ON u.CitizenID = c.Aadhaar
         LEFT JOIN Monitors m ON u.MonitorID = m.MonitorID
         WHERE u.UserID = %s

@@ -144,7 +144,7 @@ def profile():
     # Get user account data
     user_query = """
         SELECT username, auth
-        FROM "User"
+        FROM users
         WHERE CitizenID = %s
     """
     user = db.execute_query(user_query, (session['citizen_id'],))
@@ -288,7 +288,7 @@ def update_password():
         from app.utils.auth_utils import verify_password, hash_password
         
         # Get current password hash and salt
-        query = 'SELECT password, salt FROM "User" WHERE UserID = %s'
+        query = 'SELECT password, salt FROM users WHERE UserID = %s'
         result = db.execute_query(query, (session['user_id'],))
         
         if not result:
@@ -305,7 +305,7 @@ def update_password():
         new_hash, new_salt = hash_password(new_password)
         
         update_query = """
-            UPDATE "User"
+            UPDATE users
             SET password = %s, salt = %s
             WHERE UserID = %s
         """

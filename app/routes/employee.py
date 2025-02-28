@@ -11,8 +11,8 @@ def dashboard():
     # Get employee information
     employee_query = """
         SELECT ec.EmployeeID, c.Aadhaar, c.Name, c.Phone, 
-               ec."Start Date", ec."Term-Duration"
-        FROM "Employee-Citizens" ec
+               ec.StartDate, ec.TermDuration
+        FROM EmployeeCitizens ec
         JOIN Citizen c ON ec.CitizenID = c.Aadhaar
         WHERE ec.CitizenID = %s
     """
@@ -26,7 +26,7 @@ def dashboard():
     
     # Count scheme enrollments
     scheme_count_query = """
-        SELECT COUNT(*) FROM "Scheme-Enrollment"
+        SELECT COUNT(*) FROM SchemeEnrollment
     """
     scheme_count = db.execute_query(scheme_count_query)[0][0]
     
@@ -115,7 +115,7 @@ def view_citizen(aadhaar):
     # Get schemes
     schemes_query = """
         SELECT se.EnrollmentID, s.Description, se.Date
-        FROM "Scheme-Enrollment" se
+        FROM SchemeEnrollment se
         JOIN Schemes s ON se.SchemeID = s.SchemeID
         WHERE se.CitizenID = %s
         ORDER BY se.Date DESC
@@ -125,7 +125,7 @@ def view_citizen(aadhaar):
     # Get education details
     education_query = """
         SELECT a.SchoolID, s.Name as SchoolName, a.Qualification, a."Pass Date"
-        FROM "Attends-School" a
+        FROM AttendsSchool a
         JOIN Schools s ON a.SchoolID = s.SchoolID
         WHERE a.CitizenID = %s
     """
@@ -134,7 +134,7 @@ def view_citizen(aadhaar):
     # Check if citizen has user account
     user_query = """
         SELECT UserID, username, auth
-        FROM "User"
+        FROM users
         WHERE CitizenID = %s
     """
     user = db.execute_query(user_query, (aadhaar,))
@@ -262,7 +262,7 @@ def create_user(aadhaar):
     """Create user account for a citizen."""
     # Check if user already exists
     check_query = """
-        SELECT COUNT(*) FROM "User"
+        SELECT COUNT(*) FROM users
         WHERE CitizenID = %s
     """
     count = db.execute_query(check_query, (aadhaar,))[0][0]
@@ -282,7 +282,7 @@ def create_user(aadhaar):
         
         # Check if username already exists
         username_check = """
-            SELECT COUNT(*) FROM "User"
+            SELECT COUNT(*) FROM users
             WHERE username = %s
         """
         username_count = db.execute_query(username_check, (username,))[0][0]
@@ -296,7 +296,7 @@ def create_user(aadhaar):
         
         # Create user
         insert_query = """
-            INSERT INTO "User" (CitizenID, MonitorID, username, password, auth, salt)
+            INSERT INTO users (CitizenID, MonitorID, username, password, auth, salt)
             VALUES (%s, NULL, %s, %s, 'citizen', %s)
         """
         db.execute_query(
@@ -479,7 +479,7 @@ def schemes():
     schemes_query = """
         SELECT s.SchemeID, s.Description, COUNT(se.EnrollmentID) as enrollment_count
         FROM Schemes s
-        LEFT JOIN "Scheme-Enrollment" se ON s.SchemeID = se.SchemeID
+        LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
         GROUP BY s.SchemeID, s.Description
         ORDER BY s.SchemeID
     """
@@ -506,7 +506,7 @@ def scheme_enrollments(scheme_id):
     # Get enrollments
     enrollments_query = """
         SELECT se.EnrollmentID, se.CitizenID, c.Name, se.Date
-        FROM "Scheme-Enrollment" se
+        FROM SchemeEnrollment se
         JOIN Citizen c ON se.CitizenID = c.Aadhaar
         WHERE se.SchemeID = %s
         ORDER BY se.Date DESC
@@ -526,9 +526,9 @@ def profile():
     # Get employee profile data
     query = """
         SELECT c.Aadhaar, c.Name, c.DOB, c.Gender, c.Phone, 
-               ec."Start Date", ec."Term-Duration"
+               ec.StartDate, ec.TermDuration
         FROM Citizen c
-        JOIN "Employee-Citizens" ec ON c.Aadhaar = ec.CitizenID
+        JOIN EmployeeCitizens ec ON c.Aadhaar = ec.CitizenID
         WHERE c.Aadhaar = %s
     """
     profile = db.execute_query(query, (session['citizen_id'],))
@@ -536,7 +536,7 @@ def profile():
     # Get user account data
     user_query = """
         SELECT username, auth
-        FROM "User"
+        FROM users
         WHERE CitizenID = %s
     """
     user = db.execute_query(user_query, (session['citizen_id'],))
@@ -569,7 +569,7 @@ def update_password():
         from app.utils.auth_utils import verify_password, hash_password
         
         # Get current password hash and salt
-        query = 'SELECT password, salt FROM "User" WHERE UserID = %s'
+        query = 'SELECT password, salt FROM users WHERE UserID = %s'
         result = db.execute_query(query, (session['user_id'],))
         
         if not result:
@@ -586,7 +586,7 @@ def update_password():
         new_hash, new_salt = hash_password(new_password)
         
         update_query = """
-            UPDATE "User"
+            UPDATE users
             SET password = %s, salt = %s
             WHERE UserID = %s
         """
@@ -643,7 +643,7 @@ def schools():
     schools_query = """
         SELECT s.SchoolID, s.Name, s.Capacity, COUNT(a.AttendanceID) as student_count
         FROM Schools s
-        LEFT JOIN "Attends-School" a ON s.SchoolID = a.SchoolID
+        LEFT JOIN AttendsSchool a ON s.SchoolID = a.SchoolID
         GROUP BY s.SchoolID, s.Name, s.Capacity
         ORDER BY s.Name
     """
@@ -696,7 +696,7 @@ def school_students(school_id):
     # Get students
     students_query = """
         SELECT a.AttendanceID, a.CitizenID, c.Name, a.Qualification, a."Pass Date"
-        FROM "Attends-School" a
+        FROM AttendsSchool a
         JOIN Citizen c ON a.CitizenID = c.Aadhaar
         WHERE a.SchoolID = %s
         ORDER BY a."Pass Date" DESC
@@ -750,7 +750,7 @@ def add_student(school_id):
         
         # Insert school attendance record
         attendance_query = """
-            INSERT INTO "Attends-School" (CitizenID, SchoolID, Qualification, "Pass Date")
+            INSERT INTO AttendsSchool (CitizenID, SchoolID, Qualification, "Pass Date")
             VALUES (%s, %s, %s, %s)
         """
         db.execute_query(

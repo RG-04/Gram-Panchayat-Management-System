@@ -44,7 +44,7 @@ INSERT INTO Monitors (MonitorID, Name) VALUES
 
 -- Insert users (password: pwd)
 -- Hash: f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b
-INSERT INTO "User" (CitizenID, MonitorID, username, password, auth, salt) VALUES
+INSERT INTO users (CitizenID, MonitorID, username, password, auth, salt) VALUES
 ('123456789012', NULL, 'citizen1', 'f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b', 'citizen', 'salt123'),
 ('234567890123', NULL, 'citizen2', 'f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b', 'citizen', 'salt123'),
 ('345678901234', NULL, 'citizen3', 'f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b', 'citizen', 'salt123'),
