@@ -315,10 +315,14 @@ def certificate_file(category, name):
 @citizen_bp.route('/schemes')
 @role_required(['citizen'])
 def schemes():
+
+    citizen_id = session['citizen_id']
+
     # SQL query to get all schemes with enrollment count
     schemes_query = """
     SELECT s.SchemeID, s.Name, s.Type, s.Description, 
-           COUNT(se.CitizenID) AS EnrollmentCount
+           COUNT(se.CitizenID) AS EnrollmentCount,
+           (SELECT COUNT(*) FROM SchemeEnrollment WHERE CitizenID = %s AND SchemeID = s.SchemeID) AS Enrolled
     FROM Schemes s
     LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
     GROUP BY s.SchemeID, s.Name, s.Type, s.Description
@@ -339,7 +343,7 @@ def schemes():
     """
     
     # Execute queries
-    schemes_result = db.execute_query(schemes_query)
+    schemes_result = db.execute_query(schemes_query, (citizen_id,))
     scheme_types_result = db.execute_query(scheme_types_query)
     type_count_result = db.execute_query(type_count_query)
     
@@ -352,7 +356,7 @@ def schemes():
             'type': row[2] or 'Uncategorized',
             'description': row[3],
             'enrollments': row[4],
-            'enrolled': False  # For viewing purposes, no enrollment tracking needed
+            'enrolled': row[5]
         })
     
     scheme_types = [row[0] for row in scheme_types_result]
