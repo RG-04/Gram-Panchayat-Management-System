@@ -88,7 +88,7 @@ def view_citizen(aadhaar):
     if not citizen:
         flash("Citizen not found", "error")
         return redirect(url_for("employee.certificates"))
-    
+
     father = False
     mother = False
 
@@ -180,7 +180,7 @@ def update_citizen(aadhaar):
         income_str = request.form.get("income")
         occupation = request.form.get("occupation")
         phone = request.form.get("phone")
-        household_id_str = request.form.get("householdid")
+        household_addr = request.form.get("householdid")
 
         # Validate required fields
         if not name:
@@ -208,27 +208,9 @@ def update_citizen(aadhaar):
                 return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
 
         # Convert and validate household ID
-        household_id = None
-        if household_id_str:
-            try:
-                household_id = int(household_id_str)
-
-                # Check if household exists
-                cursor = db.connection.cursor()
-                cursor.execute(
-                    "SELECT HouseholdID FROM Households WHERE HouseholdID = %s",
-                    (household_id,),
-                )
-                household_exists = cursor.fetchone()
-                cursor.close()
-
-                if not household_exists:
-                    flash("Household ID does not exist", "error")
-                    return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
-
-            except ValueError:
-                flash("Invalid Household ID", "error")
-                return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
+        if not household_addr:
+            flash("Household address is required", "error")
+            return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
 
         # Update citizen information
         cursor = db.connection.cursor()
@@ -236,11 +218,22 @@ def update_citizen(aadhaar):
             """
             UPDATE Citizen
             SET Name = %s, DOB = %s, Gender = %s, Income = %s, 
-                Occupation = %s, Phone = %s, HouseholdID = %s
+                Occupation = %s, Phone = %s
             WHERE Aadhaar = %s
         """,
-            (name, dob, gender, income, occupation, phone, household_id, aadhaar),
+            (name, dob, gender, income, occupation, phone, aadhaar),
         )
+
+        # Update household addr if provided
+        if household_addr:
+            cursor.execute(
+                """
+                UPDATE Households
+                SET Address = %s
+                WHERE HouseholdID = (SELECT HouseholdID FROM Citizen WHERE Aadhaar = %s)
+            """,
+                (household_addr, aadhaar),
+            )
 
         db.connection.commit()
         cursor.close()
