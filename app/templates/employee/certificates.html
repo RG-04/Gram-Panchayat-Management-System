@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Certificates - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .citizens-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .citizens-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .citizens-header h1 {
+        color: #006400;
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .citizens-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .citizens-search {
+        display: flex;
+        margin-bottom: 20px;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px 0 0 4px;
+        font-size: 1rem;
+    }
+    
+    .search-button {
+        background-color: #006400;
+        color: white;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        padding: 0 15px;
+        cursor: pointer;
+    }
+    
+    .citizens-list {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .citizen-item {
+        border-bottom: 1px solid #eee;
+    }
+    
+    .citizen-item:last-child {
+        border-bottom: none;
+    }
+    
+    .citizen-header {
+        padding: 15px 20px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s ease;
+    }
+    
+    .citizen-header:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .citizen-name {
+        display: flex;
+        align-items: center;
+        flex: 1;
+    }
+    
+    .citizen-name-text {
+        font-weight: 600;
+        margin-left: 10px;
+    }
+    
+    .citizen-id {
+        color: #666;
+        margin-left: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .citizen-toggle {
+        color: #006400;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .citizen-toggle.open {
+        transform: rotate(180deg);
+    }
+    
+    .citizen-details {
+        background-color: #f9f9f9;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .citizen-details.open {
+        padding: 20px;
+        max-height: 500px;
+    }
+    
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    
+    .detail-item {
+        margin-bottom: 15px;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    
+    .detail-value {
+        color: #333;
+    }
+    
+    .citizen-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+    }
+    
+    .action-button {
+        padding: 8px 15px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.9rem;
+        transition: background-color 0.3s ease;
+    }
+    
+    .action-button i {
+        margin-right: 5px;
+    }
+    
+    .certificate-button {
+        background-color: #2196F3;
+        color: white;
+    }
+    
+    .certificate-button:hover {
+        background-color: #0b7dda;
+    }
+    
+    .edit-button {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+    
+    .edit-button:hover {
+        background-color: #d0d0d0;
+    }
+    
+    .no-citizens {
+        text-align: center;
+        padding: 50px 20px;
+        color: #666;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="citizens-container">
+    <div class="citizens-header">
+        <h1><i class="fas fa-users"></i> Manage Citizens</h1>
+    </div>
+    
+    <div class="citizens-search">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by name or Aadhaar number...">
+        <button class="search-button" id="searchButton">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    
+    <div class="citizens-list">
+        {% if citizens %}
+            {% for citizen in citizens %}
+                <div class="citizen-item" data-name="{{ citizen[1].lower() }}" data-id="{{ citizen[0] }}">
+                    <div class="citizen-header" onclick="toggleDetails(this)">
+                        <div class="citizen-name">
+                            <i class="fas fa-user"></i>
+                            <span class="citizen-name-text">{{ citizen[1] }}</span>
+                            <span class="citizen-id">{{ citizen[0] }}</span>
+                        </div>
+                        <button class="citizen-toggle">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="citizen-details">
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Gender</div>
+                                <div class="detail-value">{{ citizen[2] or 'Not specified' }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Date of Birth</div>
+                                <div class="detail-value">{{ citizen[3].strftime('%d %B %Y') if citizen[3] else 'Not specified' }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Phone</div>
+                                <div class="detail-value">{{ citizen[4] or 'Not specified' }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Income</div>
+                                <div class="detail-value">₹{{ '{:,.2f}'.format(citizen[5]) if citizen[5] else 'Not specified' }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Occupation</div>
+                                <div class="detail-value">{{ citizen[6] or 'Not specified' }}</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Address</div>
+                                <div class="detail-value">{{ citizen[7] or 'Not specified' }}</div>
+                            </div>
+                        </div>
+                        <div class="citizen-actions">
+                            <a href="{{ url_for('employee.citizen_certificates', aadhaar=citizen[0]) }}" class="action-button certificate-button">
+                                <i class="fas fa-certificate"></i> Manage Certificates
+                            </a>
+                            <a href="{{ url_for('employee.view_citizen', aadhaar=citizen[0]) }}" class="action-button edit-button">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-citizens">
+                <p>No citizens found in the database.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleDetails(element) {
+        const details = element.nextElementSibling;
+        const toggle = element.querySelector('.citizen-toggle');
+        
+        if (details.classList.contains('open')) {
+            details.classList.remove('open');
+            toggle.classList.remove('open');
+        } else {
+            details.classList.add('open');
+            toggle.classList.add('open');
+        }
+    }
+    
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const citizenItems = document.querySelectorAll('.citizen-item');
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            citizenItems.forEach(item => {
+                const name = item.getAttribute('data-name');
+                const id = item.getAttribute('data-id');
+                
+                if (name.includes(searchTerm) || id.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        searchButton.addEventListener('click', performSearch);
+        
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    });
+</script>
+{% endblock %}

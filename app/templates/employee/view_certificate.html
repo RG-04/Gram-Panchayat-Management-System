@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+
+{% block title %}View Certificate - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .certificate-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+    
+    .certificate-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .certificate-header h1 {
+        color: #006400;
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .certificate-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .back-link {
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+    
+    .back-link i {
+        margin-right: 5px;
+    }
+    
+    .citizen-info {
+        background-color: #f0f8ff;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .citizen-info h2 {
+        color: #2196F3;
+        margin-top: 0;
+        margin-bottom: 5px;
+        font-size: 1.2rem;
+    }
+    
+    .citizen-id {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .certificate-box {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .certificate-info {
+        margin-bottom: 20px;
+    }
+    
+    .certificate-info-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .certificate-info-value {
+        color: #666;
+    }
+    
+    .certificate-pdf-container {
+        width: 100%;
+        height: 600px;
+        margin-top: 20px;
+    }
+    
+    .certificate-pdf-viewer {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    .upload-file-container {
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        padding: 30px;
+        margin-top: 20px;
+    }
+    
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .upload-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .upload-header i {
+        font-size: 3rem;
+        color: #2196F3;
+        margin-bottom: 15px;
+    }
+    
+    .upload-header h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+    
+    .upload-header p {
+        color: #666;
+        margin: 0;
+    }
+    
+    .file-input-wrapper {
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 20px;
+    }
+    
+    .file-input-container {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .file-input-container:hover {
+        border-color: #2196F3;
+        background-color: #f5f5f5;
+    }
+    
+    .file-input-container i {
+        font-size: 2rem;
+        color: #2196F3;
+        margin-bottom: 10px;
+    }
+    
+    .file-input-label {
+        font-weight: 600;
+        color: #555;
+    }
+    
+    .file-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    
+    .selected-file {
+        text-align: center;
+        color: #2196F3;
+        font-weight: 500;
+        margin-top: 10px;
+        display: none;
+    }
+    
+    .upload-button {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+    
+    .upload-button:hover {
+        background-color: #0b7dda;
+    }
+    
+    .upload-button i {
+        margin-right: 8px;
+    }
+    
+    .certificate-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .certificate-button {
+        padding: 10px 20px;
+        background-color: #006400;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    
+    .certificate-button i {
+        margin-right: 8px;
+    }
+    
+    .certificate-button:hover {
+        background-color: #004d00;
+    }
+    
+    .download-button {
+        background-color: #2196F3;
+    }
+    
+    .download-button:hover {
+        background-color: #0b7dda;
+    }
+    
+    .print-button {
+        background-color: #555;
+    }
+    
+    .print-button:hover {
+        background-color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="certificate-container">
+    <div class="certificate-header">
+        <h1><i class="fas fa-certificate"></i> Certificate Details</h1>
+        <a href="{{ url_for('employee.citizen_certificates', aadhaar=certificate[2]) }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Certificates
+        </a>
+    </div>
+    
+    <div class="citizen-info">
+        <h2>{{ citizen_name }}</h2>
+        <div class="citizen-id">Aadhaar: {{ certificate[2] }}</div>
+    </div>
+    
+    <div class="certificate-box">
+        <div class="certificate-info">
+            <div class="certificate-info-title">Category</div>
+            <div class="certificate-info-value">{{ certificate[0] }}</div>
+        </div>
+        
+        <div class="certificate-info">
+            <div class="certificate-info-title">Certificate Name</div>
+            <div class="certificate-info-value">{{ certificate[1] }}</div>
+        </div>
+        
+        <div class="certificate-info">
+            <div class="certificate-info-title">Issued On</div>
+            <div class="certificate-info-value">{{ certificate[3].strftime('%d %B %Y') }}</div>
+        </div>
+        
+        {% if certificate[4] %}
+        <div class="certificate-pdf-container">
+            <iframe src="{{ url_for('employee.certificate_file', aadhaar=certificate[2], category=certificate[0], name=certificate[1]) }}" 
+                    class="certificate-pdf-viewer" title="Certificate PDF"></iframe>
+        </div>
+        {% else %}
+        <div class="upload-file-container">
+            <form action="{{ url_for('employee.update_certificate_file', aadhaar=certificate[2], category=certificate[0], name=certificate[1]) }}" 
+                  method="POST" enctype="multipart/form-data" class="upload-form">
+                <div class="upload-header">
+                    <i class="fas fa-file-upload"></i>
+                    <h3>Upload Certificate File</h3>
+                    <p>This certificate doesn't have a digital file attached. Upload a PDF file.</p>
+                </div>
+                
+                <div class="file-input-wrapper">
+                    <div class="file-input-container" id="fileInputContainer">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="file-input-label">Click here to select a PDF file</div>
+                        <input type="file" id="certificate_file" name="certificate_file" class="file-input" 
+                               accept=".pdf" onchange="updateFileName()" required>
+                    </div>
+                    <div class="selected-file" id="selectedFileName"></div>
+                </div>
+                
+                <button type="submit" class="upload-button">
+                    <i class="fas fa-upload"></i> Upload PDF
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="certificate-actions">
+        {% if certificate[4] %}
+        <a href="{{ url_for('employee.certificate_file', aadhaar=certificate[2], category=certificate[0], name=certificate[1]) }}" 
+           class="certificate-button download-button" download>
+            <i class="fas fa-download"></i> Download Certificate
+        </a>
+        
+        <button onclick="window.print()" class="certificate-button print-button">
+            <i class="fas fa-print"></i> Print Certificate
+        </button>
+        {% endif %}
+        
+        <a href="{{ url_for('employee.citizen_certificates', aadhaar=certificate[2]) }}" class="certificate-button">
+            <i class="fas fa-arrow-left"></i> Back to Certificates
+        </a>
+    </div>
+</div>
+{% endblock %}

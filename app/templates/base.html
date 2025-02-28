@@ -31,15 +31,12 @@
                     {% if session.role == 'citizen' %}
                         <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
                         <li><a href="{{ url_for('citizen.profile') }}">My Profile</a></li>
-                        <!-- Removed certificates link as it's now in the profile page -->
                         <li><a href="{{ url_for('citizen.schemes') }}">Schemes</a></li>
                         <li><a href="{{ url_for('citizen.education') }}">Education</a></li>
                     {% elif session.role == 'employee' %}
                         <li><a href="{{ url_for('employee.dashboard') }}">Dashboard</a></li>
-                        <li><a href="{{ url_for('employee.citizens') }}">Citizens</a></li>
-                        <li><a href="{{ url_for('employee.certificates') }}">Certificates</a></li>
+                        <li><a href="{{ url_for('employee.certificates') }}">Citizens</a></li>
                         <li><a href="{{ url_for('employee.schemes') }}">Schemes</a></li>
-                        <li><a href="{{ url_for('employee.land_records') }}">Land Records</a></li>
                     {% elif session.role == 'monitor' %}
                         <li><a href="{{ url_for('monitor.dashboard') }}">Dashboard</a></li>
                         <li><a href="{{ url_for('monitor.citizens') }}">Citizens</a></li>
