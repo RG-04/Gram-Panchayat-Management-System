@@ -69,10 +69,15 @@ INSERT INTO Hospitals (HospitalID, Name, Address, Beds) VALUES
 (2, 'Chandanagar General Hospital', 'Main Road, Chandanagar', 25);
 
 -- Insert schemes
-INSERT INTO Schemes (SchemeID, Description) VALUES
-(1, 'Rural Housing Scheme'),
-(2, 'Farmers Subsidy Program'),
-(3, 'Education Scholarship');
+INSERT INTO Schemes (SchemeID, Name, Type, Description) VALUES
+(1, 'Rural Housing Scheme', 'Housing', 'Home for everyone'),
+(2, 'Farmers Subsidy Program', 'Agriculture', 'Support for farmers'),
+(3, 'Education Scholarship', 'Education', 'Student aid program'),
+(4, 'Health Insurance', 'Healthcare', 'Medical coverage'),
+(5, 'Skill Development', 'Employment', 'Job training'),
+(6, 'Clean Water Mission', 'Infrastructure', 'Safe drinking water'),
+(7, 'Solar Energy Rebate', 'Energy', 'Green power subsidy'),
+(8, 'Women Empowerment', 'Social Welfare', 'Support for women');
 
 -- Populate the Land table
 -- We'll create land holdings of varying sizes for different owners
@@ -198,7 +203,12 @@ INSERT INTO Forms (FormID, SchemeID, Fee) VALUES
 INSERT INTO SchemeEnrollment (SchemeID, CitizenID, Date) VALUES
 (1, '123456789012', '2023-02-10'),
 (2, '123456789012', '2023-03-15'),
-(3, '234567890123', '2023-01-05');
+(3, '234567890123', '2023-01-05'),
+(4, '123456789012', '2023-04-20'),
+(5, '234567890123', '2023-05-12'),
+(6, '123456789012', '2023-06-30'),
+(7, '234567890123', '2023-07-22'),
+(8, '234567890123', '2023-08-15');
 
 -- Insert school attendance records
 INSERT INTO AttendsSchool (CitizenID, SchoolID, Qualification, PassDate) VALUES

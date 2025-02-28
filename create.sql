@@ -83,7 +83,9 @@ CREATE TABLE Hospitals (
 -- Create Schemes table
 CREATE TABLE Schemes (
     SchemeID SERIAL PRIMARY KEY,
-    Description TEXT NOT NULL
+    Name VARCHAR(100) NOT NULL,
+    Description TEXT NOT NULL,
+    Type VARCHAR(100)
 );
 
 -- Create Land table
@@ -129,7 +131,6 @@ CREATE TABLE Forms (
 
 -- Create Scheme-Enrollment table
 CREATE TABLE SchemeEnrollment (
-    -- EnrollmentID SERIAL PRIMARY KEY,
     SchemeID INTEGER REFERENCES Schemes(SchemeID),
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Date DATE NOT NULL,

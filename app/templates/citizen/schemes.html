@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Government Schemes - Gram Panchayat Management System{% endblock %}
+
+{% block content %}
+<div class="statistics-container">
+    <div class="statistics-header">
+        <h1>Government Schemes</h1>
+        <div class="category-nav">
+            <a href="{{ url_for('citizen.dashboard') }}" class="category-link">Dashboard</a>
+            <a href="{{ url_for('citizen.schemes') }}" class="category-link active">Schemes</a>
+            <a href="{{ url_for('citizen.statistics', category='education') }}" class="category-link">Statistics</a>
+        </div>
+    </div>
+
+    <div class="statistics-content">
+        <div class="schemes-header">
+            <h2>Available Schemes</h2>
+            <div class="scheme-filter-container">
+                <div class="select-wrapper">
+                  <select id="scheme-type-filter" class="scheme-filter">
+                    <option value="all">All Categories</option>
+                    {% for type in scheme_types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                  </select>
+                  <div class="select-arrow"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-table-container">
+            <table class="stats-table" id="schemesTable">
+                <thead>
+                    <tr>
+                        <th>Scheme Name</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th>Total Enrollments</th>
+                        <th>Your Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scheme in schemes %}
+                    <tr data-scheme-type="{{ scheme.type }}">
+                        <td>{{ scheme.name }}</td>
+                        <td>{{ scheme.type }}</td>
+                        <td>{{ scheme.description }}</td>
+                        <td>{{ scheme.enrollments }}</td>
+                        <td>
+                            {% if scheme.enrolled %}
+                            <span class="status-enrolled">Enrolled</span>
+                            {% else %}
+                            <span class="status-not-enrolled">Not Enrolled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="statistics-footer">
+        <a href="{{ url_for('citizen.dashboard') }}" class="back-link">← Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const schemeTypeFilter = document.getElementById('scheme-type-filter');
+    const tableRows = document.querySelectorAll('#schemesTable tbody tr');
+    
+    schemeTypeFilter.addEventListener('change', function() {
+        const filterType = this.value;
+        
+        tableRows.forEach(row => {
+            const rowType = row.getAttribute('data-scheme-type');
+            if (filterType === 'all' || rowType === filterType) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
