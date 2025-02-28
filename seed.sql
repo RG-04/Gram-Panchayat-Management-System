@@ -1,15 +1,15 @@
 -- Insert sample households
-INSERT INTO Households (HouseholdID, Address) VALUES
-(1, 'House No. 123, North Ward, Sundarpur'),
-(2, 'House No. 456, South Ward, Sundarpur'),
-(3, 'House No. 789, Riverside Ward, Chandanagar'),
-(4, 'House No. 101, East Ward, Sundarpur'),
-(5, 'House No. 202, West Ward, Chandanagar'),
-(6, 'House No. 303, Central Ward, Sundarpur'),
-(7, 'House No. 404, North Ward, Chandanagar'),
-(8, 'House No. 505, South Ward, Sundarpur'),
-(9, 'House No. 606, Riverside Ward, Chandanagar'),
-(10, 'House No. 707, East Ward, Sundarpur');
+INSERT INTO Households (Address) VALUES
+('House No. 123, North Ward, Sundarpur'),
+('House No. 456, South Ward, Sundarpur'),
+('House No. 789, Riverside Ward, Chandanagar'),
+('House No. 101, East Ward, Sundarpur'),
+('House No. 202, West Ward, Chandanagar'),
+('House No. 303, Central Ward, Sundarpur'),
+('House No. 404, North Ward, Chandanagar'),
+('House No. 505, South Ward, Sundarpur'),
+('House No. 606, Riverside Ward, Chandanagar'),
+('House No. 707, East Ward, Sundarpur');
 
 -- Insert sample citizens
 INSERT INTO Citizen (Aadhaar, Name, DOB, MotherID, FatherID, Gender, Income, HouseholdID, Occupation, Phone) VALUES
@@ -38,9 +38,9 @@ INSERT INTO Citizen (Aadhaar, Name, DOB, MotherID, FatherID, Gender, Income, Hou
 
 
 -- Insert monitors
-INSERT INTO Monitors (MonitorID, Name) VALUES
-(1, 'Shrikant Verma'),
-(2, 'Anjali Desai');
+INSERT INTO Monitors (Name) VALUES
+('Shrikant Verma'),
+('Anjali Desai');
 
 -- Insert users (password: pwd)
 -- Hash: f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b
@@ -59,25 +59,25 @@ INSERT INTO EmployeeCitizens (EmployeeID, CitizenID, StartDate, TermDuration) VA
 (2, '567890123456', '2021-03-15', 36);
 
 -- Insert schools
-INSERT INTO Schools (SchoolID, Name, Capacity, Income) VALUES
-(1, 'Sundarpur Primary School', 500, 5000000),
-(2, 'Chandanagar High School', 800, 3000000);
+INSERT INTO Schools (Name, Capacity, Income) VALUES
+('Sundarpur Primary School', 500, 5000000),
+('Chandanagar High School', 800, 3000000);
 
 -- Insert hospitals
-INSERT INTO Hospitals (HospitalID, Name, Address, Beds) VALUES
-(1, 'Sundarpur Primary Health Center', 'Near Bus Stand, Sundarpur', 50),
-(2, 'Chandanagar General Hospital', 'Main Road, Chandanagar', 25);
+INSERT INTO Hospitals (Name, Address, Beds) VALUES
+('Sundarpur Primary Health Center', 'Near Bus Stand, Sundarpur', 50),
+('Chandanagar General Hospital', 'Main Road, Chandanagar', 25);
 
 -- Insert schemes
-INSERT INTO Schemes (SchemeID, Name, Type, Description) VALUES
-(1, 'Rural Housing Scheme', 'Housing', 'Home for everyone'),
-(2, 'Farmers Subsidy Program', 'Agriculture', 'Support for farmers'),
-(3, 'Education Scholarship', 'Education', 'Student aid program'),
-(4, 'Health Insurance', 'Healthcare', 'Medical coverage'),
-(5, 'Skill Development', 'Employment', 'Job training'),
-(6, 'Clean Water Mission', 'Infrastructure', 'Safe drinking water'),
-(7, 'Solar Energy Rebate', 'Energy', 'Green power subsidy'),
-(8, 'Women Empowerment', 'Social Welfare', 'Support for women');
+INSERT INTO Schemes (Name, Type, Description) VALUES
+('Rural Housing Scheme', 'Housing', 'Home for everyone'),
+('Farmers Subsidy Program', 'Agriculture', 'Support for farmers'),
+('Education Scholarship', 'Education', 'Student aid program'),
+('Health Insurance', 'Healthcare', 'Medical coverage'),
+('Skill Development', 'Employment', 'Job training'),
+('Clean Water Mission', 'Infrastructure', 'Safe drinking water'),
+('Solar Energy Rebate', 'Energy', 'Green power subsidy'),
+('Women Empowerment', 'Social Welfare', 'Support for women');
 
 -- Populate the Land table
 -- We'll create land holdings of varying sizes for different owners
@@ -91,20 +91,12 @@ INSERT INTO Crop (Name, Type) VALUES
 -- Populate the Land table for 7 people
 INSERT INTO Land (OwnerID, Size, Location) VALUES
 ('123456789012', 8.50, 'North Village - Fertile Plain'),
-
 ('456789012345', 2.75, 'South Village - Upland'),
-
 ('345678901234', 1.50, 'Central Village - Near Market'),
-
 ('234567890123', 4.50, 'North Village - Plateau'),
-
 ('678901234567', 0.75, 'Central Village - Residential Area'),
-
 ('901234567890', 3.80, 'South Village - Near Lake'),
-
-('890123456789', 1.20, 'West Village - Foothills');
-
-INSERT INTO Land (OwnerID, Size, Location) VALUES
+('890123456789', 1.20, 'West Village - Foothills'),
 ('123456789012', 1.20, 'East Village - Fallow Plot');
 
 -- Now populate the LandCrop table
@@ -194,10 +186,10 @@ INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File) VALUES
 ('Education', 'Diploma Certificate', '890123456789', '2002-04-18', NULL);
 
 -- Insert forms
-INSERT INTO Forms (FormID, SchemeID, Fee) VALUES
-(1, 1, 100.00),
-(2, 2, 50.00),
-(3, 3, 75.00);
+INSERT INTO Forms (SchemeID, Fee) VALUES
+(1, 100.00),
+(2, 50.00),
+(3, 75.00);
 
 -- Insert scheme enrollments
 INSERT INTO SchemeEnrollment (SchemeID, CitizenID, Date) VALUES
