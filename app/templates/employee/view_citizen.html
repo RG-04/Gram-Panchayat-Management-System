@@ -1,0 +1,653 @@
+{% extends "base.html" %}
+
+{% block title %}Citizen Details - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .citizen-detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .citizen-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .citizen-header h1 {
+        color: #006400;
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .citizen-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .back-button {
+        color: #555;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        transition: color 0.2s ease;
+    }
+    
+    .back-button:hover {
+        color: #006400;
+    }
+    
+    .back-button i {
+        margin-right: 5px;
+    }
+    
+    .citizen-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        background-color: #f5f5f5;
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-header h2 {
+        margin: 0;
+        color: #444;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-header h2 i {
+        margin-right: 10px;
+        color: #006400;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+    
+    .view-mode .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .view-mode .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+        display: block;
+    }
+    
+    .view-mode .form-value {
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        border: 1px solid #eee;
+    }
+    
+    .edit-mode .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .edit-mode .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+        display: block;
+    }
+    
+    .edit-mode .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .edit-mode .form-input:focus {
+        border-color: #006400;
+        outline: none;
+        box-shadow: 0 0 3px rgba(0, 100, 0, 0.3);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .button-group {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    
+    .btn i {
+        margin-right: 8px;
+    }
+    
+    .btn-primary {
+        background-color: #006400;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #004d00;
+    }
+    
+    .btn-secondary {
+        background-color: #e0e0e0;
+        color: #333;
+    }
+    
+    .btn-secondary:hover {
+        background-color: #d0d0d0;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+    
+    .tab-container {
+        margin-bottom: 20px;
+    }
+    
+    .tabs {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .tab.active {
+        border-bottom-color: #006400;
+        color: #006400;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    /* For family tab */
+    .family-member {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+    }
+    
+    .family-member i {
+        margin-right: 10px;
+        color: #006400;
+    }
+    
+    .family-member-info {
+        flex: 1;
+    }
+    
+    .family-member-name {
+        font-weight: 600;
+    }
+    
+    .family-member-relation {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .family-member-view {
+        color: #006400;
+        text-decoration: none;
+        margin-left: 10px;
+    }
+    
+    .family-member-view:hover {
+        text-decoration: underline;
+    }
+    
+    /* For certificates tab */
+    .certificates-tabs {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 20px;
+        overflow-x: auto;
+    }
+
+
+    .certificate-panel {
+        display: none;
+    }
+
+    .certificate-panel.active {
+        display: block;
+    }
+
+    .certificate-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .certificate-item {
+        background-color: #f9f9f9;
+        border-radius: 6px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s ease;
+    }
+
+    .certificate-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .certificate-details {
+        flex: 1;
+    }
+
+    .certificate-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+        font-size: 1.1rem;
+    }
+
+    .certificate-date {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .certificate-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .certificate-button {
+        background-color: #006400;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .certificate-button i {
+        margin-right: 5px;
+    }
+
+    .certificate-button:hover {
+        background-color: #004d00;
+    }
+
+    .certificate-download {
+        background-color: #2196F3;
+    }
+
+    .certificate-download:hover {
+        background-color: #0b7dda;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="citizen-detail-container">
+    <div class="citizen-header">
+        <h1><i class="fas fa-user"></i> Citizen Details</h1>
+        <a href="{{ url_for('employee.certificates') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Citizens List
+        </a>
+    </div>
+    
+    <div class="tab-container">
+        <div class="tabs">
+            <div class="tab active" onclick="openTab(event, 'personal')">Personal Information</div>
+            <div class="tab" onclick="openTab(event, 'family')">Family Information</div>
+            <div class="tab" onclick="openTab(event, 'certificates')">Certificates</div>
+        </div>
+    </div>
+    
+    <div id="personal" class="tab-content active">
+        <div class="citizen-card">
+            <div class="card-header">
+                <h2><i class="fas fa-id-card"></i> Personal Information</h2>
+                <button id="toggleEditBtn" class="btn btn-secondary" onclick="toggleEditMode()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </div>
+            <div class="card-body">
+                <form id="citizenForm" action="{{ url_for('employee.update_citizen', aadhaar=citizen[0]) }}" method="POST" class="view-mode">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Aadhaar Number</label>
+                            <div class="form-value">{{ citizen[0] }}</div>
+                            <input type="hidden" name="aadhaar" value="{{ citizen[0] }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <div class="form-value">{{ citizen[1] }}</div>
+                            <input type="text" class="form-input" name="name" value="{{ citizen[1] }}" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <div class="form-value">{{ citizen[2].strftime('%d %B %Y') if citizen[2] else 'Not specified' }}</div>
+                            <input type="date" class="form-input" name="dob" value="{{ citizen[2].strftime('%Y-%m-%d') if citizen[2] else '' }}" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <div class="form-value">{{ citizen[3] or 'Not specified' }}</div>
+                            <select class="form-input" name="gender" style="display: none;">
+                                <option value="Male" {% if citizen[3] == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if citizen[3] == 'Female' %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if citizen[3] == 'Other' %}selected{% endif %}>Other</option>
+                                <option value="" {% if not citizen[3] %}selected{% endif %}>Not specified</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Annual Income</label>
+                            <div class="form-value">₹{{ '{:,.2f}'.format(citizen[4]) if citizen[4] else 'Not specified' }}</div>
+                            <input type="number" class="form-input" name="income" value="{{ citizen[4] or '' }}" step="0.01" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Occupation</label>
+                            <div class="form-value">{{ citizen[5] or 'Not specified' }}</div>
+                            <input type="text" class="form-input" name="occupation" value="{{ citizen[5] or '' }}" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <div class="form-value">{{ citizen[6] or 'Not specified' }}</div>
+                            <input type="tel" class="form-input" name="phone" value="{{ citizen[6] or '' }}" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Household ID</label>
+                            <div class="form-value">{{ citizen[7] or 'Not assigned' }}</div>
+                            <input type="number" class="form-input" name="householdid" value="{{ citizen[7] or '' }}" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div class="button-group" style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="cancelEdit()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="family" class="tab-content">
+        <div class="citizen-card">
+            <div class="card-header">
+                <h2><i class="fas fa-users"></i> Family Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Father</label>
+                        {% if father %}
+                            <div class="family-member">
+                                <i class="fas fa-male"></i>
+                                <div class="family-member-info">
+                                    <div class="family-member-name">{{ father[1] }}</div>
+                                    <div class="family-member-relation">Aadhaar: {{ father[0] }}</div>
+                                </div>
+                                <a href="{{ url_for('employee.view_citizen', aadhaar=father[0]) }}" class="family-member-view">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="form-value">Not specified</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mother</label>
+                        {% if mother %}
+                            <div class="family-member">
+                                <i class="fas fa-female"></i>
+                                <div class="family-member-info">
+                                    <div class="family-member-name">{{ mother[1] }}</div>
+                                    <div class="family-member-relation">Aadhaar: {{ mother[0] }}</div>
+                                </div>
+                                <a href="{{ url_for('employee.view_citizen', aadhaar=mother[0]) }}" class="family-member-view">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="form-value">Not specified</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if children %}
+                    <div class="form-group">
+                        <label class="form-label">Children</label>
+                        {% for child in children %}
+                            <div class="family-member">
+                                <i class="fas fa-child"></i>
+                                <div class="family-member-info">
+                                    <div class="family-member-name">{{ child.Name }}</div>
+                                    <div class="family-member-relation">Aadhaar: {{ child.Aadhaar }}</div>
+                                </div>
+                                <a href="{{ url_for('employee.view_citizen', aadhaar=child.Aadhaar) }}" class="family-member-view">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+    
+    <div id="certificates" class="tab-content">
+        <div class="citizen-card">
+            <div class="card-header">
+                <h2><i class="fas fa-certificate"></i> Certificates</h2>
+                <a href="{{ url_for('employee.upload_certificate', aadhaar=citizen[0]) }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Issue New Certificate
+                </a>
+            </div>
+            <div class="card-body">
+                {% if certificates_by_category %}
+                    <div class="certificates-tabs">
+                        {% for category in certificates_by_category %}
+                            <div class="certificate-tab {% if loop.first %}active{% endif %}" data-tab="{{ category }}">
+                                {{ category }}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% for category, certificates in certificates_by_category.items() %}
+                        <div class="certificate-panel {% if loop.first %}active{% endif %}" id="tab-{{ category }}">
+                            <ul class="certificate-list">
+                                {% for cert in certificates %}
+                                    <li class="certificate-item">
+                                        <div class="certificate-details">
+                                            <div class="certificate-name">{{ cert.name }}</div>
+                                            <div class="certificate-date">Issued on: {{ cert.date_issued.strftime('%d %B %Y') }}</div>
+                                        </div>
+                                        <div class="certificate-actions">
+                                            <a href="{{ url_for('employee.view_certificate', aadhaar=citizen[0], category=cert.category, name=cert.name) }}" class="certificate-button">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                            {% if cert.file %}
+                                            <a href="{{ url_for('employee.certificate_file', aadhaar=citizen[0], category=cert.category, name=cert.name) }}" class="certificate-button certificate-download" download>
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No certificates issued yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openTab(evt, tabName) {
+        // Hide all tab content
+        const tabContents = document.getElementsByClassName("tab-content");
+        for (let i = 0; i < tabContents.length; i++) {
+            tabContents[i].classList.remove("active");
+        }
+        
+        // Remove active class from all tabs
+        const tabs = document.getElementsByClassName("tab");
+        for (let i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove("active");
+        }
+        
+        // Show the selected tab content and mark tab as active
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+    
+    function toggleEditMode() {
+        const form = document.getElementById("citizenForm");
+        const buttonGroup = form.querySelector(".button-group");
+        const toggleBtn = document.getElementById("toggleEditBtn");
+        
+        if (form.classList.contains("view-mode")) {
+            // Switch to edit mode
+            form.classList.remove("view-mode");
+            form.classList.add("edit-mode");
+            
+            // Hide all form-value elements
+            const formValues = form.querySelectorAll(".form-value");
+            formValues.forEach(value => {
+                value.style.display = "none";
+            });
+            
+            // Show all form-input elements
+            const formInputs = form.querySelectorAll(".form-input");
+            formInputs.forEach(input => {
+                input.style.display = "block";
+            });
+            
+            // Show the button group
+            buttonGroup.style.display = "flex";
+            
+            // Update toggle button
+            toggleBtn.style.display = "none";
+        }
+    }
+    
+    function cancelEdit() {
+        const form = document.getElementById("citizenForm");
+        const buttonGroup = form.querySelector(".button-group");
+        const toggleBtn = document.getElementById("toggleEditBtn");
+        
+        // Switch back to view mode
+        form.classList.remove("edit-mode");
+        form.classList.add("view-mode");
+        
+        // Show all form-value elements
+        const formValues = form.querySelectorAll(".form-value");
+        formValues.forEach(value => {
+            value.style.display = "block";
+        });
+        
+        // Hide all form-input elements
+        const formInputs = form.querySelectorAll(".form-input");
+        formInputs.forEach(input => {
+            input.style.display = "none";
+        });
+        
+        // Hide the button group
+        buttonGroup.style.display = "none";
+        
+        // Update toggle button
+        toggleBtn.style.display = "inline-flex";
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.certificate-tab');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and panels
+                document.querySelectorAll('.certificate-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.certificate-panel').forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding panel
+                const category = this.getAttribute('data-tab');
+                document.getElementById('tab-' + category).classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}
