@@ -337,6 +337,28 @@
     .certificate-download:hover {
         background-color: #0b7dda;
     }
+
+    .family-income {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #f0f7f0;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    border-left: 4px solid #006400;
+    }
+
+    .family-income i {
+        font-size: 1.5rem;
+        color: #006400;
+        margin-right: 15px;
+    }
+
+    .family-income-value {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #333;
+    }
 </style>
 {% endblock %}
 
@@ -401,7 +423,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Annual Income</label>
-                            <div class="form-value">₹{{ '{:,.2f}'.format(citizen[4]) if citizen[4] else 'Not specified' }}</div>
+                            <div class="form-value">{{ '₹{:,.2f}'.format(citizen[4]) if citizen[4] else 'Not specified' }}</div>
                             <input type="number" class="form-input" name="income" value="{{ citizen[4] or '' }}" step="0.01" style="display: none;">
                         </div>
                         <div class="form-group">
@@ -418,7 +440,7 @@
                             <input type="tel" class="form-input" name="phone" value="{{ citizen[6] or '' }}" style="display: none;">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Household ID</label>
+                            <label class="form-label">Household Address</label>
                             <div class="form-value">{{ citizen[7] or 'Not assigned' }}</div>
                             <input type="number" class="form-input" name="householdid" value="{{ citizen[7] or '' }}" style="display: none;">
                         </div>
@@ -487,16 +509,26 @@
                             <div class="family-member">
                                 <i class="fas fa-child"></i>
                                 <div class="family-member-info">
-                                    <div class="family-member-name">{{ child.Name }}</div>
-                                    <div class="family-member-relation">Aadhaar: {{ child.Aadhaar }}</div>
+                                    <div class="family-member-name">{{ child[1] }}</div>
+                                    <div class="family-member-relation">Aadhaar: {{ child[0] }}</div>
                                 </div>
-                                <a href="{{ url_for('employee.view_citizen', aadhaar=child.Aadhaar) }}" class="family-member-view">
+                                <a href="{{ url_for('employee.view_citizen', aadhaar=child[0]) }}" class="family-member-view">
                                     <i class="fas fa-external-link-alt"></i>
                                 </a>
                             </div>
                         {% endfor %}
                     </div>
                 {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Total Family Income</label>
+                    <div class="family-income">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div class="family-income-value">
+                            {{ '₹{:,.2f}'.format(family_income) if family_income else 'Not specified' }}
+                        </div>
+                    </div>
+                </div>
                 
             </div>
         </div>

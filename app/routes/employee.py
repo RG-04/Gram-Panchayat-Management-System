@@ -85,6 +85,10 @@ def view_citizen(aadhaar):
     """
     citizen = db.execute_query(citizen_query, (aadhaar,))
 
+    if not citizen:
+        flash("Citizen not found", "error")
+        return redirect(url_for("employee.certificates"))
+    
     father = False
     mother = False
 
@@ -102,9 +106,23 @@ def view_citizen(aadhaar):
 
     print(str(citizen[0][-1]), str(citizen[0][-2]))
 
-    if not citizen:
-        flash("Citizen not found", "error")
-        return redirect(url_for("employee.certificates"))
+    children_query = """
+        SELECT c.Aadhaar, c.Name
+        FROM Citizen c
+        WHERE c.MotherID = %s OR c.FatherID = %s
+    """
+    children = db.execute_query(children_query, (citizen[0][0], citizen[0][0]))
+
+    print(children)
+
+    family_income_query = """
+        SELECT SUM(c.Income) as FamilyIncome
+        FROM Citizen c
+        WHERE HouseholdID = %s
+    """
+
+    family_income = db.execute_query(family_income_query, (citizen[0][-3],))[0][0]
+    print(family_income)
 
     # Get citizen certificates
     cert_query = """
@@ -137,6 +155,8 @@ def view_citizen(aadhaar):
         certificates_by_category=certificates_by_category,
         father=father and father[0],
         mother=mother and mother[0],
+        children=children,
+        family_income=family_income,
     )
 
 

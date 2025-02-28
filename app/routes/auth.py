@@ -21,7 +21,7 @@ def index():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """Handle user login."""
-    if 'user_id' in session:
+    if request.method == 'GET' and 'user_id' in session:
         return redirect(url_for('auth.index'))
     
     error = None
