@@ -64,9 +64,9 @@ INSERT INTO Schools (SchoolID, Name, Capacity, Income) VALUES
 (2, 'Chandanagar High School', 800, 3000000);
 
 -- Insert hospitals
-INSERT INTO Hospitals (HospitallD, Name, Address) VALUES
-(1, 'Sundarpur Primary Health Center', 'Near Bus Stand, Sundarpur'),
-(2, 'Chandanagar General Hospital', 'Main Road, Chandanagar');
+INSERT INTO Hospitals (HospitalID, Name, Address, Beds) VALUES
+(1, 'Sundarpur Primary Health Center', 'Near Bus Stand, Sundarpur', 50),
+(2, 'Chandanagar General Hospital', 'Main Road, Chandanagar', 25);
 
 -- Insert schemes
 INSERT INTO Schemes (SchemeID, Description) VALUES
@@ -81,10 +81,53 @@ INSERT INTO Land (LandID, OwnerID, Size, Location) VALUES
 (3, '345678901234', 3.0, 'Riverside, Chandanagar');
 
 -- Insert certificates
-INSERT INTO Certificates (Type, CitizenID, DateIssued, File) VALUES
-('Birth Certificate', '123456789012', '1980-06-10', NULL),
-('Income Certificate', '234567890123', '2023-01-15', NULL),
-('Land Ownership', '345678901234', '2022-05-20', NULL);
+INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File) VALUES
+-- Existing certificates from your example
+('Education', 'Primary School Certificate', '123456789012', '1990-04-15', NULL),
+('Education', 'High School Certificate', '234567890123', '2000-03-20', NULL),
+('Vaccination', 'COVID-19', '123456789012', '2022-05-10', NULL),
+('Vaccination', 'COVID-19', '234567890123', '2022-05-10', NULL),
+('Vaccination', 'Cholera', '345678901234', '2022-05-10', NULL),
+('Vaccination', 'Cholera', '234567890123', '2022-05-10', NULL),
+
+-- Additional vaccination certificates (3 diseases only)
+-- COVID-19 Vaccination
+('Vaccination', 'COVID-19', '345678901234', '2021-05-15', NULL),
+('Vaccination', 'COVID-19', '456789012345', '2021-04-10', NULL),
+('Vaccination', 'COVID-19', '567890123456', '2021-05-20', NULL),
+('Vaccination', 'COVID-19', '678901234567', '2021-06-05', NULL),
+('Vaccination', 'COVID-19', '789012345678', '2021-05-18', NULL),
+('Vaccination', 'COVID-19', '890123456789', '2021-04-30', NULL),
+
+-- Cholera Vaccination
+('Vaccination', 'Cholera', '123456789012', '2022-03-10', NULL),
+('Vaccination', 'Cholera', '456789012345', '2022-04-05', NULL),
+('Vaccination', 'Cholera', '567890123456', '2022-03-15', NULL),
+('Vaccination', 'Cholera', '789012345678', '2022-04-12', NULL),
+
+-- Typhoid Vaccination
+('Vaccination', 'Typhoid', '123456789012', '2020-06-15', NULL),
+('Vaccination', 'Typhoid', '234567890123', '2020-07-22', NULL),
+('Vaccination', 'Typhoid', '345678901234', '2020-06-10', NULL),
+('Vaccination', 'Typhoid', '456789012345', '2020-08-05', NULL),
+('Vaccination', 'Typhoid', '567890123456', '2020-07-18', NULL),
+('Vaccination', 'Typhoid', '678901234567', '2020-06-25', NULL),
+
+-- Additional simplified education certificates
+-- Primary School
+('Education', 'Primary School Certificate', '345678901234', '1985-03-25', NULL),
+('Education', 'Primary School Certificate', '789012345678', '1988-03-30', NULL),
+
+-- Middle School
+('Education', 'Middle School Certificate', '789012345678', '1992-03-30', NULL),
+
+-- High School
+('Education', 'High School Certificate', '456789012345', '1998-04-10', NULL),
+('Education', 'High School Certificate', '789012345679', '2022-03-15', NULL),
+
+-- Higher Education
+('Education', 'Bachelor Degree Certificate', '567890123456', '2010-05-22', NULL),
+('Education', 'Diploma Certificate', '890123456789', '2002-04-18', NULL);
 
 -- Insert forms
 INSERT INTO Forms (FormID, SchemeID, Fee) VALUES

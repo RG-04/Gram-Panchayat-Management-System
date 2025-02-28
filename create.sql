@@ -75,7 +75,7 @@ CREATE TABLE Schools (
 
 -- Create Hospitals table
 CREATE TABLE Hospitals (
-    HospitallD SERIAL PRIMARY KEY,
+    HospitalID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
     Address TEXT,
     Beds INTEGER
@@ -100,11 +100,12 @@ CREATE TABLE Land (
 -- Create Certificates table
 CREATE TABLE Certificates (
     -- CertificateID SERIAL PRIMARY KEY,
-    Type VARCHAR(50) NOT NULL,
+    Category VARCHAR(100) NOT NULL,
+    Name VARCHAR(100) NOT NULL,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     DateIssued DATE NOT NULL,
     File BYTEA, -- Binary data for the file
-    PRIMARY KEY (Type, CitizenID)
+    PRIMARY KEY (Category, Name, CitizenID)
 );
 
 -- Create Forms table
