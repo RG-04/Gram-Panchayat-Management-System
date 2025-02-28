@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/statistics.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block head %}{% endblock %}
 </head>
@@ -30,7 +31,7 @@
                     {% if session.role == 'citizen' %}
                         <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
                         <li><a href="{{ url_for('citizen.profile') }}">My Profile</a></li>
-                        <li><a href="{{ url_for('citizen.certificates') }}">Certificates</a></li>
+                        <!-- Removed certificates link as it's now in the profile page -->
                         <li><a href="{{ url_for('citizen.schemes') }}">Schemes</a></li>
                         <li><a href="{{ url_for('citizen.education') }}">Education</a></li>
                     {% elif session.role == 'employee' %}
@@ -67,7 +68,7 @@
     
     <footer>
         <div class="footer-container">
-            <p>&copy; 2025 Gram Panchayat Management System by PREQUEL. All rights reserved.</p>
+            <p>&copy; 2025 Gram Panchayat Management System. All rights reserved.</p>
         </div>
     </footer>
     

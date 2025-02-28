@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}View Certificate - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .certificate-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+    
+    .certificate-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .certificate-header h1 {
+        color: #006400;
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .certificate-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .back-link {
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+    
+    .back-link i {
+        margin-right: 5px;
+    }
+    
+    .certificate-box {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .certificate-pdf-container {
+        width: 100%;
+        height: 600px;
+    }
+    
+    .certificate-pdf-viewer {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    
+    .certificate-info {
+        margin-bottom: 20px;
+    }
+    
+    .certificate-info-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .certificate-info-value {
+        color: #666;
+    }
+    
+    .certificate-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .certificate-button {
+        padding: 10px 20px;
+        background-color: #006400;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+    
+    .certificate-button i {
+        margin-right: 8px;
+    }
+    
+    .certificate-button:hover {
+        background-color: #004d00;
+    }
+    
+    .download-button {
+        background-color: #2196F3;
+    }
+    
+    .download-button:hover {
+        background-color: #0b7dda;
+    }
+    
+    .print-button {
+        background-color: #555;
+    }
+    
+    .print-button:hover {
+        background-color: #333;
+    }
+    
+    .no-file-message {
+        text-align: center;
+        padding: 50px 20px;
+        color: #666;
+    }
+    
+    .no-file-message i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .no-file-message h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    @media (max-width: 768px) {
+        .certificate-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="certificate-container">
+    <div class="certificate-header">
+        <h1><i class="fas fa-certificate"></i> Certificate Details</h1>
+        <a href="{{ url_for('citizen.profile') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+    </div>
+    
+    <div class="certificate-box">
+        <div class="certificate-info">
+            <div class="certificate-info-title">Category</div>
+            <div class="certificate-info-value">{{ certificate[0] }}</div>
+        </div>
+        
+        <div class="certificate-info">
+            <div class="certificate-info-title">Certificate Name</div>
+            <div class="certificate-info-value">{{ certificate[1] }}</div>
+        </div>
+        
+        <div class="certificate-info">
+            <div class="certificate-info-title">Issued On</div>
+            <div class="certificate-info-value">{{ certificate[3].strftime('%d %B %Y') }}</div>
+        </div>
+        
+        {% if certificate[4] %}
+        <div class="certificate-pdf-container">
+            <iframe src="{{ url_for('citizen.certificate_file', category=certificate[0], name=certificate[1]) }}" 
+                    class="certificate-pdf-viewer" title="Certificate PDF"></iframe>
+        </div>
+        {% else %}
+        <div class="no-file-message">
+            <i class="fas fa-file-pdf"></i>
+            <h3>Certificate File Not Available</h3>
+            <p>The digital version of this certificate is not available at this time.</p>
+            <p>Please contact the Gram Panchayat office for more information.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="certificate-actions">
+        {% if certificate[4] %}
+        <a href="{{ url_for('citizen.certificate_file', category=certificate[0], name=certificate[1]) }}" 
+           class="certificate-button download-button" download>
+            <i class="fas fa-download"></i> Download Certificate
+        </a>
+        {% endif %}
+        
+        <a href="{{ url_for('citizen.profile') }}" class="certificate-button">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+    </div>
+</div>
+{% endblock %}

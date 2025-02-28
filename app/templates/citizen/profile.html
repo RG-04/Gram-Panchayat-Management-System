@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+    </div>
+
+    <div class="profile-sections">
+        <!-- Personal Information Section -->
+        <div class="profile-section">
+            <h2><i class="fas fa-info-circle"></i> Personal Information</h2>
+            {% if profile %}
+            <div class="personal-info">
+                <div class="info-group">
+                    <div class="info-label">Aadhaar Number</div>
+                    <div class="info-value">{{ profile[0] }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Full Name</div>
+                    <div class="info-value">{{ profile[1] }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">{{ profile[2].strftime('%d %B %Y') if profile[2] else 'Not available' }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Gender</div>
+                    <div class="info-value">{{ profile[3] or 'Not specified' }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Annual Income</div>
+                    <div class="info-value">₹{{ '{:,.2f}'.format(profile[4]) if profile[4] else 'Not specified' }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Occupation</div>
+                    <div class="info-value">{{ profile[5] or 'Not specified' }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Phone Number</div>
+                    <div class="info-value">{{ profile[6] or 'Not specified' }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Residential Address</div>
+                    <div class="info-value">{{ profile[7] or 'Not specified' }}</div>
+                </div>
+            </div>
+            {% else %}
+            <p>Profile information not available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Account Information Section -->
+        <div class="profile-section account-info">
+            <h2><i class="fas fa-user-lock"></i> Account Information</h2>
+            {% if user %}
+            <div class="personal-info">
+                <div class="info-group">
+                    <div class="info-label">Username</div>
+                    <div class="info-value">{{ user[0] }}</div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Account Type</div>
+                    <div class="info-value">{{ user[1].capitalize() }}</div>
+                </div>
+            </div>
+            <div class="account-actions">
+                <a href="{{ url_for('citizen.update_password') }}" class="account-button password-button">
+                    <i class="fas fa-key"></i> Change Password
+                </a>
+            </div>
+            {% else %}
+            <p>Account information not available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Certificates Section -->
+        <div class="profile-section certificates-section">
+            <h2><i class="fas fa-certificate"></i> My Certificates</h2>
+            
+            {% if certificates_by_category %}
+                <div class="certificates-tabs">
+                    {% for category in certificates_by_category %}
+                        <div class="certificate-tab {% if loop.first %}active{% endif %}" data-tab="{{ category }}">
+                            {{ category }}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                {% for category, certificates in certificates_by_category.items() %}
+                    <div class="certificate-panel {% if loop.first %}active{% endif %}" id="tab-{{ category }}">
+                        <ul class="certificate-list">
+                            {% for cert in certificates %}
+                                <li class="certificate-item">
+                                    <div class="certificate-details">
+                                        <div class="certificate-name">{{ cert.name }}</div>
+                                        <div class="certificate-date">Issued on: {{ cert.date_issued.strftime('%d %B %Y') }}</div>
+                                    </div>
+                                    <div class="certificate-actions">
+                                        <a href="{{ url_for('citizen.view_certificate', category=cert.category, name=cert.name) }}" class="certificate-button">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        {% if cert.file %}
+                                        <a href="{{ url_for('citizen.certificate_file', category=cert.category, name=cert.name) }}" class="certificate-button certificate-download" download>
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-certificates">
+                    <p>You don't have any certificates yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Tab functionality for certificates
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.certificate-tab');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and panels
+                document.querySelectorAll('.certificate-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.certificate-panel').forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding panel
+                const category = this.getAttribute('data-tab');
+                document.getElementById('tab-' + category).classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

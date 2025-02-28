@@ -149,42 +149,85 @@ def profile():
     """
     user = db.execute_query(user_query, (session['citizen_id'],))
     
-    return render_template(
-        'citizen/profile.html',
-        profile=profile[0] if profile else None,
-        user=user[0] if user else None
-    )
-
-@citizen_bp.route('/certificates')
-@role_required(['citizen'])
-def certificates():
-    """View certificates page."""
+    # Get certificates
     cert_query = """
-        SELECT Type, CitizenID, DateIssued
+        SELECT Category, Name, DateIssued
         FROM Certificates
         WHERE CitizenID = %s
-        ORDER BY DateIssued DESC
+        ORDER BY Category, DateIssued DESC
     """
     certificates = db.execute_query(cert_query, (session['citizen_id'],))
     
-    return render_template('citizen/certificates.html', certificates=certificates)
+    # Group certificates by category
+    certificates_by_category = {}
+    for cert in certificates:
+        category = cert[0]
+        if category not in certificates_by_category:
+            certificates_by_category[category] = []
+        certificates_by_category[category].append({
+            'category': cert[0],
+            'name': cert[1],
+            'date_issued': cert[2]
+        })
+    
+    return render_template(
+        'citizen/profile.html',
+        profile=profile[0] if profile else None,
+        user=user[0] if user else None,
+        certificates_by_category=certificates_by_category
+    )
 
-@citizen_bp.route('/certificate/<certificate_type>')
+@citizen_bp.route('/certificate/<category>/<name>')
 @role_required(['citizen'])
-def view_certificate(certificate_type):
+def view_certificate(category, name):
     """View a specific certificate."""
     cert_query = """
-        SELECT Type, CitizenID, DateIssued, File
+        SELECT Category, Name, CitizenID, DateIssued, File
         FROM Certificates
-        WHERE Type = %s AND CitizenID = %s
+        WHERE Category = %s AND Name = %s AND CitizenID = %s
     """
-    certificate = db.execute_query(cert_query, (certificate_type, session['citizen_id']))
+    certificate = db.execute_query(cert_query, (category, name, session['citizen_id']))
     
     if not certificate:
         flash('Certificate not found', 'error')
-        return redirect(url_for('citizen.certificates'))
+        return redirect(url_for('citizen.profile'))
     
-    return render_template('citizen/view_certificate.html', certificate=certificate[0])
+    return render_template(
+        'citizen/view_certificate.html', 
+        certificate=certificate[0]
+    )
+
+@citizen_bp.route('/certificate/<category>/<name>/file')
+@role_required(['citizen'])
+def certificate_file(category, name):
+    """Get the certificate file."""
+    from flask import send_file, Response
+    import io
+    
+    cert_query = """
+        SELECT File
+        FROM Certificates
+        WHERE Category = %s AND Name = %s AND CitizenID = %s
+    """
+    result = db.execute_query(cert_query, (category, name, session['citizen_id']))
+    
+    if not result or not result[0][0]:
+        flash('Certificate file not found', 'error')
+        return redirect(url_for('citizen.view_certificate', category=category, name=name))
+    
+    # Convert BYTEA data to bytes
+    file_data = result[0][0]
+    
+    # Create a file-like object from the bytes
+    file_stream = io.BytesIO(file_data)
+    
+    # Return the PDF file
+    return send_file(
+        file_stream,
+        mimetype='application/pdf',
+        as_attachment=False,
+        download_name=f"{category}_{name}_certificate.pdf"
+    )
 
 @citizen_bp.route('/schemes')
 @role_required(['citizen'])
