@@ -26,11 +26,13 @@ def create_app(config_name=None):
     from app.routes.citizen import citizen_bp
     from app.routes.employee import employee_bp
     from app.routes.monitor import monitor_bp
+    from app.routes.admin import admin_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(citizen_bp, url_prefix='/citizen')
     app.register_blueprint(employee_bp, url_prefix='/employee')
     app.register_blueprint(monitor_bp, url_prefix='/monitor')
+    app.register_blueprint(admin_bp)
     
     # Clean up database connection when the app shuts down
     # @app.teardown_appcontext
