@@ -1,0 +1,790 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Schemes - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .schemes-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .schemes-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .schemes-header h1 {
+        color: #006400;
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .schemes-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .controls-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .filter-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .select-wrapper {
+        position: relative;
+        display: inline-block;
+        min-width: 200px;
+    }
+    
+    .scheme-filter {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        padding: 10px 35px 10px 15px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        color: #333;
+        font-size: 0.95rem;
+        width: 100%;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .scheme-filter:hover {
+        border-color: #006400;
+    }
+    
+    .scheme-filter:focus {
+        outline: none;
+        border-color: #006400;
+        box-shadow: 0 0 0 3px rgba(0, 100, 0, 0.1);
+    }
+    
+    .select-arrow {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #006400;
+        pointer-events: none;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+    
+    .btn i {
+        margin-right: 8px;
+    }
+    
+    .btn-primary {
+        background-color: #006400;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background-color: #004d00;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+    
+    .scheme-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    
+    .scheme-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .scheme-table th {
+        background-color: #f5f5f5;
+        padding: 12px 15px;
+        text-align: left;
+        color: #333;
+        font-weight: 600;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .scheme-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+    }
+    
+    .scheme-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    
+    .scheme-row:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .scheme-row.active {
+        background-color: #f0f7f0;
+    }
+    
+    .scheme-name {
+        font-weight: 600;
+        color: #006400;
+    }
+    
+    .scheme-type {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .scheme-details {
+        display: none;
+        padding: 0 15px 15px 15px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .scheme-details-content {
+        background-color: white;
+        border-radius: 4px;
+        padding: 15px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .scheme-description {
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+    
+    .scheme-meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .scheme-meta-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .meta-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .meta-value {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .scheme-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .action-btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .action-btn i {
+        margin-right: 5px;
+    }
+    
+    .edit-btn {
+        background-color: #2196F3;
+        color: white;
+    }
+    
+    .edit-btn:hover {
+        background-color: #0b7dda;
+    }
+    
+    .delete-btn {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .delete-btn:hover {
+        background-color: #c82333;
+    }
+    
+    .expand-icon {
+        color: #006400;
+        transition: transform 0.3s ease;
+    }
+    
+    .active .expand-icon {
+        transform: rotate(180deg);
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        width: 90%;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .modal-title {
+        margin: 0;
+        color: #006400;
+        font-size: 1.5rem;
+    }
+    
+    .close {
+        color: #aaa;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover {
+        color: #333;
+    }
+    
+    .modal-body {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #006400;
+        box-shadow: 0 0 3px rgba(0, 100, 0, 0.3);
+    }
+    
+    textarea.form-input {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    /* Confirmation dialog styles */
+    .confirm-message {
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        line-height: 1.5;
+    }
+    
+    .confirm-details {
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        border-left: 3px solid #dc3545;
+    }
+    
+    .confirm-warning {
+        color: #dc3545;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+    
+    .summary-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        flex: 1;
+        min-width: 200px;
+        margin-bottom: 20px;
+    }
+    
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #006400;
+        margin-bottom: 10px;
+    }
+    
+    .summary-label {
+        font-size: 1rem;
+        color: #666;
+    }
+    
+    .summary-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .schemes-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .controls-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .scheme-meta {
+            flex-direction: column;
+        }
+        
+        .summary-container {
+            flex-direction: column;
+        }
+        
+        .summary-card {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="schemes-container">
+    <div class="schemes-header">
+        <h1><i class="fas fa-clipboard-list"></i> Manage Government Schemes</h1>
+        <a href="{{ url_for('employee.dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-home"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="summary-container">
+        <div class="summary-card">
+            <div class="summary-value">{{ total_schemes }}</div>
+            <div class="summary-label">Total Schemes</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value">{{ scheme_types|length }}</div>
+            <div class="summary-label">Scheme Categories</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value">{{ total_enrollments }}</div>
+            <div class="summary-label">Total Enrollments</div>
+        </div>
+    </div>
+    
+    <div class="controls-container">
+        <div class="filter-container">
+            <label for="scheme-type-filter">Filter by Type:</label>
+            <div class="select-wrapper">
+                <select id="scheme-type-filter" class="scheme-filter">
+                    <option value="all">All Categories</option>
+                    {% for type in scheme_types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                </select>
+                <div class="select-arrow"></div>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="openAddSchemeModal()">
+            <i class="fas fa-plus"></i> Add New Scheme
+        </button>
+    </div>
+    
+    <div class="scheme-card">
+        <table class="scheme-table">
+            <thead>
+                <tr>
+                    <th>Scheme Name</th>
+                    <th>Type</th>
+                    <th>Enrollments</th>
+                    <th width="50"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scheme in schemes %}
+                <tr class="scheme-row" data-scheme-id="{{ scheme.id }}" data-scheme-type="{{ scheme.type }}" onclick="toggleSchemeDetails(this)">
+                    <td class="scheme-name">{{ scheme.name }}</td>
+                    <td><span class="scheme-type">{{ scheme.type }}</span></td>
+                    <td>{{ scheme.enrollments }}</td>
+                    <td><i class="fas fa-chevron-down expand-icon"></i></td>
+                </tr>
+                <tr class="scheme-details-row">
+                    <td colspan="4" class="scheme-details">
+                        <div class="scheme-details-content">
+                            <div class="scheme-description">
+                                {{ scheme.description }}
+                            </div>
+                            <div class="scheme-meta">
+                                <div class="scheme-meta-item">
+                                    <span class="meta-label">Scheme ID</span>
+                                    <span class="meta-value">{{ scheme.id }}</span>
+                                </div>
+                                <div class="scheme-meta-item">
+                                    <span class="meta-label">Category</span>
+                                    <span class="meta-value">{{ scheme.type }}</span>
+                                </div>
+                                <div class="scheme-meta-item">
+                                    <span class="meta-label">Enrollment Count</span>
+                                    <span class="meta-value">{{ scheme.enrollments }}</span>
+                                </div>
+                            </div>
+                            <div class="scheme-actions">
+                                <button class="action-btn edit-btn" onclick="openEditSchemeModal(event, {{ scheme.id }}, {{ scheme.name|tojson }}, {{ scheme.type|tojson }}, {{ scheme.description|tojson }})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="action-btn delete-btn" onclick="openDeleteSchemeModal(event, {{ scheme.id }}, {{ scheme.name|tojson }}, {{ scheme.enrollments }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add Scheme Modal -->
+<div id="addSchemeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Add New Scheme</h2>
+            <span class="close" onclick="closeModal('addSchemeModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addSchemeForm" action="{{ url_for('employee.add_scheme') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="scheme_name">Scheme Name</label>
+                    <input type="text" id="scheme_name" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="scheme_type">Scheme Type</label>
+                    <div class="select-wrapper">
+                        <select id="scheme_type" name="type" class="form-input" required>
+                            <option value="">Select Type</option>
+                            {% for type in scheme_types %}
+                            <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                            <option value="new">+ Add New Type</option>
+                        </select>
+                        <div class="select-arrow"></div>
+                    </div>
+                </div>
+                <div id="new_type_group" class="form-group" style="display: none;">
+                    <label class="form-label" for="new_type">New Type Name</label>
+                    <input type="text" id="new_type" name="new_type" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="scheme_description">Description</label>
+                    <textarea id="scheme_description" name="description" class="form-input" required></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('addSchemeModal')">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('addSchemeForm').submit()">
+                <i class="fas fa-plus"></i> Add Scheme
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Scheme Modal -->
+<div id="editSchemeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit Scheme</h2>
+            <span class="close" onclick="closeModal('editSchemeModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editSchemeForm" action="{{ url_for('employee.update_scheme') }}" method="POST">
+                <input type="hidden" id="edit_scheme_id" name="scheme_id">
+                <div class="form-group">
+                    <label class="form-label" for="edit_scheme_name">Scheme Name</label>
+                    <input type="text" id="edit_scheme_name" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit_scheme_type">Scheme Type</label>
+                    <div class="select-wrapper">
+                        <select id="edit_scheme_type" name="type" class="form-input" required>
+                            <option value="">Select Type</option>
+                            {% for type in scheme_types %}
+                            <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                            <option value="new">+ Add New Type</option>
+                        </select>
+                        <div class="select-arrow"></div>
+                    </div>
+                </div>
+                <div id="edit_new_type_group" class="form-group" style="display: none;">
+                    <label class="form-label" for="edit_new_type">New Type Name</label>
+                    <input type="text" id="edit_new_type" name="new_type" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit_scheme_description">Description</label>
+                    <textarea id="edit_scheme_description" name="description" class="form-input" required></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('editSchemeModal')">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('editSchemeForm').submit()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Scheme Modal -->
+<div id="deleteSchemeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Delete Scheme</h2>
+            <span class="close" onclick="closeModal('deleteSchemeModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="confirm-message">
+                Are you sure you want to delete this scheme?
+            </div>
+            <div class="confirm-details">
+                <div id="delete_scheme_name" style="font-weight: 600; margin-bottom: 5px;"></div>
+                <div id="delete_enrollment_count"></div>
+                <div class="confirm-warning">This action cannot be undone and will remove all enrollment records for this scheme.</div>
+            </div>
+            <form id="deleteSchemeForm" action="{{ url_for('employee.delete_scheme') }}" method="POST">
+                <input type="hidden" id="delete_scheme_id" name="scheme_id">
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('deleteSchemeModal')">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="document.getElementById('deleteSchemeForm').submit()">
+                <i class="fas fa-trash"></i> Delete Scheme
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleSchemeDetails(row) {
+        // Toggle active class on the row
+        row.classList.toggle('active');
+        
+        // Get the details row
+        const detailsRow = row.nextElementSibling;
+        
+        // Toggle details visibility
+        const detailsCell = detailsRow.querySelector('.scheme-details');
+        if (detailsCell.style.display === 'block') {
+            detailsCell.style.display = 'none';
+        } else {
+            detailsCell.style.display = 'block';
+        }
+    }
+    
+    function filterSchemes() {
+        const filterValue = document.getElementById('scheme-type-filter').value;
+        const schemeRows = document.querySelectorAll('.scheme-row');
+        
+        schemeRows.forEach(row => {
+            const detailsRow = row.nextElementSibling;
+            const rowType = row.getAttribute('data-scheme-type');
+            
+            if (filterValue === 'all' || rowType === filterValue) {
+                row.style.display = '';
+                if (row.classList.contains('active')) {
+                    detailsRow.style.display = '';
+                }
+            } else {
+                row.style.display = 'none';
+                detailsRow.style.display = 'none';
+            }
+        });
+    }
+    
+    // Modal functions
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+    function openAddSchemeModal() {
+        // Reset form
+        document.getElementById('addSchemeForm').reset();
+        document.getElementById('new_type_group').style.display = 'none';
+        
+        // Show modal
+        openModal('addSchemeModal');
+    }
+    
+    function openEditSchemeModal(event, schemeId, schemeName, schemeType, schemeDescription) {
+        // Prevent the click from toggling the row
+        event.stopPropagation();
+        
+        // Set form values
+        document.getElementById('edit_scheme_id').value = schemeId;
+        document.getElementById('edit_scheme_name').value = schemeName;
+        document.getElementById('edit_scheme_type').value = schemeType;
+        document.getElementById('edit_scheme_description').value = schemeDescription;
+        
+        // Reset new type field
+        document.getElementById('edit_new_type_group').style.display = 'none';
+        
+        // Show modal
+        openModal('editSchemeModal');
+    }
+    
+    function openDeleteSchemeModal(event, schemeId, schemeName, enrollmentCount) {
+        // Prevent the click from toggling the row
+        event.stopPropagation();
+        
+        // Set modal content
+        document.getElementById('delete_scheme_id').value = schemeId;
+        document.getElementById('delete_scheme_name').textContent = schemeName;
+        
+        const enrollmentText = document.getElementById('delete_enrollment_count');
+        if (enrollmentCount > 0) {
+            enrollmentText.textContent = `This scheme has ${enrollmentCount} active enrollment${enrollmentCount !== 1 ? 's' : ''}.`;
+        } else {
+            enrollmentText.textContent = 'This scheme has no active enrollments.';
+        }
+        
+        // Show modal
+        openModal('deleteSchemeModal');
+    }
+    
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+    
+    // Setup event listeners when the document is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup type filter
+        document.getElementById('scheme-type-filter').addEventListener('change', filterSchemes);
+        
+        // Setup new type behavior for add modal
+        document.getElementById('scheme_type').addEventListener('change', function() {
+            const newTypeGroup = document.getElementById('new_type_group');
+            if (this.value === 'new') {
+                newTypeGroup.style.display = 'block';
+                document.getElementById('new_type').setAttribute('required', 'required');
+            } else {
+                newTypeGroup.style.display = 'none';
+                document.getElementById('new_type').removeAttribute('required');
+            }
+        });
+        
+        // Setup new type behavior for edit modal
+        document.getElementById('edit_scheme_type').addEventListener('change', function() {
+            const newTypeGroup = document.getElementById('edit_new_type_group');
+            if (this.value === 'new') {
+                newTypeGroup.style.display = 'block';
+                document.getElementById('edit_new_type').setAttribute('required', 'required');
+            } else {
+                newTypeGroup.style.display = 'none';
+                document.getElementById('edit_new_type').removeAttribute('required');
+            }
+        });
+    });
+</script>
+{% endblock %}
