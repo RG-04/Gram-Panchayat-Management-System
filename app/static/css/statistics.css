@@ -152,6 +152,199 @@
     background-color: #e0e0e0;
 }
 
+.literacy-card {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 15px 20px !important;
+}
+
+.card-title {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.literacy-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.literacy-stat {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.literacy-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+}
+
+.overall-icon {
+    background-color: #006400;
+}
+
+.male-icon {
+    background-color: #1976d2;
+}
+
+.female-icon {
+    background-color: #e91e63;
+}
+
+.literacy-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.literacy-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.literacy-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.literacy-divider {
+    width: 1px;
+    height: 50px;
+    background-color: #e0e0e0;
+    margin: 0 15px;
+}
+
+/* Vaccination Stats Styles */
+.vaccination-summary {
+    margin-bottom: 30px;
+}
+
+.vaccination-card {
+    max-width: none !important;
+    width: 100% !important;
+    padding: 20px !important;
+}
+
+.vaccination-chart {
+    width: 100%;
+}
+
+.vaccination-bar-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.vaccination-label {
+    width: 100px;
+    text-align: right;
+    padding-right: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.vaccination-bar-wrapper {
+    flex: 1;
+    background-color: #f0f0f0;
+    height: 25px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.vaccination-bar {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 4px;
+    position: relative;
+    min-width: 40px;
+}
+
+.vaccination-rate {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Progress bar in table */
+.progress-container {
+    width: 100%;
+    background-color: #f0f0f0;
+    height: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 4px;
+    min-width: 30px;
+}
+
+.progress-text {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .vaccination-bar-container {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+    
+    .vaccination-label {
+        width: 100%;
+        text-align: left;
+        padding-right: 0;
+        margin-bottom: 5px;
+    }
+    
+    .vaccination-bar-wrapper {
+        width: 100%;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .literacy-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .literacy-divider {
+        width: 80%;
+        height: 1px;
+        margin: 10px 0;
+    }
+    
+    .literacy-stat {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .category-nav {

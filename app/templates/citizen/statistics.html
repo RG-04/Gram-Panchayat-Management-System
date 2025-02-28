@@ -21,12 +21,42 @@
                     <div class="summary-label">Schools</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value">{{ stats.total_students }}</div>
+                    <div class="summary-value">{{ stats.curr_students }}</div>
                     <div class="summary-label">Students</div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-value">{{ stats.literacy_rate }}%</div>
-                    <div class="summary-label">Literacy Rate</div>
+                <div class="summary-card literacy-card">
+                    <h3 class="card-title">Literacy Rate</h3>
+                    <div class="literacy-stats">
+                        <div class="literacy-stat">
+                            <div class="literacy-icon overall-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="literacy-details">
+                                <div class="literacy-value">{{ stats.literacy_rate }}%</div>
+                                <div class="literacy-label">Overall</div>
+                            </div>
+                        </div>
+                        <div class="literacy-divider"></div>
+                        <div class="literacy-stat">
+                            <div class="literacy-icon male-icon">
+                                <i class="fas fa-male"></i>
+                            </div>
+                            <div class="literacy-details">
+                                <div class="literacy-value">{{ stats.male_literacy_rate }}%</div>
+                                <div class="literacy-label">Male</div>
+                            </div>
+                        </div>
+                        <div class="literacy-divider"></div>
+                        <div class="literacy-stat">
+                            <div class="literacy-icon female-icon">
+                                <i class="fas fa-female"></i>
+                            </div>
+                            <div class="literacy-details">
+                                <div class="literacy-value">{{ stats.female_literacy_rate }}%</div>
+                                <div class="literacy-label">Female</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -36,18 +66,16 @@
                     <thead>
                         <tr>
                             <th>School Name</th>
-                            <th>Students</th>
-                            <th>Teachers</th>
-                            <th>Student-Teacher Ratio</th>
+                            <th>Current Students</th>
+                            <th>Total Students</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for school in stats.schools %}
                         <tr>
                             <td>{{ school.name }}</td>
-                            <td>{{ school.students }}</td>
-                            <td>{{ school.teachers }}</td>
-                            <td>{{ (school.students / school.teachers)|round(1) }}:1</td>
+                            <td>{{ school.current_students }}</td>
+                            <td>{{ school.total_students }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -64,10 +92,6 @@
                     <div class="summary-value">{{ stats.total_beds }}</div>
                     <div class="summary-label">Hospital Beds</div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-value">{{ stats.vaccination_rate }}%</div>
-                    <div class="summary-label">Vaccination Rate</div>
-                </div>
             </div>
             
             <h2>Healthcare Facilities</h2>
@@ -77,8 +101,7 @@
                         <tr>
                             <th>Facility Name</th>
                             <th>Beds</th>
-                            <th>Doctors</th>
-                            <th>Beds per Doctor</th>
+                            <th>Address</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -86,8 +109,34 @@
                         <tr>
                             <td>{{ hospital.name }}</td>
                             <td>{{ hospital.beds }}</td>
-                            <td>{{ hospital.doctors }}</td>
-                            <td>{{ (hospital.beds / hospital.doctors)|round(1) }}</td>
+                            <td>{{ hospital.address }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>Vaccination Coverage</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Disease</th>
+                            <th>Vaccinated Citizens</th>
+                            <th>Vaccination Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in stats.vaccination_stats %}
+                        <tr>
+                            <td>{{ stat.Disease }}</td>
+                            <td>{{ stat.VaccinatedCitizens }}</td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: {{ stat.VaccinationRate }}%;"></div> <!-- This works, ignore red linting -->
+                                    <span class="progress-text">{{ stat.VaccinationRate }}%</span>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

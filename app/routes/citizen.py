@@ -26,16 +26,42 @@ def statistics():
     
     # Based on the category, fetch different statistics
     if category == 'education':
-        # Example education statistics
-        # In a real application, you would fetch this data from your database
+        school_query = """
+        SELECT schoolid, s.name,
+        SUM(CASE WHEN a.PassDate IS NULL THEN 1 ELSE 0 END) AS current_students,
+        COUNT(*) AS total_students
+        FROM schools s NATURAL JOIN attendsschool a
+        JOIN citizen c ON a.citizenid = c.aadhaar
+        GROUP BY schoolid
+        ORDER BY schoolid;
+        """
+
+        literacy_query = """
+        SELECT ROUND((COUNT(DISTINCT a.CitizenID) * 100.0) / COUNT(DISTINCT c.Aadhaar), 2) AS LiteracyRate
+        FROM Citizen c
+        LEFT JOIN AttendsSchool a
+        ON c.Aadhaar = a.CitizenID;
+        """
+
+        gender_literacy_query = """
+        SELECT ROUND((COUNT(DISTINCT a.CitizenID) * 100.0) / COUNT(DISTINCT c.Aadhaar), 2) AS LiteracyRate
+        FROM Citizen c
+        LEFT JOIN AttendsSchool a
+        ON c.Aadhaar = a.CitizenID
+        GROUP BY c.Gender;
+        """
+
+        schools = db.execute_query(school_query)
+        literacy_rate = db.execute_query(literacy_query)[0][0]
+        male_literacy_rate, female_literacy_rate = db.execute_query(gender_literacy_query)
+        male_literacy_rate, female_literacy_rate = male_literacy_rate[0],female_literacy_rate[0]
         education_stats = {
-            'total_schools': 5,
-            'total_students': 1250,
-            'literacy_rate': 78.5,
-            'schools': [
-                {'name': 'Sundarpur Primary School', 'students': 500, 'teachers': 15},
-                {'name': 'Chandanagar High School', 'students': 750, 'teachers': 25}
-            ]
+            'total_schools': len(schools),
+            'curr_students': sum([school[2] for school in schools]),
+            'schools': [{'name': school[1], 'current_students': school[2], 'total_students': school[3]} for school in schools],
+            'literacy_rate': literacy_rate,
+            'male_literacy_rate': male_literacy_rate,            
+            'female_literacy_rate': female_literacy_rate,
         }
         return render_template(
             'citizen/statistics.html',
@@ -46,13 +72,34 @@ def statistics():
     
     elif category == 'health':
         # Example health statistics
+        hospital_query = """
+        SELECT * FROM Hospitals
+        ORDER BY HospitalID;
+        """
+        vaccination_query="""
+        WITH TotalCitizens AS ( SELECT COUNT(DISTINCT Aadhaar) AS Total FROM Citizen )
+        SELECT 
+            cert.Name AS Disease,
+            COUNT(DISTINCT cert.CitizenID) AS VaccinatedCitizens,
+            (SELECT Total FROM TotalCitizens) AS TotalCitizens,
+            ROUND((COUNT(DISTINCT cert.CitizenID) * 100.0) / (SELECT Total FROM TotalCitizens), 2) AS VaccinationRate
+        FROM Certificates cert
+        WHERE cert.Category = 'Vaccination'AND cert.Name IS NOT NULL
+        GROUP BY cert.Name
+        ORDER BY VaccinationRate DESC;
+        """
+        hospitals = db.execute_query(hospital_query)
+        vaccination_stats = db.execute_query(vaccination_query)
         health_stats = {
-            'total_hospitals': 2,
-            'total_beds': 75,
-            'vaccination_rate': 85.2,
-            'hospitals': [
-                {'name': 'Sundarpur Primary Health Center', 'beds': 25, 'doctors': 5},
-                {'name': 'Chandanagar General Hospital', 'beds': 50, 'doctors': 12}
+            'total_hospitals': len(hospitals),
+            'total_beds': sum([hospital[3] for hospital in hospitals]),
+            'hospitals': [{'name': hospital[1], 'beds': hospital[3], 'address': hospital[2]} for hospital in hospitals],
+            'vaccination_stats': [
+                {
+                    'Disease': stat[0],
+                    'VaccinatedCitizens': stat[1],
+                    'VaccinationRate': stat[3]
+                } for stat in vaccination_stats
             ]
         }
         return render_template(
