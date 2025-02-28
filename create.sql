@@ -6,7 +6,9 @@ DROP TABLE IF EXISTS Certificates;
 DROP TABLE IF EXISTS Forms;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS Schemes;
+DROP TABLE IF EXISTS LandCrop;
 DROP TABLE IF EXISTS Land;
+DROP TABLE IF EXISTS Crop;
 DROP TABLE IF EXISTS Schools;
 DROP TABLE IF EXISTS Hospitals;
 DROP TABLE IF EXISTS Monitors;
@@ -81,7 +83,9 @@ CREATE TABLE Hospitals (
 -- Create Schemes table
 CREATE TABLE Schemes (
     SchemeID SERIAL PRIMARY KEY,
-    Description TEXT NOT NULL
+    Name VARCHAR(100) NOT NULL,
+    Description TEXT NOT NULL,
+    Type VARCHAR(100)
 );
 
 -- Create Land table
@@ -89,9 +93,22 @@ CREATE TABLE Land (
     LandID SERIAL PRIMARY KEY,
     OwnerID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Size DECIMAL(10, 2),
-    Crop VARCHAR(100),
-    AnnualYield DECIMAL(10, 2), -- in kg
     Location TEXT
+);
+
+CREATE TABLE Crop (
+    CropID SERIAL PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Type VARCHAR(100)
+);
+
+CREATE TABLE LandCrop (
+    LandID INTEGER REFERENCES Land(LandID),
+    CropID INTEGER REFERENCES Crop(CropID),
+    Area DECIMAL(10, 2), -- in acres
+    AnnualYield DECIMAL(10, 2), -- in kg
+    isOrganic BOOLEAN,
+    PRIMARY KEY (LandID, CropID)
 );
 
 -- Create Certificates table
@@ -114,7 +131,6 @@ CREATE TABLE Forms (
 
 -- Create Scheme-Enrollment table
 CREATE TABLE SchemeEnrollment (
-    -- EnrollmentID SERIAL PRIMARY KEY,
     SchemeID INTEGER REFERENCES Schemes(SchemeID),
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Date DATE NOT NULL,

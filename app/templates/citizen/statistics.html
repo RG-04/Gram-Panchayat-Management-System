@@ -150,41 +150,136 @@
                     <div class="summary-label">Total Land Area (hectares)</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value">{{ stats.irrigated_area }}</div>
-                    <div class="summary-label">Irrigated Area (hectares)</div>
+                    <div class="summary-value">{{ stats.agricultural_area }}</div>
+                    <div class="summary-label">Agricultural Area (hectares)</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-value">{{ (stats.irrigated_area / stats.total_land_area * 100)|round(1) }}%</div>
-                    <div class="summary-label">Irrigation Coverage</div>
+                    <div class="summary-value">{{ stats.agricultural_percentage }}%</div>
+                    <div class="summary-label">Agricultural Land %</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.organic_percentage }}%</div>
+                    <div class="summary-label">Organic Farming %</div>
                 </div>
             </div>
-            
+
             <h2>Main Crops</h2>
-            <div class="main-crops">
-                {% for crop in stats.main_crops %}
-                <div class="crop-tag">{{ crop }}</div>
-                {% endfor %}
+            <div class="crop-distribution">
+                <div class="crop-chart-container">
+                    <canvas id="cropPieChart"></canvas>
+                </div>
+                <div class="crop-filter-container">
+                    <h3>Filter by Crop Type</h3>
+                    <div class="crop-type-filters">
+                        <button class="crop-filter-btn active" data-type="all">All</button>
+                        {% for type in stats.crop_types %}
+                        <button class="crop-filter-btn" data-type="{{ type }}">{{ type }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-            
-            <h2>Agricultural Schemes</h2>
+
             <div class="stats-table-container">
-                <table class="stats-table">
+                <table class="stats-table" id="cropsTable">
                     <thead>
                         <tr>
-                            <th>Scheme Name</th>
-                            <th>Beneficiaries</th>
+                            <th>Crop Name</th>
+                            <th>Type</th>
+                            <th>Area (hectares)</th>
+                            <th>Annual Yield (kg)</th>
+                            <th>Yield per Hectare</th>
+                            <th>Organic</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for scheme in stats.schemes %}
-                        <tr>
-                            <td>{{ scheme.name }}</td>
-                            <td>{{ scheme.beneficiaries }}</td>
+                        {% for crop in stats.crops %}
+                        <tr data-crop-type="{{ crop.type }}">
+                            <td>{{ crop.name }}</td>
+                            <td>{{ crop.type }}</td>
+                            <td>{{ crop.area }}</td>
+                            <td>{{ crop.yield }}</td>
+                            <td>{{ crop.yield_per_hectare }}</td>
+                            <td>{% if crop.organic %}✓{% else %}✗{% endif %}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Add Chart.js from CDN -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+            <!-- JavaScript for crop filtering and pie chart -->
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Pie Chart for top 3 crops
+                const cropData = {{ stats.crop_pie_data|tojson }};
+                const ctx = document.getElementById('cropPieChart').getContext('2d');
+                
+                const cropPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: cropData.labels,
+                        datasets: [{
+                            data: cropData.values,
+                            backgroundColor: [
+                                '#4CAF50',
+                                '#8BC34A',
+                                '#CDDC39',
+                                '#AFB42B'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: 1.2, // Make it slightly taller than wide
+                        layout: {
+                            padding: {
+                                bottom: 20 // Add some padding at the bottom for the legend
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                align: 'start', // This can help with layout issues
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 10
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Crop type filtering
+                const filterButtons = document.querySelectorAll('.crop-filter-btn');
+                const tableRows = document.querySelectorAll('#cropsTable tbody tr');
+                
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        // Remove active class from all buttons
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        // Add active class to clicked button
+                        this.classList.add('active');
+                        
+                        const filterType = this.getAttribute('data-type');
+                        
+                        // Filter table rows
+                        tableRows.forEach(row => {
+                            const rowType = row.getAttribute('data-crop-type');
+                            if (filterType === 'all' || rowType === filterType) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            });
+            </script>
         {% endif %}
     </div>
 

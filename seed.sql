@@ -69,16 +69,80 @@ INSERT INTO Hospitals (HospitalID, Name, Address, Beds) VALUES
 (2, 'Chandanagar General Hospital', 'Main Road, Chandanagar', 25);
 
 -- Insert schemes
-INSERT INTO Schemes (SchemeID, Description) VALUES
-(1, 'Rural Housing Scheme'),
-(2, 'Farmers Subsidy Program'),
-(3, 'Education Scholarship');
+INSERT INTO Schemes (SchemeID, Name, Type, Description) VALUES
+(1, 'Rural Housing Scheme', 'Housing', 'Home for everyone'),
+(2, 'Farmers Subsidy Program', 'Agriculture', 'Support for farmers'),
+(3, 'Education Scholarship', 'Education', 'Student aid program'),
+(4, 'Health Insurance', 'Healthcare', 'Medical coverage'),
+(5, 'Skill Development', 'Employment', 'Job training'),
+(6, 'Clean Water Mission', 'Infrastructure', 'Safe drinking water'),
+(7, 'Solar Energy Rebate', 'Energy', 'Green power subsidy'),
+(8, 'Women Empowerment', 'Social Welfare', 'Support for women');
 
--- Insert land records
-INSERT INTO Land (LandID, OwnerID, Size, Location) VALUES
-(1, '123456789012', 2.5, 'North of Sundarpur'),
-(2, '234567890123', 1.5, 'East of Sundarpur'),
-(3, '345678901234', 3.0, 'Riverside, Chandanagar');
+-- Populate the Land table
+-- We'll create land holdings of varying sizes for different owners
+INSERT INTO Crop (Name, Type) VALUES
+('Rice', 'Cereal'),
+('Wheat', 'Cereal'),
+('Potato', 'Vegetable'),
+('Sugarcane', 'Cash Crop'),
+('Chickpea', 'Pulse');
+
+-- Populate the Land table for 7 people
+INSERT INTO Land (OwnerID, Size, Location) VALUES
+('123456789012', 8.50, 'North Village - Fertile Plain'),
+
+('456789012345', 2.75, 'South Village - Upland'),
+
+('345678901234', 1.50, 'Central Village - Near Market'),
+
+('234567890123', 4.50, 'North Village - Plateau'),
+
+('678901234567', 0.75, 'Central Village - Residential Area'),
+
+('901234567890', 3.80, 'South Village - Near Lake'),
+
+('890123456789', 1.20, 'West Village - Foothills');
+
+INSERT INTO Land (OwnerID, Size, Location) VALUES
+('123456789012', 1.20, 'East Village - Fallow Plot');
+
+-- Now populate the LandCrop table
+-- Ensuring cultivated area is 60-80% of total land size
+
+-- Amit Patel's land (Farmer) - 6.2 acres cultivated out of 8.5 (73%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(1, 1, 3.00, 9000.00, FALSE), -- Rice (non-organic)
+(1, 4, 2.00, 80000.00, FALSE), -- Sugarcane (non-organic)
+(1, 5, 1.20, 1080.00, TRUE);   -- Chickpea (organic)
+
+-- Raj Kumar's land (Government Employee) - 1.9 acres cultivated out of 2.75 (69%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(2, 2, 1.20, 3000.00, FALSE),  -- Wheat (non-organic)
+(2, 3, 0.70, 8400.00, FALSE);  -- Potato (non-organic)
+
+-- Mohamed Ali's land (Shopkeeper) - 1.0 acre cultivated out of 1.5 (67%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(3, 3, 1.00, 12000.00, FALSE); -- Potato (non-organic)
+
+-- Sunita Sharma's land (Teacher) - 3.3 acres cultivated out of 4.5 (73%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(4, 2, 2.50, 6250.00, FALSE),  -- Wheat (non-organic)
+(4, 5, 0.80, 720.00, TRUE);    -- Chickpea (organic)
+
+-- Lakshmi Devi's land (Tailor) - 0.5 acre cultivated out of 0.75 (67%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(5, 3, 0.50, 6000.00, TRUE);   -- Potato (organic)
+
+-- Suresh Patel's land (Electrician) - 2.8 acres cultivated out of 3.8 (74%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(6, 4, 1.80, 72000.00, FALSE), -- Sugarcane (non-organic)
+(6, 1, 1.00, 3000.00, FALSE);  -- Rice (non-organic)
+
+-- Anita Verma's land (Nurse) - 0.8 acre cultivated out of 1.2 (67%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
+(7, 3, 0.50, 6000.00, FALSE),  -- Potato (non-organic)
+(7, 5, 0.30, 270.00, TRUE);    -- Chickpea (organic)
 
 -- Insert certificates
 INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File) VALUES
@@ -139,7 +203,12 @@ INSERT INTO Forms (FormID, SchemeID, Fee) VALUES
 INSERT INTO SchemeEnrollment (SchemeID, CitizenID, Date) VALUES
 (1, '123456789012', '2023-02-10'),
 (2, '123456789012', '2023-03-15'),
-(3, '234567890123', '2023-01-05');
+(3, '234567890123', '2023-01-05'),
+(4, '123456789012', '2023-04-20'),
+(5, '234567890123', '2023-05-12'),
+(6, '123456789012', '2023-06-30'),
+(7, '234567890123', '2023-07-22'),
+(8, '234567890123', '2023-08-15');
 
 -- Insert school attendance records
 INSERT INTO AttendsSchool (CitizenID, SchoolID, Qualification, PassDate) VALUES
