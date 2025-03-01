@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from functools import wraps
 from app import db
+from app.queries.admin_queries import admin_queries
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -45,37 +46,15 @@ def logout():
 def dashboard():
     """Admin dashboard page."""
     # Get all table names
-    tables_query = """
-        SELECT 
-            table_name 
-        FROM 
-            information_schema.tables 
-        WHERE 
-            table_schema = 'public'
-        ORDER BY 
-            table_name
-    """
-    tables = db.execute_query(tables_query)
+    
+    tables = db.execute_query(admin_queries['tables_query'])
     
     # Get all columns for each table
     table_columns = {}
     for table in tables:
         table_name = table[0]
-        columns_query = f"""
-            SELECT 
-                column_name, 
-                data_type, 
-                is_nullable, 
-                column_default
-            FROM 
-                information_schema.columns 
-            WHERE 
-                table_schema = 'public' 
-                AND table_name = '{table_name}'
-            ORDER BY 
-                ordinal_position
-        """
-        columns = db.execute_query(columns_query)
+        
+        columns = db.execute_query(admin_queries['columns_query'], (table_name,))
         table_columns[table_name] = columns
     
     return render_template(

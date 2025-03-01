@@ -2,7 +2,7 @@ import hashlib
 import os
 from flask import session, redirect, url_for
 from functools import wraps
-
+from app.queries.auth_queries import auth_queries
 from app import db
 
 def hash_password(password, salt=None):
@@ -28,19 +28,7 @@ def authenticate_user(username, password):
     Authenticate a user with username and password.
     Returns user data if authentication is successful, None otherwise.
     """
-    query = """
-        SELECT u.UserID, u.username, u.password, u.salt, u.auth, u.CitizenID, u.MonitorID, 
-               CASE WHEN u.CitizenID IS NOT NULL THEN c.Name 
-                    WHEN u.MonitorID IS NOT NULL THEN m.Name
-                    ELSE NULL
-               END as Name
-        FROM users u
-        LEFT JOIN Citizen c ON u.CitizenID = c.Aadhaar
-        LEFT JOIN Monitors m ON u.MonitorID = m.MonitorID
-        WHERE u.username = %s
-    """
-    
-    result = db.execute_query(query, (username,))
+    result = db.execute_query(auth_queries['user_query'], (username,))
     
     if result and len(result) > 0:
         user_id, db_username, stored_hash, salt, role, citizen_id, monitor_id, name = result[0]
@@ -48,12 +36,8 @@ def authenticate_user(username, password):
         if verify_password(password, stored_hash, salt):
             # Check if user is an employee
             is_employee = False
-            if citizen_id:
-                employee_query = """
-                    SELECT EmployeeID FROM EmployeeCitizens 
-                    WHERE CitizenID = %s
-                """
-                employee_result = db.execute_query(employee_query, (citizen_id,))
+            if citizen_id:  
+                employee_result = db.execute_query(auth_queries['employee_query'], (citizen_id,))
                 is_employee = len(employee_result) > 0
             
             return {
@@ -94,19 +78,7 @@ def get_current_user():
     if 'user_id' not in session:
         return None
     
-    query = """
-        SELECT u.UserID, u.username, u.auth, u.CitizenID, u.MonitorID, 
-               CASE WHEN u.CitizenID IS NOT NULL THEN c.Name 
-                    WHEN u.MonitorID IS NOT NULL THEN m.Name
-                    ELSE NULL
-               END as Name
-        FROM users u
-        LEFT JOIN Citizen c ON u.CitizenID = c.Aadhaar
-        LEFT JOIN Monitors m ON u.MonitorID = m.MonitorID
-        WHERE u.UserID = %s
-    """
-    
-    result = db.execute_query(query, (session['user_id'],))
+    result = db.execute_query(auth_queries['curr_user_query'], (session['user_id'],))
     
     if result and len(result) > 0:
         user_id, username, role, citizen_id, monitor_id, name = result[0]
@@ -114,11 +86,7 @@ def get_current_user():
         # Check if user is an employee if they are a citizen
         is_employee = False
         if citizen_id:
-            employee_query = """
-                SELECT EmployeeID FROM EmployeeCitizens 
-                WHERE CitizenID = %s
-            """
-            employee_result = db.execute_query(employee_query, (citizen_id,))
+            employee_result = db.execute_query(auth_queries['employee_query'], (citizen_id,))
             is_employee = len(employee_result) > 0
         
         return {

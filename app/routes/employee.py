@@ -3,7 +3,6 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from app.utils.auth_utils import role_required
 from app import db
 from werkzeug.utils import secure_filename
-import os
 from datetime import datetime
 
 employee_bp = Blueprint("employee", __name__)
@@ -41,16 +40,12 @@ def dashboard():
     """
     scheme_count = db.execute_query(scheme_count_query)[0][0]
 
-    # Get current date for footer
-    current_date = datetime.now().strftime("%d %B %Y")
-
     return render_template(
         "employee/dashboard.html",
         employee=employee_info[0] if employee_info else None,
         citizen_count=citizen_count,
         cert_count=cert_count,
         scheme_count=scheme_count,
-        current_date=current_date,
     )
 
 
