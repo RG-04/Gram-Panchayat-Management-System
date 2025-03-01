@@ -299,9 +299,10 @@
             <div class="info-item">
                 <div class="info-label">Age</div>
                 <div class="info-value">
+                    {% set today = current_date %}
                     {% if asset[3] %}
-                        {% set age_days = (asset[3] - asset[3]).days %}
-                        {{ (age_days / 365.25) | round(1) }} years ({{ age_days }} days)
+                        {% set age_days = (today - asset[3]).days %}
+                        {{ (age_days / 365.25) | round(1) }} years
                     {% else %}
                         Unknown
                     {% endif %}
