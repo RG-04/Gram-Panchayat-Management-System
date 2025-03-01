@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Panchayat Employees - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .employees-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .employees-header {
+        margin-bottom: 30px;
+    }
+    
+    .employees-header h1 {
+        color: #006400;
+        margin-bottom: 10px;
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .employees-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .employees-header p {
+        color: #666;
+    }
+    
+    .role-section {
+        margin-bottom: 40px;
+    }
+    
+    .role-title {
+        color: #2196F3;
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #eee;
+    }
+    
+    .employees-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .employee-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .employee-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .employee-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .employee-details {
+        margin-top: 15px;
+    }
+    
+    .detail-item {
+        display: flex;
+        margin-bottom: 8px;
+        align-items: center;
+    }
+    
+    .detail-icon {
+        color: #006400;
+        width: 20px;
+        margin-right: 10px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .detail-text {
+        color: #666;
+        flex-grow: 1;
+    }
+    
+    .contact-button {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background-color: #006400;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        font-size: 0.85rem;
+    }
+    
+    .contact-button:hover {
+        background-color: #004d00;
+    }
+    
+    .contact-button i {
+        margin-right: 5px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .employees-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="employees-container">
+    <div class="employees-header">
+        <h1><i class="fas fa-user-tie"></i> Panchayat Employees</h1>
+        <p>Contact information for gram panchayat officials and employees</p>
+    </div>
+    
+    {% if employees_by_role %}
+        {% for role, role_employees in employees_by_role.items() %}
+            <div class="role-section">
+                <h2 class="role-title">{{ role }}</h2>
+                <div class="employees-list">
+                    {% for employee in role_employees %}
+                        <div class="employee-card">
+                            <div class="employee-name">{{ employee.name }}</div>
+                            
+                            <div class="employee-details">
+                                <div class="detail-item">
+                                    <div class="detail-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="detail-text">{{ employee.phone }}</div>
+                                    <a href="tel:{{ employee.phone }}" class="contact-button">
+                                        <i class="fas fa-phone"></i> Call
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-employees">
+            <p>No panchayat employees found in the system.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

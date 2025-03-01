@@ -330,6 +330,32 @@ def education():
         schools=schools
     )
 
+@citizen_bp.route('/panchayat_employees')
+@role_required(['citizen', 'monitor'])
+def panchayat_employees():
+    """View list of panchayat employees, their roles, and contact details."""
+    # Get list of all employees with their details
+    
+    employees = db.execute_query(citizen_queries['employees_query'])
+    
+    # Group employees by role for better organization
+    employees_by_role = {}
+    for emp in employees:
+        role = emp[2]
+        if role not in employees_by_role:
+            employees_by_role[role] = []
+        employees_by_role[role].append({
+            'name': emp[0],
+            'phone': emp[1],
+            'role': role,
+        })
+    
+    return render_template(
+        'citizen/panchayat_employees.html',
+        employees=employees,
+        employees_by_role=employees_by_role
+    )
+
 @citizen_bp.route('/update_password', methods=['GET', 'POST'])
 @role_required(['citizen'])
 def update_password():
