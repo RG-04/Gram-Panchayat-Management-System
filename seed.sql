@@ -186,12 +186,6 @@ INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File) VALUES
 ('Education', 'Bachelor Degree Certificate', '567890123456', '2010-05-22', NULL),
 ('Education', 'Diploma Certificate', '890123456789', '2002-04-18', NULL);
 
--- Insert forms
-INSERT INTO Forms (SchemeID, Fee) VALUES
-(1, 100.00),
-(2, 50.00),
-(3, 75.00);
-
 -- Insert scheme enrollments
 INSERT INTO SchemeEnrollment (SchemeID, CitizenID, Date) VALUES
 (1, '123456789012', '2023-02-10'),

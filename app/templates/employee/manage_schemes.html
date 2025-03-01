@@ -521,13 +521,13 @@ Management System{% endblock %} {% block head %}
               <div class="scheme-actions">
                 <button
                   class="action-btn edit-btn"
-                  onclick="openEditSchemeModal(event, {{ scheme.id }}, {{ scheme.name|tojson }}, {{ scheme.type|tojson }}, {{ scheme.description|tojson }})"
+                  onclick="openEditSchemeModal(event, {{ scheme.id }}, '{{ scheme.name }}', '{{ scheme.type }}', '{{ scheme.description }}')"
                 >
                   <i class="fas fa-edit"></i> Edit
                 </button>
                 <button
                   class="action-btn delete-btn"
-                  onclick="openDeleteSchemeModal(event, {{ scheme.id }}, {{ scheme.name|tojson }}, {{ scheme.enrollments }})"
+                  onclick="openDeleteSchemeModal(event, {{ scheme.id }}, '{{ scheme.name }}', {{ scheme.enrollments }})"
                 >
                   <i class="fas fa-trash"></i> Delete
                 </button>
@@ -809,7 +809,7 @@ Management System{% endblock %} {% block head %}
   ) {
     // Prevent the click from toggling the row
     event.stopPropagation();
-
+    console.log(schemeId, schemeName, schemeType, schemeDescription);
     // Set form values
     document.getElementById("edit_scheme_id").value = schemeId;
     document.getElementById("edit_scheme_name").value = schemeName;
@@ -827,7 +827,7 @@ Management System{% endblock %} {% block head %}
   function openDeleteSchemeModal(event, schemeId, schemeName, enrollmentCount) {
     // Prevent the click from toggling the row
     event.stopPropagation();
-
+    console.log(schemeId, schemeName, enrollmentCount);
     // Set modal content
     document.getElementById("delete_scheme_id").value = schemeId;
     document.getElementById("delete_scheme_name").textContent = schemeName;

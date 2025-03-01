@@ -83,7 +83,7 @@ CREATE TABLE Hospitals (
     Beds INTEGER
 );
 
--- Create Schemes table
+-- Create Schemes 
 CREATE TABLE Schemes (
     SchemeID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
@@ -125,19 +125,13 @@ CREATE TABLE Certificates (
     PRIMARY KEY (Category, Name, CitizenID)
 );
 
--- Create Forms table
-CREATE TABLE Forms (
-    FormID SERIAL PRIMARY KEY,
-    SchemeID INTEGER REFERENCES Schemes(SchemeID),
-    Fee DECIMAL(10, 2)
-);
-
 -- Create Scheme-Enrollment table
 CREATE TABLE SchemeEnrollment (
-    SchemeID INTEGER REFERENCES Schemes(SchemeID),
+    SchemeID INTEGER,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Date DATE NOT NULL,
-    PRIMARY KEY (SchemeID, CitizenID)
+    PRIMARY KEY (SchemeID, CitizenID),
+    FOREIGN KEY (SchemeID) REFERENCES Schemes(SchemeID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Create Attends-School table

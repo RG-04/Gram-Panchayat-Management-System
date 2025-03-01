@@ -603,25 +603,26 @@ def update_scheme():
         flash("Scheme ID, name, and description are required", "error")
         return redirect(url_for("employee.schemes"))
     
-    # Update scheme
-    update_query = """
-    UPDATE Schemes
-    SET Name = %s, Type = %s, Description = %s
-    WHERE SchemeID = %s;
-    """
-    
+
     try:
-        db.execute_query(update_query, (name, type_value, description, scheme_id))
+        # Update scheme
+        update_query = """
+        UPDATE Schemes
+        SET Name = %s, Type = %s, Description = %s
+        WHERE SchemeID = %s;
+        """
+        
+        db.execute_query(update_query, (name, type_value, description, scheme_id), fetch=False)
         flash(f"Scheme '{name}' updated successfully", "success")
     except Exception as e:
         flash(f"Error updating scheme: {str(e)}", "error")
-    
+
     return redirect(url_for("employee.schemes"))
 
 @employee_bp.route("/schemes/delete", methods=["POST"])
 @role_required(["employee"])
 def delete_scheme():
-    """Delete a scheme and all associated enrollments."""
+    """Delete a scheme and all associated enrollments and forms."""
     scheme_id = request.form.get("scheme_id")
     
     if not scheme_id:
@@ -629,38 +630,32 @@ def delete_scheme():
         return redirect(url_for("employee.schemes"))
     
     try:
-        # First get the scheme name for the success message
-        name_query = "SELECT Name FROM Schemes WHERE SchemeID = %s;"
-        name_result = db.execute_query(name_query, (scheme_id,))
-        scheme_name = name_result[0][0] if name_result else "Unknown"
+       
+        query1 = """
+        SELECT Name FROM Schemes WHERE SchemeID = %s;
+        """
         
-        # Use a transaction to ensure atomicity
-        conn = db.get_connection()
-        try:
-            with conn.cursor() as cursor:
-                # Delete scheme enrollments first (foreign key constraint)
-                cursor.execute("DELETE FROM SchemeEnrollment WHERE SchemeID = %s;", (scheme_id,))
-                
-                # Then delete forms associated with the scheme (if any)
-                cursor.execute("DELETE FROM Forms WHERE SchemeID = %s;", (scheme_id,))
-                
-                # Finally delete the scheme itself
-                cursor.execute("DELETE FROM Schemes WHERE SchemeID = %s;", (scheme_id,))
-                
-                # Commit the transaction
-                conn.commit()
-                
-                flash(f"Scheme '{scheme_name}' and all associated records deleted successfully", "success")
-                
-        except Exception as e:
-            # Rollback in case of error
-            conn.rollback()
-            raise e
-        finally:
-            # Release the connection back to the pool
-            db.release_connection(conn)
-            
+        result1 = db.execute_query(query1, (scheme_id))
+        scheme_name = result1[0][0] if result1 else None
+
+        print(scheme_name)
+
+        if not scheme_name:
+            flash("Scheme not found", "error")
+            return redirect(url_for("employee.schemes"))
+        
+        # Delete scheme
+        delete_query = """
+        DELETE FROM Schemes WHERE SchemeID = %s;
+        """
+        db.execute_query(delete_query, (scheme_id), fetch=False)
+
+        flash(f"Scheme '{scheme_name}' deleted successfully", "success")
+
     except Exception as e:
         flash(f"Error deleting scheme: {str(e)}", "error")
+    
+            
+    
     
     return redirect(url_for("employee.schemes"))
