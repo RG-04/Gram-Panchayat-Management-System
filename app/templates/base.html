@@ -33,6 +33,7 @@
                         <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
                         <li><a href="{{ url_for('citizen.schemes') }}">Schemes</a></li>
                         <li><a href="{{ url_for('citizen.education') }}">Education</a></li>
+                        <li><a href="{{ url_for('citizen.panchayat_employees') }}">Gram Panchayat</a></li>
                     {% elif session.role == 'employee' %}
                         <li><a href="{{ url_for('citizen.profile') }}">My Profile</a></li>
                         <li><a href="{{ url_for('employee.dashboard') }}">Dashboard</a></li>

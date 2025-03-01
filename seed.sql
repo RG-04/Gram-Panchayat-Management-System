@@ -19,7 +19,7 @@ INSERT INTO Citizen (Aadhaar, Name, DOB, MotherID, FatherID, Gender, Income, Hou
 ('456789012345', 'Raj Kumar', '1982-11-05', NULL, NULL, 'Male', 420000, 1, 'Government Employee', '9876543216'),
 ('567890123456', 'Priya Singh', '1988-04-18', NULL, NULL, 'Female', 450000, 2, 'Government Employee', '9876543217'),
 -- Parents
-('678901234567', 'Lakshmi Devi', '1979-06-25', NULL, NULL, 'Female', 290000, 4, 'Tailor', '9876543218'),
+('678901234567', 'Lakshmi Devi', '1979-06-25', NULL, NULL, 'Female', 290000, 4, 'Government Employee', '9876543218'),
 ('789012345678', 'Ramesh Kumar', '1977-09-12', NULL, NULL, 'Male', 310000, 4, 'Driver', '9876543219'),
 ('890123456789', 'Anita Verma', '1983-01-30', NULL, NULL, 'Female', 275000, 5, 'Nurse', '9876543220'),
 ('901234567890', 'Suresh Patel', '1981-07-08', NULL, NULL, 'Male', 330000, 5, 'Electrician', '9876543221'),
@@ -54,9 +54,10 @@ INSERT INTO users (CitizenID, MonitorID, username, password, auth, salt) VALUES
 (NULL, 2, 'monitor2', 'f55559344d26d83676c3183f75a9445009b296158aaa20ec4375b6bb5a9db35b', 'monitor', 'salt123');
 
 -- Insert EmployeeCitizens
-INSERT INTO EmployeeCitizens (EmployeeID, CitizenID, StartDate, TermDuration) VALUES
-(1, '456789012345', '2020-06-01', 36),
-(2, '567890123456', '2021-03-15', 36);
+INSERT INTO EmployeeCitizens (CitizenID, StartDate, TermDuration, Role) VALUES
+('456789012345', '2020-06-01', 36, 'Pradhan'),
+('567890123456', '2021-03-15', 36, 'Secretary'),
+('678901234567', '2022-12-15', 36, 'Secretary');
 
 -- Insert schools
 INSERT INTO Schools (Name, Capacity, Income) VALUES

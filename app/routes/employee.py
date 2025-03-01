@@ -15,7 +15,7 @@ def dashboard():
     # Get employee information
     employee_query = """
         SELECT ec.EmployeeID, c.Aadhaar, c.Name, c.Phone, 
-               ec.StartDate, ec.TermDuration
+               ec.StartDate, ec.TermDuration, ec.Role
         FROM EmployeeCitizens ec
         JOIN Citizen c ON ec.CitizenID = c.Aadhaar
         WHERE ec.CitizenID = %s

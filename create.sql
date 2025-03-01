@@ -61,7 +61,8 @@ CREATE TABLE EmployeeCitizens (
     EmployeeID SERIAL PRIMARY KEY,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     StartDate DATE NOT NULL,
-    TermDuration INTEGER -- in months
+    TermDuration INTEGER, -- in months
+    Role VARCHAR(50) -- employee role in panchayat
 );
 
 -- Create Schools table

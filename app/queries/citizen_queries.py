@@ -267,4 +267,11 @@ citizen_queries = {
         GROUP BY Type 
         ORDER BY COUNT(*) DESC;
     """,
+    # Panchayat queries
+    "employees_query": """
+        SELECT c.Name, c.Phone, ec.Role
+        FROM EmployeeCitizens ec
+        JOIN Citizen c ON ec.CitizenID = c.Aadhaar
+        ORDER BY ec.Role, c.Name
+    """,
 }
