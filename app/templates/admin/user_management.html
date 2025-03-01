@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user_management.css') }}">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="header-container">
+            <h1 class="site-title"><i class="fas fa-users-cog"></i> User Management</h1>
+            <div class="action-links">
+                <a href="{{ url_for('admin.dashboard') }}" class="action-link">
+                    <i class="fas fa-database"></i> Database
+                </a>
+                <a href="{{ url_for('admin.logout') }}" class="action-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="main-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <div class="search-filter-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by name or ID..." class="search-input">
+                <button id="searchButton" class="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <div class="filter-container">
+                <label for="typeFilter">Filter by type:</label>
+                <select id="typeFilter" class="filter-select">
+                    <option value="all">All</option>
+                    <option value="citizen">Citizens</option>
+                    <option value="employee">Employees</option>
+                    <option value="monitor">Monitors</option>
+                </select>
+                
+                <label for="statusFilter">Filter by status:</label>
+                <select id="statusFilter" class="filter-select">
+                    <option value="all">All</option>
+                    <option value="registered">Registered</option>
+                    <option value="unregistered">Not Registered</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="tabs-container">
+            <div class="tab active" data-tab="citizens">
+                <i class="fas fa-users"></i> Citizens
+                <span class="count">{{ citizens|length }}</span>
+            </div>
+            <div class="tab" data-tab="employees">
+                <i class="fas fa-user-tie"></i> Employees
+                <span class="count">{{ employees|length }}</span>
+            </div>
+            <div class="tab" data-tab="monitors">
+                <i class="fas fa-user-shield"></i> Monitors
+                <span class="count">{{ monitors|length }}</span>
+            </div>
+        </div>
+        
+        <div class="tab-content active" id="citizens-content">
+            <div class="user-list-header">
+                <div class="user-list-title">Citizens</div>
+            </div>
+            
+            <div class="user-list">
+                <div class="user-list-headers">
+                    <div class="header-item header-id">Aadhaar</div>
+                    <div class="header-item header-name">Name</div>
+                    <div class="header-item header-info">Contact</div>
+                    <div class="header-item header-status">Status</div>
+                    <div class="header-item header-actions">Actions</div>
+                </div>
+                
+                <div class="user-list-body">
+                    {% for citizen in citizens %}
+                        <div class="user-item" data-type="citizen" data-status="{{ 'registered' if citizen.is_registered else 'unregistered' }}">
+                            <div class="user-id">{{ citizen.aadhaar }}</div>
+                            <div class="user-name">{{ citizen.name }}</div>
+                            <div class="user-info">{{ citizen.phone or 'No phone' }}</div>
+                            <div class="user-status {{ 'registered' if citizen.is_registered else 'unregistered' }}">
+                                {{ 'Registered' if citizen.is_registered else 'Not Registered' }}
+                            </div>
+                            <div class="user-actions">
+                                {% if citizen.is_registered %}
+                                    <a href="{{ url_for('admin.deregister_user', user_id=citizen.user_id) }}" class="action-btn deregister-btn">
+                                        <i class="fas fa-user-minus"></i> Deregister
+                                    </a>
+                                    <a href="{{ url_for('admin.reset_password', user_id=citizen.user_id) }}" class="action-btn reset-btn">
+                                        <i class="fas fa-key"></i> Reset Password
+                                    </a>
+                                {% else %}
+                                    <button class="action-btn register-btn" onclick="openRegisterModal('citizen', '{{ citizen.aadhaar }}', '{{ citizen.name }}')">
+                                        <i class="fas fa-user-plus"></i> Register
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="employees-content">
+            <div class="user-list-header">
+                <div class="user-list-title">Employees</div>
+            </div>
+            
+            <div class="user-list">
+                <div class="user-list-headers">
+                    <div class="header-item header-id">Aadhaar</div>
+                    <div class="header-item header-name">Name</div>
+                    <div class="header-item header-info">Role</div>
+                    <div class="header-item header-status">Status</div>
+                    <div class="header-item header-actions">Actions</div>
+                </div>
+                
+                <div class="user-list-body">
+                    {% for employee in employees %}
+                        <div class="user-item" data-type="employee" data-status="{{ 'registered' if employee.is_registered else 'unregistered' }}">
+                            <div class="user-id">{{ employee.aadhaar }}</div>
+                            <div class="user-name">{{ employee.name }}</div>
+                            <div class="user-info">{{ employee.role }}</div>
+                            <div class="user-status {{ 'registered' if employee.is_registered else 'unregistered' }}">
+                                {{ 'Registered' if employee.is_registered else 'Not Registered' }}
+                            </div>
+                            <div class="user-actions">
+                                {% if employee.is_registered %}
+                                    <a href="{{ url_for('admin.deregister_user', user_id=employee.user_id) }}" class="action-btn deregister-btn">
+                                        <i class="fas fa-user-minus"></i> Deregister
+                                    </a>
+                                    <a href="{{ url_for('admin.reset_password', user_id=employee.user_id) }}" class="action-btn reset-btn">
+                                        <i class="fas fa-key"></i> Reset Password
+                                    </a>
+                                {% else %}
+                                    <button class="action-btn register-btn" onclick="openRegisterModal('employee', '{{ employee.aadhaar }}', '{{ employee.name }}')">
+                                        <i class="fas fa-user-plus"></i> Register
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="monitors-content">
+            <div class="user-list-header">
+                <div class="user-list-title">Monitors</div>
+            </div>
+            
+            <div class="user-list">
+                <div class="user-list-headers">
+                    <div class="header-item header-id">Monitor ID</div>
+                    <div class="header-item header-name">Name</div>
+                    <div class="header-item header-info">Type</div>
+                    <div class="header-item header-status">Status</div>
+                    <div class="header-item header-actions">Actions</div>
+                </div>
+                
+                <div class="user-list-body">
+                    {% for monitor in monitors %}
+                        <div class="user-item" data-type="monitor" data-status="{{ 'registered' if monitor.is_registered else 'unregistered' }}">
+                            <div class="user-id">{{ monitor.id }}</div>
+                            <div class="user-name">{{ monitor.name }}</div>
+                            <div class="user-info">Monitor</div>
+                            <div class="user-status {{ 'registered' if monitor.is_registered else 'unregistered' }}">
+                                {{ 'Registered' if monitor.is_registered else 'Not Registered' }}
+                            </div>
+                            <div class="user-actions">
+                                {% if monitor.is_registered %}
+                                    <a href="{{ url_for('admin.deregister_user', user_id=monitor.user_id) }}" class="action-btn deregister-btn">
+                                        <i class="fas fa-user-minus"></i> Deregister
+                                    </a>
+                                    <a href="{{ url_for('admin.reset_password', user_id=monitor.user_id) }}" class="action-btn reset-btn">
+                                        <i class="fas fa-key"></i> Reset Password
+                                    </a>
+                                {% else %}
+                                    <button class="action-btn register-btn" onclick="openRegisterModal('monitor', '{{ monitor.id }}', '{{ monitor.name }}')">
+                                        <i class="fas fa-user-plus"></i> Register
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Register User Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Register New User</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" action="{{ url_for('admin.register_user') }}" method="POST">
+                    <input type="hidden" id="userType" name="user_type">
+                    <input type="hidden" id="userId" name="user_id">
+                    
+                    <div class="form-group">
+                        <label for="displayName">Name:</label>
+                        <input type="text" id="displayName" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" class="form-control" required>
+                        <div class="form-hint">Username must be unique and between 4-20 characters.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <div class="form-hint">Password must be at least 8 characters with letters and numbers.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password:</label>
+                        <input type="password" id="confirmPassword" name="confirm_password" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-cancel">Cancel</button>
+                        <button type="submit" class="btn-submit">Register User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and content
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+            });
+        });
+        
+        // Filter functionality
+        const typeFilter = document.getElementById('typeFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        
+        function applyFilters() {
+            const typeValue = typeFilter.value;
+            const statusValue = statusFilter.value;
+            const searchValue = searchInput.value.toLowerCase();
+            
+            document.querySelectorAll('.user-item').forEach(item => {
+                const itemType = item.getAttribute('data-type');
+                const itemStatus = item.getAttribute('data-status');
+                const itemName = item.querySelector('.user-name').textContent.toLowerCase();
+                const itemId = item.querySelector('.user-id').textContent.toLowerCase();
+                
+                const typeMatch = typeValue === 'all' || itemType === typeValue;
+                const statusMatch = statusValue === 'all' || itemStatus === statusValue;
+                const searchMatch = searchValue === '' || 
+                                   itemName.includes(searchValue) || 
+                                   itemId.includes(searchValue);
+                
+                if (typeMatch && statusMatch && searchMatch) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        typeFilter.addEventListener('change', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+        searchButton.addEventListener('click', applyFilters);
+        searchInput.addEventListener('keyup', event => {
+            if (event.key === 'Enter') {
+                applyFilters();
+            }
+        });
+        
+        // Register modal functionality
+        const registerModal = document.getElementById('registerModal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const cancelBtn = document.querySelector('.btn-cancel');
+        
+        function openRegisterModal(type, id, name) {
+            document.getElementById('userType').value = type;
+            document.getElementById('userId').value = id;
+            document.getElementById('displayName').value = name;
+            document.getElementById('username').value = generateUsername(name);
+            registerModal.style.display = 'block';
+        }
+        
+        function closeRegisterModal() {
+            registerModal.style.display = 'none';
+            document.getElementById('registerForm').reset();
+        }
+        
+        closeModalBtn.addEventListener('click', closeRegisterModal);
+        cancelBtn.addEventListener('click', closeRegisterModal);
+        
+        window.addEventListener('click', event => {
+            if (event.target === registerModal) {
+                closeRegisterModal();
+            }
+        });
+        
+        // Password confirmation check
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                event.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+        
+        // Username generator from name
+        function generateUsername(name) {
+            // Remove spaces and special characters, convert to lowercase
+            return name.toLowerCase()
+                      .replace(/[^\w\s]/gi, '')
+                      .replace(/\s+/g, '');
+        }
+    </script>
+</body>
+</html>

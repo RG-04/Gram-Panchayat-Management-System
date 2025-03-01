@@ -128,3 +128,161 @@ def execute_query():
             error=str(e),
             is_select=None
         )
+
+# Routes to add to admin.py
+
+@admin_bp.route('/users')
+@admin_required
+def manage_users():
+    """User management page."""
+    # Get all citizens
+    
+    citizens_result = db.execute_query(admin_queries['citizens_query'])
+    
+    # Format citizens data
+    citizens = []
+    for row in citizens_result:
+        citizens.append({
+            'aadhaar': row[0],
+            'name': row[1],
+            'phone': row[2],
+            'user_id': row[3],
+            'is_registered': row[3] > 0
+        })
+    
+    # Get all employees
+    employees_result = db.execute_query(admin_queries['employees_query'])
+    
+    # Format employees data
+    employees = []
+    for row in employees_result:
+        employees.append({
+            'aadhaar': row[0],
+            'name': row[1],
+            'role': row[2],
+            'user_id': row[3],
+            'is_registered': row[3] > 0
+        })
+    
+    # Get all monitors
+    monitors_result = db.execute_query(admin_queries['monitors_query'])
+    
+    # Format monitors data
+    monitors = []
+    for row in monitors_result:
+        monitors.append({
+            'id': row[0],
+            'name': row[1],
+            'user_id': row[2],
+            'is_registered': row[2] > 0
+        })
+    
+    return render_template(
+        'admin/user_management.html',
+        citizens=citizens,
+        employees=employees,
+        monitors=monitors
+    )
+
+@admin_bp.route('/users/register', methods=['POST'])
+@admin_required
+def register_user():
+    """Register a new user."""
+    user_type = request.form.get('user_type')
+    user_id = request.form.get('user_id')
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    # Validate inputs
+    if not user_type or not user_id or not username or not password:
+        flash('All fields are required', 'error')
+        return redirect(url_for('admin.manage_users'))
+    
+    # Check if username already exists
+    check_query = "SELECT COUNT(*) FROM users WHERE username = %s"
+    count = db.execute_query(check_query, (username,))[0][0]
+    
+    if count > 0:
+        flash(f'Username "{username}" already exists', 'error')
+        return redirect(url_for('admin.manage_users'))
+    
+    try:
+        # Hash the password
+        from app.utils.auth_utils import hash_password
+        password_hash, salt = hash_password(password)
+        
+        # Insert new user based on type
+        if user_type == 'citizen':
+            auth_role = 'citizen'
+            db.execute_query(admin_queries['citizen_insert_query'], (user_id, username, password_hash, auth_role, salt), fetch=False)
+            
+        elif user_type == 'employee':
+            auth_role = 'employee'
+            db.execute_query(admin_queries['employee_insert_query'], (user_id, username, password_hash, auth_role, salt), fetch=False)
+            
+        elif user_type == 'monitor':
+            auth_role = 'monitor'
+            db.execute_query(admin_queries['monitor_insert_query'], (user_id, username, password_hash, auth_role, salt), fetch=False)
+        
+        flash(f'User "{username}" registered successfully', 'success')
+    except Exception as e:
+        flash(f'Error registering user: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.manage_users'))
+
+@admin_bp.route('/users/deregister/<int:user_id>')
+@admin_required
+def deregister_user(user_id):
+    """Deregister a user."""
+    try:
+        # Get username for confirmation message
+        username_query = "SELECT username FROM users WHERE UserID = %s"
+        username_result = db.execute_query(username_query, (user_id,))
+        
+        if not username_result:
+            flash('User not found', 'error')
+            return redirect(url_for('admin.manage_users'))
+        
+        username = username_result[0][0]
+        
+        # Delete the user
+        delete_query = "DELETE FROM users WHERE UserID = %s"
+        db.execute_query(delete_query, (user_id,), fetch=False)
+        
+        flash(f'User "{username}" deregistered successfully', 'success')
+    except Exception as e:
+        flash(f'Error deregistering user: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.manage_users'))
+
+@admin_bp.route('/users/reset-password/<int:user_id>')
+@admin_required
+def reset_password(user_id):
+    """Reset a user's password to a default value."""
+    try:
+        # Get username for confirmation message
+        username_query = "SELECT username FROM users WHERE UserID = %s"
+        username_result = db.execute_query(username_query, (user_id,))
+        
+        if not username_result:
+            flash('User not found', 'error')
+            return redirect(url_for('admin.manage_users'))
+        
+        username = username_result[0][0]
+        
+        # Default password
+        default_password = "Password@123"
+        
+        # Hash the password
+        from app.utils.auth_utils import hash_password
+        password_hash, salt = hash_password(default_password)
+        
+        # Update the user's password
+        update_query = "UPDATE users SET password = %s, salt = %s WHERE UserID = %s"
+        db.execute_query(update_query, (password_hash, salt, user_id), fetch=False)
+        
+        flash(f'Password for "{username}" reset to "{default_password}"', 'success')
+    except Exception as e:
+        flash(f'Error resetting password: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.manage_users'))
