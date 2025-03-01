@@ -1,125 +1,205 @@
-{% extends "base.html" %}
-
-{% block title %}Advanced Statistics - Gram Panchayat Management System{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/advanced_stats.css') }}">
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Advanced Statistics - Gram Panchayat
+Management System{% endblock %} {% block head %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/advanced_stats.css') }}"
+/>
+{% endblock %} {% block content %}
 <div class="statistics-container">
-    <div class="statistics-header">
-        <h1>Advanced Statistics</h1>
-        <div class="category-nav">
-            <a href="{{ url_for('monitor.advanced_stats', category='education') }}" class="category-link {% if category == 'education' %}active{% endif %}">Education</a>
-            <a href="{{ url_for('monitor.advanced_stats', category='health') }}" class="category-link {% if category == 'health' %}active{% endif %}">Health</a>
-            <a href="{{ url_for('monitor.advanced_stats', category='agriculture') }}" class="category-link {% if category == 'agriculture' %}active{% endif %}">Agriculture</a>
-            <a href="{{ url_for('monitor.advanced_stats', category='demographic') }}" class="category-link {% if category == 'demographic' %}active{% endif %}">Demographic</a>
+  <div class="statistics-header">
+    <h1>Advanced Statistics</h1>
+    <div class="category-nav">
+      <a
+        href="{{ url_for('monitor.advanced_stats', category='education') }}"
+        class="category-link {% if category == 'education' %}active{% endif %}"
+        >Education</a
+      >
+      <a
+        href="{{ url_for('monitor.advanced_stats', category='health') }}"
+        class="category-link {% if category == 'health' %}active{% endif %}"
+        >Health</a
+      >
+      <a
+        href="{{ url_for('monitor.advanced_stats', category='agriculture') }}"
+        class="category-link {% if category == 'agriculture' %}active{% endif %}"
+        >Agriculture</a
+      >
+      <a
+        href="{{ url_for('monitor.advanced_stats', category='demographic') }}"
+        class="category-link {% if category == 'demographic' %}active{% endif %}"
+        >Demographic</a
+      >
+    </div>
+  </div>
+
+  <div class="statistics-content">
+    {% if category == 'education' %}
+    <div class="stats-summary">
+      <div class="summary-card">
+        <div class="summary-value">₹{{ stats.avg_school_income|int }}</div>
+        <div class="summary-label">Average School Income</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">{{ stats.total_capacity }}</div>
+        <div class="summary-label">Total Capacity</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">{{ stats.capacity_utilization }}%</div>
+        <div class="summary-label">Capacity Utilization</div>
+      </div>
+    </div>
+
+    <div class="demographics-row">
+      <div class="demographics-card">
+        <h2>Student Gender Distribution</h2>
+        <div class="gender-chart-container">
+          <canvas id="studentGenderChart"></canvas>
         </div>
+      </div>
     </div>
 
-    <div class="statistics-content">
-        {% if category == 'education' %}
-            <div class="stats-summary">
-                <div class="summary-card">
-                    <div class="summary-value">₹{{ stats.avg_school_income|int }}</div>
-                    <div class="summary-label">Average School Income</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">{{ stats.total_capacity }}</div>
-                    <div class="summary-label">Total Capacity</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-value">{{ stats.capacity_utilization }}%</div>
-                    <div class="summary-label">Capacity Utilization</div>
-                </div>
-            </div>
-            
-            <div class="demographics-row">
-                <div class="demographics-card">
-                    <h2>Student Gender Distribution</h2>
-                    <div class="gender-chart-container">
-                        <canvas id="studentGenderChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <h2>School Capacity Utilization</h2>
-            <div class="stats-table-container">
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>School Name</th>
-                            <th>Capacity</th>
-                            <th>Students Enrolled</th>
-                            <th>Utilization</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for school in stats.school_utilization %}
-                        <tr>
-                            <td>{{ school.name }}</td>
-                            <td>{{ school.capacity }}</td>
-                            <td>{{ school.enrolled }}</td>
-                            <td>
-                                <div class="progress-container">
-                                    <div class="progress-bar" style="width: {{ school.utilization_pct }}%;"></div>
-                                    <span class="progress-text">{{ school.utilization_pct }}%</span>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Add Chart.js from CDN -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-
-            <!-- JavaScript for education visualizations -->
-            <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Student Gender Distribution Pie Chart
-                const genderData = {{ stats.gender_distribution|tojson }};
-                const genderCtx = document.getElementById('studentGenderChart').getContext('2d');
-                
-                const genderPieChart = new Chart(genderCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: genderData.labels,
-                        datasets: [{
-                            data: genderData.values,
-                            backgroundColor: [
-                                'rgba(54, 162, 235, 0.7)',
-                                'rgba(255, 99, 132, 0.7)'
-                            ],
-                            borderColor: '#ffffff',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Sex Ratio of Students'
-                            }
-                        }
-                    }
-                });
-                
-            });
-            </script>
-        {% endif %}
+    <h2>School Capacity Utilization</h2>
+    <div class="stats-table-container">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>School Name</th>
+            <th>Capacity</th>
+            <th>Students Enrolled</th>
+            <th>Utilization</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for school in stats.school_utilization %}
+          <tr>
+            <td>{{ school.name }}</td>
+            <td>{{ school.capacity }}</td>
+            <td>{{ school.enrolled }}</td>
+            <td>
+              <div class="progress-container">
+                <div
+                  class="progress-bar"
+                  style="width: {{ school.utilization_pct }}%;"
+                ></div>
+                <span class="progress-text">{{ school.utilization_pct }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
 
-    <div class="statistics-footer">
-        <a href="{{ url_for('citizen.dashboard') }}" class="back-link">← Back to Dashboard</a>
-        <a href="{{ url_for('citizen.statistics', category=category) }}" class="back-link">View Basic Stats</a>
+    <!-- Add Chart.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+    <!-- JavaScript for education visualizations -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          // Student Gender Distribution Pie Chart
+          const genderData = {{ stats.gender_distribution|tojson }};
+          const genderCtx = document.getElementById('studentGenderChart').getContext('2d');
+
+          const genderPieChart = new Chart(genderCtx, {
+              type: 'pie',
+              data: {
+                  labels: genderData.labels,
+                  datasets: [{
+                      data: genderData.values,
+                      backgroundColor: [
+                          'rgba(54, 162, 235, 0.7)',
+                          'rgba(255, 99, 132, 0.7)'
+                      ],
+                      borderColor: '#ffffff',
+                      borderWidth: 1
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      legend: {
+                          position: 'bottom'
+                      },
+                      title: {
+                          display: true,
+                          text: 'Sex Ratio of Students'
+                      }
+                  }
+              }
+          });
+
+      });
+    </script>
+    {% elif category == "health" %}
+    <!-- Health Personnel Summary -->
+    <div class="stats-summary">
+      <div class="summary-card">
+        <div class="summary-value">{{ stats.total_doctors }}</div>
+        <div class="summary-label">Doctors</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">{{ stats.total_nurses }}</div>
+        <div class="summary-label">Nurses</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">{{ stats.doctor_citizen_ratio }}</div>
+        <div class="summary-label">Doctor:Citizen Ratio</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-value">{{ stats.nurse_citizen_ratio }}</div>
+        <div class="summary-label">Nurse:Citizen Ratio</div>
+      </div>
     </div>
+
+    <!-- Welfare Scheme Enrollment -->
+    <h2>Health Welfare Scheme Enrollment</h2>
+    <div class="stats-table-container">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Scheme Name</th>
+            <th>Description</th>
+            <th>Enrolled Citizens</th>
+            <th>Enrollment Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for scheme in stats.health_schemes %}
+          <tr>
+            <td>{{ scheme.name }}</td>
+            <td>{{ scheme.description }}</td>
+            <td>{{ scheme.enrolled_citizens }}</td>
+            <td>
+              <div class="progress-container">
+                <div
+                  class="progress-bar"
+                  style="width: {{ scheme.enrollment_rate }}%;"
+                ></div>
+                <span class="progress-text">{{ scheme.enrollment_rate }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add Chart.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+    {% endif %}
+  </div>
+
+  <div class="statistics-footer">
+    <a href="{{ url_for('citizen.dashboard') }}" class="back-link"
+      >← Back to Dashboard</a
+    >
+    <a
+      href="{{ url_for('citizen.statistics', category=category) }}"
+      class="back-link"
+      >View Basic Stats</a
+    >
+  </div>
 </div>
 {% endblock %}
