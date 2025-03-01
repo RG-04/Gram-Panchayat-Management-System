@@ -223,3 +223,19 @@ INSERT INTO AttendsSchool (CitizenID, SchoolID, Qualification, PassDate) VALUES
 ('345678901234', 1, 'Primary', '1985-03-25'),       -- Mohamed Ali - completed primary education
 ('890123456789', 2, 'Diploma', '2002-04-18'),       -- Anita Verma - has diploma qualification
 ('789012345678', 1, 'Middle School', '1992-03-30'); -- Ramesh Kumar - completed middle school
+
+-- Assets
+INSERT INTO assets (Name, Type, InstallationDate, Location) VALUES 
+('Street Light', 'Lighting', '2020-05-10', 'Phulera Main Road'),
+('Water Tank', 'Water', '2018-08-15', 'Near Railway Station'),
+('Public Toilet', 'Sanitation', '2019-03-25', 'Market Square'),
+('Hand Pump', 'Water', '2017-11-12', 'Village Crossing');
+
+
+-- Asset Surveys
+INSERT INTO AssetSurveys (asset_id, SurveyDate, SurveyorID, SurveyData) VALUES 
+(1, '2024-02-01', 1, 'Light functioning properly'),
+(1, '2023-08-15', 2, 'Bulb replaced'),
+(2, '2024-01-10', 3, 'Water level adequate'),
+(3, '2023-12-20', 1, 'Cleanliness maintained'),
+(4, '2023-11-05', 2, 'Pump handle repaired');

@@ -1,19 +1,21 @@
 -- Drop tables if they exist (for clean setup)
-DROP TABLE IF EXISTS AttendsSchool;
-DROP TABLE IF EXISTS SchemeEnrollment;
-DROP TABLE IF EXISTS EmployeeCitizens;
-DROP TABLE IF EXISTS Certificates;
-DROP TABLE IF EXISTS Forms;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS Schemes;
-DROP TABLE IF EXISTS LandCrop;
-DROP TABLE IF EXISTS Land;
-DROP TABLE IF EXISTS Crop;
-DROP TABLE IF EXISTS Schools;
-DROP TABLE IF EXISTS Hospitals;
-DROP TABLE IF EXISTS Monitors;
-DROP TABLE IF EXISTS Citizen;
-DROP TABLE IF EXISTS Households;
+DROP TABLE IF EXISTS AttendsSchool CASCADE;
+DROP TABLE IF EXISTS SchemeEnrollment CASCADE;
+DROP TABLE IF EXISTS EmployeeCitizens CASCADE;
+DROP TABLE IF EXISTS Certificates CASCADE;
+DROP TABLE IF EXISTS Forms CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS Schemes CASCADE;
+DROP TABLE IF EXISTS LandCrop CASCADE;
+DROP TABLE IF EXISTS Land CASCADE;
+DROP TABLE IF EXISTS Crop CASCADE;
+DROP TABLE IF EXISTS Schools CASCADE;
+DROP TABLE IF EXISTS Hospitals CASCADE;
+DROP TABLE IF EXISTS Monitors CASCADE;
+DROP TABLE IF EXISTS Citizen CASCADE;
+DROP TABLE IF EXISTS Households CASCADE;
+DROP TABLE IF EXISTS AssetSurveys CASCADE;
+DROP TABLE IF EXISTS assets CASCADE;
 
 -- Create Households table
 CREATE TABLE Households (
@@ -147,3 +149,46 @@ CREATE TABLE AttendsSchool (
     PassDate DATE,
     PRIMARY KEY (CitizenID, SchoolID, Qualification)
 );
+
+CREATE TABLE assets (
+    asset_id SERIAL PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Type VARCHAR(100) NOT NULL,
+    InstallationDate DATE,
+    LastSurveyedDate DATE,
+    Location TEXT
+);
+
+CREATE TABLE AssetSurveys (
+    asset_id INTEGER REFERENCES assets(asset_id),
+    SurveyDate DATE,
+    SurveyorID INTEGER REFERENCES EmployeeCitizens(EmployeeID),
+    SurveyData TEXT,
+    PRIMARY KEY (asset_id, SurveyDate)
+);
+
+
+DROP TRIGGER IF EXISTS trigger_update_last_surveyed ON AssetSurveys;
+DROP FUNCTION IF EXISTS update_last_surveyed();
+
+CREATE OR REPLACE FUNCTION update_last_surveyed()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update LastSurveyedDate for all assets based on the most recent survey, or default to InstallationDate
+    UPDATE assets
+    SET LastSurveyedDate = (
+        SELECT COALESCE(MAX(SurveyDate), InstallationDate)
+        FROM AssetSurveys
+        WHERE AssetSurveys.asset_id = assets.asset_id
+    );
+    
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger to fire on insert, update, and delete
+CREATE TRIGGER trigger_update_last_surveyed
+AFTER INSERT OR UPDATE OR DELETE
+ON AssetSurveys
+FOR EACH STATEMENT
+EXECUTE FUNCTION update_last_surveyed();
