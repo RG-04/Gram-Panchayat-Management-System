@@ -527,63 +527,6 @@
     width: 90%; /* Smaller width for better fit */
 }
 
-/* Vital Statistics */
-.vital-stats {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 10px;
-}
-
-.vital-stat {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-}
-
-.vital-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    font-size: 20px;
-}
-
-.birth-icon {
-    background-color: #3498db;
-    color: white;
-}
-
-.death-icon {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.vital-details {
-    display: flex;
-    flex-direction: column;
-}
-
-.vital-value {
-    font-size: 22px;
-    font-weight: bold;
-    color: #2c3e50;
-}
-
-.vital-label {
-    font-size: 13px;
-    color: #7f8c8d;
-}
-
-.vital-divider {
-    width: 1px;
-    height: 50px;
-    background-color: #ecf0f1;
-}
-
 /* Household Statistics */
 .household-stats {
     display: flex;

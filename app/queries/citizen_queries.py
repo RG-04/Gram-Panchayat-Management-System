@@ -203,7 +203,7 @@ citizen_queries = {
     "household_query": """
         SELECT 
             COUNT(DISTINCT HouseholdSizes.HouseholdID) AS TotalHouseholds,
-            ROUND(COUNT(Citizen.Aadhaar) * 1.0 / COUNT(DISTINCT HouseholdSizes.HouseholdID), 2) AS AvgHouseholdSize,
+            ROUND(COUNT(DISTINCT Citizen.Aadhaar) * 1.0 / COUNT(DISTINCT HouseholdSizes.HouseholdID), 2) AS AvgHouseholdSize,
             MAX(HouseholdCount) AS LargestHouseholdSize
         FROM (
             SELECT HouseholdID, COUNT(*) AS HouseholdCount
