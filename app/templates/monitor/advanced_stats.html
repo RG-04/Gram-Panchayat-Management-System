@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Advanced Education Statistics - Gram Panchayat Management System{% endblock %}
+{% block title %}Advanced Statistics - Gram Panchayat Management System{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/advanced_stats.css') }}">
@@ -9,7 +9,7 @@
 {% block content %}
 <div class="statistics-container">
     <div class="statistics-header">
-        <h1>Advanced Education Statistics</h1>
+        <h1>Advanced Statistics</h1>
         <div class="category-nav">
             <a href="{{ url_for('monitor.advanced_stats', category='education') }}" class="category-link {% if category == 'education' %}active{% endif %}">Education</a>
             <a href="{{ url_for('monitor.advanced_stats', category='health') }}" class="category-link {% if category == 'health' %}active{% endif %}">Health</a>
