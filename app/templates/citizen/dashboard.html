@@ -49,6 +49,18 @@
                 <p>Find village demographics here</p>
             </div>
         </a>
+
+        {% if session.role == 'monitor' %}
+        <a href="{{ url_for('monitor.advanced_stats', category='schemes') }}" class="dashboard-card">
+            <div class="card-icon" style="background-color: #9C27B0;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="card-content">
+                <h2>Scheme Analysis</h2>
+                <p>Access detailed scheme enrollment, budget utilization, and impact analysis</p>
+            </div>
+        </a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

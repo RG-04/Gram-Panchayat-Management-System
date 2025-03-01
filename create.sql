@@ -9,13 +9,16 @@ DROP TABLE IF EXISTS Schemes CASCADE;
 DROP TABLE IF EXISTS LandCrop CASCADE;
 DROP TABLE IF EXISTS Land CASCADE;
 DROP TABLE IF EXISTS Crop CASCADE;
+DROP TABLE IF EXISTS SchoolAccount CASCADE;
 DROP TABLE IF EXISTS Schools CASCADE;
+DROP TABLE IF EXISTS HospitalAccount CASCADE;
 DROP TABLE IF EXISTS Hospitals CASCADE;
 DROP TABLE IF EXISTS Monitors CASCADE;
 DROP TABLE IF EXISTS Citizen CASCADE;
 DROP TABLE IF EXISTS Households CASCADE;
 DROP TABLE IF EXISTS AssetSurveys CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
+
 
 -- Create Households table
 CREATE TABLE Households (
@@ -34,6 +37,8 @@ CREATE TABLE Citizen (
     Income DECIMAL(12, 2),
     HouseholdID INTEGER REFERENCES Households(HouseholdID),
     Occupation VARCHAR(100),
+    MigrationStatus VARCHAR(50) CHECK (MigrationStatus IN ('Native', 'Immigrant')),
+    ResidenceSince DATE,
     Phone VARCHAR(20)
 );
 
@@ -75,6 +80,13 @@ CREATE TABLE Schools (
     Income INTEGER
 );
 
+CREATE TABLE SchoolAccount (
+    SchoolID INTEGER REFERENCES Schools(SchoolID),
+    AnnualIncome DECIMAL(15, 2),
+    AnnualExpenditure DECIMAL(15, 2),
+    BudgetYear INTEGER
+);
+
 -- Create Hospitals table
 CREATE TABLE Hospitals (
     HospitalID SERIAL PRIMARY KEY,
@@ -83,12 +95,22 @@ CREATE TABLE Hospitals (
     Beds INTEGER
 );
 
+CREATE TABLE HospitalAccount (
+    HospitalID INTEGER REFERENCES Hospitals(HospitalID),
+    AnnualIncome DECIMAL(15, 2),
+    AnnualExpenditure DECIMAL(15, 2),
+    BudgetYear INTEGER
+);
+
 -- Create Schemes 
 CREATE TABLE Schemes (
     SchemeID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
     Description TEXT NOT NULL,
-    Type VARCHAR(100)
+    Type VARCHAR(100),
+    AllocatedBudget DECIMAL(15, 2),
+    TargetBeneficiaries INTEGER,
+    BudgetYear INTEGER
 );
 
 -- Create Land table
@@ -111,6 +133,8 @@ CREATE TABLE LandCrop (
     Area DECIMAL(10, 2), -- in acres
     AnnualYield DECIMAL(10, 2), -- in kg
     isOrganic BOOLEAN,
+    IrrigationMethod VARCHAR(100),
+    WaterUsage DECIMAL(10, 2), -- in liters per acre
     PRIMARY KEY (LandID, CropID)
 );
 
@@ -131,6 +155,9 @@ CREATE TABLE SchemeEnrollment (
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Date DATE NOT NULL,
     PRIMARY KEY (SchemeID, CitizenID),
+    EnrollmentStatus VARCHAR(50) DEFAULT 'Active',
+    BenefitsReceived DECIMAL(15, 2) DEFAULT 0,
+    LastBenefitDate DATE,
     FOREIGN KEY (SchemeID) REFERENCES Schemes(SchemeID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -186,3 +213,5 @@ AFTER INSERT OR UPDATE OR DELETE
 ON AssetSurveys
 FOR EACH STATEMENT
 EXECUTE FUNCTION update_last_surveyed();
+
+

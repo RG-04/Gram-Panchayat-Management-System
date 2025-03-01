@@ -14,7 +14,7 @@ def index():
         elif session['role'] == 'employee':
             return redirect(url_for('employee.dashboard'))
         elif session['role'] == 'monitor':
-            return redirect(url_for('citizen.dashboard'))
+            return redirect(url_for('monitor.dashboard'))
     
     return redirect(url_for('auth.login'))
 
@@ -55,7 +55,7 @@ def login():
                 elif user['role'] == 'employee':
                     return redirect(url_for('employee.dashboard'))
                 elif user['role'] == 'monitor':
-                    return redirect(url_for('citizen.dashboard'))
+                    return redirect(url_for('monitor.dashboard'))
             else:
                 error = "Invalid username or password."
     

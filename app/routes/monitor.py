@@ -7,6 +7,12 @@ from app.queries.monitor_queries import monitor_queries
 monitor_bp = Blueprint("monitor", __name__)
 
 
+@monitor_bp.route('/dashboard')
+@role_required(['monitor'])
+def dashboard():
+    """Display the monitor dashboard - redirects to citizen dashboard with monitor role."""
+    return redirect(url_for('citizen.dashboard'))
+
 @monitor_bp.route("/advanced_stats")
 @role_required(["monitor"])
 def advanced_stats():
@@ -15,7 +21,7 @@ def advanced_stats():
     category = request.args.get("category", "education")
 
     # Validate category
-    valid_categories = ["education", "health", "agriculture", "demographic"]
+    valid_categories = ["education", "health", "agriculture", "demographic", "schemes"]
     if category not in valid_categories:
         flash(f"Invalid category: {category}", "danger")
         return redirect(url_for("citizen.dashboard"))
@@ -36,6 +42,10 @@ def advanced_stats():
     elif category == "demographic":
         stats = get_advanced_demographic_stats()
         category_title = "Advanced Demographic Statistics"
+        
+    elif category == 'schemes':
+        stats = get_advanced_scheme_stats()
+        category_title = "Advanced Scheme Analysis"
 
     return render_template(
         "monitor/advanced_stats.html",
@@ -81,6 +91,19 @@ def get_advanced_education_stats():
             "values": [row[1] for row in gender_data],
         }
 
+        # 5. Get finance data
+        finance_data = db.execute_query(monitor_queries['school_finances'])
+        stats['school_finances'] = [
+            {
+                'name': row[0],
+                'income': row[1],
+                'expenditure': row[2],
+                'budget_year': row[3],
+                'surplus': row[1] - row[2]
+            }
+            for row in finance_data
+        ]
+
         # 6. Get school capacity utilization details
         utilization_data = db.execute_query(monitor_queries["school_utilization"])
         stats["school_utilization"] = [
@@ -102,79 +125,175 @@ def get_advanced_education_stats():
 
 
 def get_advanced_health_stats():
-    """Fetch advanced health statistics using db queries (To be implemented)."""
+    """Fetch advanced health statistics using db queries."""
+    
     stats = {}
-
+    
     try:
-        db_res = db.execute_query(monitor_queries["total_doctors"])
-        stats["total_doctors"] = 0
-        if db_res and db_res[0]:
-            stats["total_doctors"] = db_res[0][0]
+        # Get hospital financial data
+        finance_data = db.execute_query(monitor_queries['hospital_finances'])
+        stats['hospital_finances'] = [
+            {
+                'name': row[0],
+                'income': row[1],
+                'expenditure': row[2],
+                'budget_year': row[3],
+                'profit_margin': round((row[1] - row[2]) / row[1] * 100, 1) if row[1] > 0 else 0
+            }
+            for row in finance_data
+        ]
+        
+        total_doctors = db.execute_query(monitor_queries['total_doctors'])[0][0]
+        total_nurses = db.execute_query(monitor_queries['total_nurses'])[0][0]
+        total_population = db.execute_query("SELECT COUNT(*) FROM Citizen")[0][0]
 
-        # 2. Get total nurses
-        db_res = db.execute_query(monitor_queries["total_nurses"])
-        stats["total_nurses"] = 0
-        if db_res and db_res[0]:
-            stats["total_nurses"] = db_res[0][0]
+        stats['total_doctors'] = total_doctors
+        stats['total_nurses'] = total_nurses
+        stats['doctor_citizen_ratio'] = f"1:{round(total_population / total_doctors)}" if total_doctors > 0 else "N/A"
+        stats['nurse_citizen_ratio'] = f"1:{round(total_population / total_nurses)}" if total_nurses > 0 else "N/A"
 
-        # 3. Get total citizens for ratio calculations
-        db_res = db.execute_query("SELECT COUNT(*) FROM Citizen")
-        total_citizens = 1000
-        if db_res and db_res[0]:
-            total_citizens = db_res[0][0]
+        health_schemes = db.execute_query(monitor_queries['health_schemes'])
+        print(health_schemes)
+        stats['health_schemes'] = []
+        for scheme in health_schemes:
+            stats['health_schemes'].append({
+                'name': scheme[1],
+                'description': scheme[2],
+                'enrolled_citizens': scheme[3],
+                'budget': scheme[4],
+                'enrollment_rate': round((scheme[3] / total_population) * 100, 1) if total_population > 0 else 0
+            })
 
-        # Calculate doctor:citizen ratio (1:X format)
-        if stats["total_doctors"] > 0 and total_citizens > 0:
-            stats["doctor_citizen_ratio"] = (
-                f"1:{round(total_citizens / stats['total_doctors'])}"
-            )
-        else:
-            stats["doctor_citizen_ratio"] = "N/A"
 
-        # Calculate nurse:citizen ratio (1:X format)
-        if stats["total_nurses"] > 0 and total_citizens > 0:
-            stats["nurse_citizen_ratio"] = (
-                f"1:{round(total_citizens / stats['total_nurses'])}"
-            )
-        else:
-            stats["nurse_citizen_ratio"] = "N/A"
-
-        # 5. Get health welfare schemes
-
-        health_schemes_data = db.execute_query(monitor_queries["health_schemes"])
-
-        health_schemes = []
-
-        for scheme in health_schemes_data:
-            # Calculate enrollment rate as percentage of total citizens
-            enrollment_rate = (
-                round((scheme[3] / total_citizens) * 100, 1)
-                if total_citizens > 0
-                else 0
-            )
-
-            health_schemes.append(
-                {
-                    "name": scheme[1],
-                    "description": scheme[2],
-                    "enrolled_citizens": scheme[3],
-                    "enrollment_rate": enrollment_rate,
-                }
-            )
-
-        stats["health_schemes"] = health_schemes
-
+        # Calculate summary statistics
+        total_income = sum(hospital['income'] for hospital in stats['hospital_finances'])
+        total_expenditure = sum(hospital['expenditure'] for hospital in stats['hospital_finances'])
+        
+        stats['total_income'] = total_income
+        stats['total_expenditure'] = total_expenditure
+        stats['overall_margin'] = round((total_income - total_expenditure) / total_income * 100, 1) if total_income > 0 else 0
+        
+        # Get vaccination coverage statistics (reuse query from citizen stats)
+        vaccination_data = db.execute_query(monitor_queries['vaccination_stats'])
+        stats['vaccination_stats'] = [
+            {
+                'Disease': row[0], 
+                'VaccinatedCitizens': row[1],
+                'TotalAdults': row[2],
+                'VaccinationRate': round((row[1] / row[2]) * 100, 1) if row[2] > 0 else 0
+            }
+            for row in vaccination_data
+        ]
+        
     except Exception as e:
-        print(f"Database error: {e}")
-
+        print(f"Database error in health stats: {e}")
+    
     return stats
 
 
 def get_advanced_agriculture_stats():
-    """Fetch advanced agriculture statistics using db queries (To be implemented)."""
-    return {}
+    """Fetch advanced agriculture statistics using db queries."""
+    
+    stats = {}
+    
+    try:
+        # Get irrigation method statistics
+        irrigation_data = db.execute_query(monitor_queries['irrigation_methods'])
+        stats['irrigation_methods'] = {
+            'labels': [row[0] for row in irrigation_data],
+            'values': [row[1] for row in irrigation_data]
+        }
+        
+        # Get water usage by crop
+        water_usage_data = db.execute_query(monitor_queries['water_usage_by_crop'])
+        stats['water_usage'] = [
+            {
+                'crop_name': row[0],
+                'total_area': row[1],
+                'total_water_usage': row[2],
+                'water_per_acre': round(row[2] / row[1], 1) if row[1] > 0 else 0
+            }
+            for row in water_usage_data
+        ]
+        
+    except Exception as e:
+        print(f"Database error in agriculture stats: {e}")
+    
+    return stats
 
 
 def get_advanced_demographic_stats():
-    """Fetch advanced demographic statistics using db queries (To be implemented)."""
-    return {}
+    """Fetch advanced demographic statistics using db queries."""
+    
+    stats = {}
+    
+    try:
+        # Get migration statistics
+        migration_data = db.execute_query(monitor_queries['migration_status'])
+        stats['migration_status'] = {
+            'labels': [row[0] for row in migration_data],
+            'values': [row[1] for row in migration_data]
+        }
+        
+    except Exception as e:
+        print(f"Database error in demographic stats: {e}")
+    
+    return stats
+
+
+def get_advanced_scheme_stats():
+    """Fetch advanced scheme analysis statistics using db queries."""
+    
+    stats = {}
+    
+    try:
+        # Get scheme budget and utilization
+        scheme_budget_data = db.execute_query(monitor_queries['scheme_budget_allocation'])
+        stats['scheme_budget'] = [
+            {
+                'scheme_name': row[0],
+                'allocated_budget': row[1],
+                'target_beneficiaries': row[2],
+                'beneficiaries_enrolled': row[4],
+                'achievement_rate': row[4]*100/row[2] if row[2] > 0 else 0,
+                'benefits_received': row[5],
+                'budget_year': row[3]
+            }
+            for row in scheme_budget_data
+        ]
+        
+        # Get scheme enrollment statistics
+        enrollment_data = db.execute_query(monitor_queries['scheme_enrollment_stats'])
+        stats['enrollment_stats'] = [
+            {
+                'scheme_name': row[0],
+                'active_enrollments': row[1],
+                'inactive_enrollments': row[2],
+                'pending_enrollments': row[3],
+                'total_enrollments': row[1] + row[2] + row[3],
+                'total_benefits': row[4]
+            }
+            for row in enrollment_data
+        ]
+        
+        # Calculate target achievement rates
+        # for scheme_budget in stats['scheme_budget']:
+        #     matching_enrollment = next((e for e in stats['enrollment_stats'] 
+        #                                if e['scheme_name'] == scheme_budget['scheme_name']), None)
+            
+        #     if matching_enrollment:
+        #         target = scheme_budget['target_beneficiaries']
+        #         actual = matching_enrollment['total_enrollments']
+        #         scheme_budget['achievement_rate'] = round((actual / target) * 100, 1) if target > 0 else 0
+                
+        #         # Calculate cost per beneficiary
+        #         budget = scheme_budget['allocated_budget']
+        #         scheme_budget['cost_per_beneficiary'] = round(budget / actual, 2) if actual > 0 else 0
+        #     else:
+        #         scheme_budget['achievement_rate'] = 0
+        #         scheme_budget['cost_per_beneficiary'] = 0
+        
+    except Exception as e:
+        print(f"Database error in scheme stats: {e}")
+    
+    return stats
