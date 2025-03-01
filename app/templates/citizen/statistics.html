@@ -543,6 +543,9 @@
 
     <div class="statistics-footer">
         <a href="{{ url_for('citizen.dashboard') }}" class="back-link">← Back to Dashboard</a>
+        {% if role == 'monitor' %}
+        <a href="{{ url_for('monitor.advanced_stats', category=category) }}" class="back-link">View Advanced Stats</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

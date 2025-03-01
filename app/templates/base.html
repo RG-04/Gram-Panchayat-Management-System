@@ -39,11 +39,7 @@
                         <li><a href="{{ url_for('employee.certificates') }}">Citizens</a></li>
                         <li><a href="{{ url_for('employee.schemes') }}">Schemes</a></li>
                     {% elif session.role == 'monitor' %}
-                        <li><a href="{{ url_for('monitor.dashboard') }}">Dashboard</a></li>
-                        <li><a href="{{ url_for('monitor.citizens') }}">Citizens</a></li>
-                        <li><a href="{{ url_for('monitor.employees') }}">Employees</a></li>
-                        <li><a href="{{ url_for('monitor.schemes') }}">Schemes</a></li>
-                        <li><a href="{{ url_for('monitor.report') }}">Reports</a></li>
+                        <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
                     {% endif %}
                 </ul>
             </div>

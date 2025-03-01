@@ -7,15 +7,18 @@ from app.queries.citizen_queries import citizen_queries
 citizen_bp = Blueprint('citizen', __name__)
 
 @citizen_bp.route('/dashboard')
-@role_required(['citizen'])
+@role_required(['citizen', 'monitor'])
 def dashboard():
     """Citizen dashboard page."""
     return render_template('citizen/dashboard.html')
 
 @citizen_bp.route('/statistics')
-@role_required(['citizen'])
+@role_required(['citizen', 'monitor'])
 def statistics():
     """Display statistics based on category."""
+
+    role = session['role']
+
     category = request.args.get('category', 'education')
     
     # Validate category
@@ -41,7 +44,8 @@ def statistics():
             'citizen/statistics.html',
             category=category,
             category_title='Education Statistics',
-            stats=education_stats
+            stats=education_stats,
+            role = role
         )
     
     elif category == 'health':
@@ -63,7 +67,8 @@ def statistics():
             'citizen/statistics.html',
             category=category,
             category_title='Health Statistics',
-            stats=health_stats
+            stats=health_stats,
+            role = role
         )
     
     elif category == 'agriculture':
@@ -121,7 +126,8 @@ def statistics():
             'citizen/statistics.html',
             category=category,
             category_title='Agriculture Statistics',
-            stats=agriculture_stats
+            stats=agriculture_stats,
+            role = role
         )
     elif category == 'demographic':
         # Execute queries
@@ -198,7 +204,8 @@ def statistics():
             'citizen/statistics.html',
             category=category,
             category_title='Demographic Statistics',
-            stats=demographic_stats
+            stats=demographic_stats,
+            role = role
         )
     
 
