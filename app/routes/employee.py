@@ -659,3 +659,149 @@ def delete_scheme():
     
     
     return redirect(url_for("employee.schemes"))
+
+@employee_bp.route('/assets')
+@role_required(['employee'])
+def assets():
+    """View all assets and their details."""
+    # Get all assets
+    assets_query = """
+        SELECT a.asset_id, a.Name, a.Type, a.InstallationDate, 
+               a.LastSurveyedDate, a.Location,
+               (CURRENT_DATE - COALESCE(a.LastSurveyedDate, a.InstallationDate)) as days_since_last_survey
+        FROM assets a
+        ORDER BY days_since_last_survey DESC
+    """
+    assets_list = db.execute_query(assets_query)
+    
+    return render_template(
+        'employee/assets.html',
+        assets=assets_list
+    )
+
+@employee_bp.route('/asset/<int:asset_id>')
+@role_required(['employee'])
+def view_asset(asset_id):
+    """View a specific asset and its survey history."""
+    # Get asset details
+    asset_query = """
+        SELECT asset_id, Name, Type, InstallationDate, LastSurveyedDate, Location
+        FROM assets
+        WHERE asset_id = %s
+    """
+    asset = db.execute_query(asset_query, (asset_id,))
+    
+    if not asset:
+        flash('Asset not found', 'error')
+        return redirect(url_for('employee.assets'))
+    
+    # Get survey history
+    surveys_query = """
+        SELECT asu.SurveyDate, asu.SurveyData, 
+               c.Name as SurveyorName
+        FROM AssetSurveys asu
+        JOIN EmployeeCitizens ec ON asu.SurveyorID = ec.EmployeeID
+        JOIN Citizen c ON ec.CitizenID = c.Aadhaar
+        WHERE asu.asset_id = %s
+        ORDER BY asu.SurveyDate DESC
+    """
+    surveys = db.execute_query(surveys_query, (asset_id,))
+    
+    return render_template(
+        'employee/view_asset.html',
+        asset=asset[0],
+        surveys=surveys,
+        current_date = datetime.now().date()
+    )
+
+@employee_bp.route('/asset/<int:asset_id>/survey', methods=['GET', 'POST'])
+@role_required(['employee'])
+def survey_asset(asset_id):
+    """Survey an asset."""
+    # Get asset details
+    asset_query = """
+        SELECT asset_id, Name, Type, InstallationDate, LastSurveyedDate, Location
+        FROM assets
+        WHERE asset_id = %s
+    """
+    asset = db.execute_query(asset_query, (asset_id,))
+    
+    if not asset:
+        flash('Asset not found', 'error')
+        return redirect(url_for('employee.assets'))
+    
+    # Get employee ID from session
+    employee_query = """
+        SELECT EmployeeID
+        FROM EmployeeCitizens
+        WHERE CitizenID = %s
+    """
+    employee = db.execute_query(employee_query, (session['citizen_id'],))
+    
+    if not employee:
+        flash('Employee record not found', 'error')
+        return redirect(url_for('employee.assets'))
+    
+    employee_id = employee[0][0]
+    
+    if request.method == 'POST':
+        # Get survey data from form
+        condition = request.form.get('condition')
+        issues = request.form.get('issues')
+        maintenance_needed = request.form.get('maintenance_needed', 'No')
+        comments = request.form.get('comments', '')
+        
+        # Format survey data as JSON-like string
+        survey_data = f"Condition: {condition}; Issues: {issues}; Maintenance Needed: {maintenance_needed}; Comments: {comments}"
+        
+        # Insert or update survey
+        survey_query = """
+            INSERT INTO AssetSurveys (asset_id, SurveyDate, SurveyorID, SurveyData)
+            VALUES (%s, CURRENT_DATE, %s, %s)
+            ON CONFLICT (asset_id, SurveyDate) 
+            DO UPDATE SET SurveyorID = %s, SurveyData = %s
+        """
+        db.execute_query(
+            survey_query,
+            (asset_id, employee_id, survey_data, employee_id, survey_data),
+            fetch=False
+        )
+        
+        flash('Asset survey submitted successfully', 'success')
+        return redirect(url_for('employee.view_asset', asset_id=asset_id))
+    
+    return render_template(
+        'employee/survey_asset.html',
+        asset=asset[0]
+    )
+
+@employee_bp.route('/add_asset', methods=['GET', 'POST'])
+@role_required(['employee'])
+def add_asset():
+    """Add a new asset."""
+    if request.method == 'POST':
+        name = request.form.get('name')
+        asset_type = request.form.get('type')
+        installation_date = request.form.get('installation_date')
+        location = request.form.get('location')
+        
+        # Validate required fields
+        if not name or not asset_type or not installation_date:
+            flash('Name, type, and installation date are required', 'error')
+            return render_template('employee/add_asset.html')
+        
+        # Insert new asset
+        asset_query = """
+            INSERT INTO assets (Name, Type, InstallationDate, Location)
+            VALUES (%s, %s, %s, %s)
+            RETURNING asset_id
+        """
+        asset_id = db.execute_query(
+            asset_query,
+            (name, asset_type, installation_date, location)
+        )[0][0]
+        
+        flash('Asset added successfully', 'success')
+        return redirect(url_for('employee.view_asset', asset_id=asset_id))
+    
+    return render_template('employee/add_asset.html')

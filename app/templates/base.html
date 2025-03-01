@@ -39,6 +39,7 @@
                         <li><a href="{{ url_for('employee.dashboard') }}">Dashboard</a></li>
                         <li><a href="{{ url_for('employee.certificates') }}">Citizens</a></li>
                         <li><a href="{{ url_for('employee.schemes') }}">Schemes</a></li>
+                        <li><a href="{{ url_for('employee.assets') }}">Assets</a></li>
                     {% elif session.role == 'monitor' %}
                         <li><a href="{{ url_for('citizen.dashboard') }}">Dashboard</a></li>
                     {% endif %}

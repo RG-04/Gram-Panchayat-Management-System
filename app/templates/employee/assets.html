@@ -1,0 +1,310 @@
+{% extends "base.html" %}
+
+{% block title %}Asset Management - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .assets-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .assets-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .assets-header h1 {
+        color: #006400;
+        margin: 0;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .assets-header h1 i {
+        margin-right: 15px;
+    }
+    
+    .add-asset-btn {
+        background-color: #006400;
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.3s ease;
+    }
+    
+    .add-asset-btn:hover {
+        background-color: #004d00;
+    }
+    
+    .add-asset-btn i {
+        margin-right: 5px;
+    }
+    
+    .assets-filter {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .filter-input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        flex-grow: 1;
+        max-width: 300px;
+    }
+    
+    .filter-select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .assets-table-container {
+        overflow-x: auto;
+    }
+    
+    .assets-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    
+    .assets-table th {
+        background-color: #f2f2f2;
+        padding: 12px;
+        text-align: left;
+        border-bottom: 2px solid #ddd;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .assets-table td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .assets-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .asset-name {
+        font-weight: 600;
+        color: #006400;
+    }
+    
+    .asset-link {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .asset-link:hover .asset-name {
+        text-decoration: underline;
+    }
+    
+    .asset-type {
+        background-color: #e0f2f1;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        color: #00796b;
+        display: inline-block;
+    }
+    
+    .survey-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
+    
+    .status-recent {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .status-warning {
+        background-color: #fff3e0;
+        color: #e65100;
+    }
+    
+    .status-overdue {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+    
+    .action-links {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    
+    .action-btn i {
+        margin-right: 5px;
+    }
+    
+    .view-btn {
+        background-color: #f0f0f0;
+        color: #333;
+    }
+    
+    .view-btn:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .survey-btn {
+        background-color: #2196F3;
+        color: white;
+    }
+    
+    .survey-btn:hover {
+        background-color: #1976D2;
+    }
+    
+    .no-assets {
+        text-align: center;
+        padding: 50px 0;
+        color: #666;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="assets-container">
+    <div class="assets-header">
+        <h1><i class="fas fa-cubes"></i> Asset Management</h1>
+        <a href="{{ url_for('employee.add_asset') }}" class="add-asset-btn">
+            <i class="fas fa-plus"></i> Add New Asset
+        </a>
+    </div>
+    
+    <div class="assets-filter">
+        <input type="text" id="assetSearch" class="filter-input" placeholder="Search assets...">
+        <select id="assetTypeFilter" class="filter-select">
+            <option value="">All Types</option>
+            <option value="Road">Road</option>
+            <option value="Building">Building</option>
+            <option value="Well">Well</option>
+            <option value="Pump">Pump</option>
+            <option value="Solar Panel">Solar Panel</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+    
+    {% if assets %}
+        <div class="assets-table-container">
+            <table class="assets-table" id="assetsTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Installed</th>
+                        <th>Last Surveyed</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                        <tr data-asset-type="{{ asset[2] }}">
+                            <td>
+                                <a href="{{ url_for('employee.view_asset', asset_id=asset[0]) }}" class="asset-link">
+                                    <div class="asset-name">{{ asset[1] }}</div>
+                                </a>
+                            </td>
+                            <td><span class="asset-type">{{ asset[2] }}</span></td>
+                            <td>{{ asset[5] or 'Not specified' }}</td>
+                            <td>{{ asset[3].strftime('%d-%m-%Y') if asset[3] else 'Unknown' }}</td>
+                            <td>{{ asset[4].strftime('%d-%m-%Y') if asset[4] else 'Never' }}</td>
+                            <td>
+                                {% if asset[6] is none %}
+                                    <span class="survey-status status-overdue">Never Surveyed</span>
+                                {% elif asset[6] > 180 %}
+                                    <span class="survey-status status-overdue">{{ asset[6] }} days ago</span>
+                                {% elif asset[6] > 90 %}
+                                    <span class="survey-status status-warning">{{ asset[6] }} days ago</span>
+                                {% else %}
+                                    <span class="survey-status status-recent">{{ asset[6] }} days ago</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-links">
+                                    <a href="{{ url_for('employee.view_asset', asset_id=asset[0]) }}" class="action-btn view-btn">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{{ url_for('employee.survey_asset', asset_id=asset[0]) }}" class="action-btn survey-btn">
+                                        <i class="fas fa-clipboard-check"></i> Survey
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="no-assets">
+            <p>No assets found in the system.</p>
+            <p>Click the "Add New Asset" button to add your first asset.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('assetSearch');
+        const typeFilter = document.getElementById('assetTypeFilter');
+        const table = document.getElementById('assetsTable');
+        const rows = table ? table.querySelectorAll('tbody tr') : [];
+        
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const typeValue = typeFilter.value;
+            
+            rows.forEach(row => {
+                const name = row.querySelector('.asset-name').textContent.toLowerCase();
+                const type = row.getAttribute('data-asset-type');
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesType = typeValue === '' || type === typeValue;
+                
+                if (matchesSearch && matchesType) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', filterTable);
+        }
+        
+        if (typeFilter) {
+            typeFilter.addEventListener('change', filterTable);
+        }
+    });
+</script>
+{% endblock %}

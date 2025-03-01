@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}{{ asset[1] }} - Asset View{% endblock %}
+
+{% block head %}
+<style>
+    .asset-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .asset-header {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .back-link {
+        color: #666;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+    
+    .back-link i {
+        margin-right: 5px;
+    }
+    
+    .asset-title {
+        font-size: 1.8rem;
+        color: #006400;
+        margin: 10px 0;
+    }
+    
+    .asset-type {
+        background-color: #e0f2f1;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        color: #00796b;
+        margin-left: 10px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .action-btn {
+        padding: 8px 15px;
+        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    
+    .action-btn i {
+        margin-right: 5px;
+    }
+    
+    .survey-btn {
+        background-color: #2196F3;
+        color: white;
+    }
+    
+    .survey-btn:hover {
+        background-color: #1976D2;
+    }
+    
+    .edit-btn {
+        background-color: #f0f0f0;
+        color: #333;
+    }
+    
+    .edit-btn:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .asset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .asset-info-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+    
+    .card-title {
+        font-size: 1.2rem;
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-title i {
+        margin-right: 10px;
+        color: #006400;
+    }
+    
+    .info-item {
+        margin-bottom: 12px;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.9rem;
+        margin-bottom: 3px;
+    }
+    
+    .info-value {
+        color: #333;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+    }
+    
+    .status-recent {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .status-warning {
+        background-color: #fff3e0;
+        color: #e65100;
+    }
+    
+    .status-overdue {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+    
+    .surveys-section {
+        margin-top: 30px;
+    }
+    
+    .section-title {
+        font-size: 1.4rem;
+        color: #006400;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 10px;
+    }
+    
+    .surveys-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .survey-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .survey-item {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 20px;
+    }
+    
+    .survey-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .survey-meta {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .survey-date {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .surveyor-name {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .survey-content {
+        line-height: 1.5;
+    }
+    
+    .survey-data-item {
+        margin-bottom: 8px;
+    }
+    
+    .survey-label {
+        font-weight: 600;
+        color: #555;
+    }
+    
+    .no-surveys {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+        font-style: italic;
+    }
+    
+    @media (max-width: 768px) {
+        .survey-item {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="asset-container">
+    <div class="asset-header">
+        <div>
+            <a href="{{ url_for('employee.assets') }}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Assets
+            </a>
+            <h1 class="asset-title">
+                {{ asset[1] }}
+                <span class="asset-type">{{ asset[2] }}</span>
+            </h1>
+        </div>
+        <div class="action-buttons">
+            <a href="{{ url_for('employee.survey_asset', asset_id=asset[0]) }}" class="action-btn survey-btn">
+                <i class="fas fa-clipboard-check"></i> Survey Asset
+            </a>
+        </div>
+    </div>
+    
+    <div class="asset-grid">
+        <div class="asset-info-card">
+            <h2 class="card-title"><i class="fas fa-info-circle"></i> Basic Information</h2>
+            <div class="info-item">
+                <div class="info-label">Asset ID</div>
+                <div class="info-value">{{ asset[0] }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Type</div>
+                <div class="info-value">{{ asset[2] }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Location</div>
+                <div class="info-value">{{ asset[5] or 'Not specified' }}</div>
+            </div>
+        </div>
+        
+        <div class="asset-info-card">
+            <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Timeline</h2>
+            <div class="info-item">
+                <div class="info-label">Installation Date</div>
+                <div class="info-value">{{ asset[3].strftime('%d %B %Y') if asset[3] else 'Unknown' }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Last Surveyed</div>
+                <div class="info-value">
+                    {% if asset[4] %}
+                        {{ asset[4].strftime('%d %B %Y') }}
+                        {% set days_since = (current_date - asset[4]).days %}
+                        {% if days_since > 180 %}
+                            <span class="status-badge status-overdue">{{ days_since }} days ago</span>
+                        {% elif days_since > 90 %}
+                            <span class="status-badge status-warning">{{ days_since }} days ago</span>
+                        {% else %}
+                            <span class="status-badge status-recent">{{ days_since }} days ago</span>
+                        {% endif %}
+                    {% else %}
+                        Never surveyed
+                        <span class="status-badge status-overdue">Overdue</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Age</div>
+                <div class="info-value">
+                    {% if asset[3] %}
+                        {% set age_days = (asset[3] - asset[3]).days %}
+                        {{ (age_days / 365.25) | round(1) }} years ({{ age_days }} days)
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="surveys-section">
+        <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Survey History</h2>
+        <div class="surveys-container">
+            {% if surveys %}
+                <div class="survey-list">
+                    {% for survey in surveys %}
+                        <div class="survey-item">
+                            <div class="survey-meta">
+                                <div class="survey-date">{{ survey[0].strftime('%d %B %Y') }}</div>
+                                <div class="surveyor-name">Surveyed by: {{ survey[2] }}</div>
+                            </div>
+                            <div class="survey-content">
+                                {% for item in survey[1].split(';') %}
+                                    {% set parts = item.strip().split(':', 1) %}
+                                    {% if parts|length > 1 %}
+                                        <div class="survey-data-item">
+                                            <span class="survey-label">{{ parts[0].strip() }}:</span>
+                                            {{ parts[1].strip() }}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-surveys">
+                    <p>No surveys have been conducted for this asset yet.</p>
+                    <p>Use the "Survey Asset" button to record the first survey.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

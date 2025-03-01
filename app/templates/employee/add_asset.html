@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Asset - Gram Panchayat Management System{% endblock %}
+
+{% block head %}
+<style>
+    .add-asset-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .add-asset-header {
+        margin-bottom: 30px;
+    }
+    
+    .back-link {
+        color: #666;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .back-link i {
+        margin-right: 5px;
+    }
+    
+    .add-asset-title {
+        font-size: 1.8rem;
+        color: #006400;
+        margin: 10px 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .add-asset-title i {
+        margin-right: 15px;
+    }
+    
+    .add-asset-subtitle {
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .asset-form {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+    
+    .form-section {
+        margin-bottom: 30px;
+    }
+    
+    .section-title {
+        font-size: 1.2rem;
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    
+    .required::after {
+        content: "*";
+        color: #d32f2f;
+        margin-left: 4px;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .form-select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        background-color: white;
+    }
+    
+    .form-textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .form-hint {
+        color: #666;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .cancel-btn {
+        padding: 10px 15px;
+        border-radius: 4px;
+        background-color: #f0f0f0;
+        color: #333;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .cancel-btn:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .submit-btn {
+        padding: 10px 20px;
+        border-radius: 4px;
+        background-color: #006400;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        font-size: 1rem;
+        transition: background-color 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+        background-color: #004d00;
+    }
+    
+    .action-icon {
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="add-asset-container">
+    <div class="add-asset-header">
+        <a href="{{ url_for('employee.assets') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Assets
+        </a>
+        <h1 class="add-asset-title">
+            <i class="fas fa-plus-circle"></i> Add New Asset
+        </h1>
+        <p class="add-asset-subtitle">Register a new asset in the panchayat inventory</p>
+    </div>
+    
+    <div class="asset-form">
+        <form method="POST" action="{{ url_for('employee.add_asset') }}">
+            <div class="form-section">
+                <h2 class="section-title">Basic Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name" class="form-label required">Asset Name</label>
+                        <input type="text" id="name" name="name" class="form-control" required placeholder="e.g., Main Road Bridge">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="type" class="form-label required">Asset Type</label>
+                        <select id="type" name="type" class="form-select" required>
+                            <option value="">-- Select Type --</option>
+                            <option value="Road">Road</option>
+                            <option value="Bridge">Bridge</option>
+                            <option value="Building">Building</option>
+                            <option value="Well">Well</option>
+                            <option value="Pump">Water Pump</option>
+                            <option value="Solar Panel">Solar Panel</option>
+                            <option value="Generator">Generator</option>
+                            <option value="Playground">Playground</option>
+                            <option value="Park">Park</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2 class="section-title">Location & Timeline</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" id="location" name="location" class="form-control" placeholder="e.g., North Ward, Near Temple">
+                        <div class="form-hint">Describe where this asset is located</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="installation_date" class="form-label required">Installation Date</label>
+                        <input type="date" id="installation_date" name="installation_date" class="form-control" required>
+                        <div class="form-hint">When was this asset installed or built</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{{ url_for('employee.assets') }}" class="cancel-btn">
+                    <i class="fas fa-times action-icon"></i> Cancel
+                </a>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save action-icon"></i> Add Asset
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
