@@ -17,14 +17,14 @@ citizen_bp = Blueprint("citizen", __name__)
 
 
 @citizen_bp.route("/dashboard")
-@role_required(["citizen', 'monitor"])
+@role_required(["citizen", "monitor"])
 def dashboard():
     """Citizen dashboard page."""
     return render_template("citizen/dashboard.html")
 
 
 @citizen_bp.route("/statistics")
-@role_required(["citizen', 'monitor"])
+@role_required(["citizen", "monitor"])
 def statistics():
     """Display statistics based on category."""
 

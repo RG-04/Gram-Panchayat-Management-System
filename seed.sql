@@ -61,8 +61,8 @@ INSERT INTO EmployeeCitizens (CitizenID, StartDate, TermDuration, Role) VALUES
 
 -- Insert schools
 INSERT INTO Schools (Name, Capacity, Income) VALUES
-('Sundarpur Primary School', 500, 5000000),
-('Chandanagar High School', 800, 3000000);
+('Sundarpur Primary School', 50, 5000000),
+('Chandanagar High School', 80, 3000000);
 
 -- Insert hospitals
 INSERT INTO Hospitals (Name, Address, Beds) VALUES
