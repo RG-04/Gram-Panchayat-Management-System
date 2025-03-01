@@ -452,3 +452,210 @@
         font-size: 0.9rem;
     }
 }
+
+/* Demographic Statistics Styles - Updated for Better Chart Sizing */
+
+/* Summary Cards */
+.summary-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin: 8px;
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.summary-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+/* Demographics Row Layout */
+.demographics-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.demographics-card {
+    flex: 1;
+    min-width: 300px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow: hidden; /* Prevent content from spilling out */
+}
+
+.demographics-card h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid #ecf0f1;
+    padding-bottom: 10px;
+}
+
+/* Population Pyramid - ADJUSTED HEIGHT */
+.population-pyramid-container {
+    height: 300px;
+    position: relative;
+    margin: 0 auto;
+    width: 95%; /* Slightly narrower to ensure padding */
+}
+
+/* Gender Distribution Chart - ADJUSTED HEIGHT */
+.gender-chart-container {
+    height: 220px;
+    position: relative;
+    margin: 0 auto;
+    width: 90%; /* Smaller width for better fit */
+}
+
+/* Vital Statistics */
+.vital-stats {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+}
+
+.vital-stat {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+}
+
+.vital-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 20px;
+}
+
+.birth-icon {
+    background-color: #3498db;
+    color: white;
+}
+
+.death-icon {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.vital-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.vital-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.vital-label {
+    font-size: 13px;
+    color: #7f8c8d;
+}
+
+.vital-divider {
+    width: 1px;
+    height: 50px;
+    background-color: #ecf0f1;
+}
+
+/* Household Statistics */
+.household-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 10px;
+}
+
+.household-stat {
+    flex: 1;
+    min-width: 140px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+/* Income and Occupation Charts - ADJUSTED HEIGHT */
+.income-distribution-container {
+    height: 250px;
+    margin: 15px 0 30px 0;
+    position: relative;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.occupation-distribution-container {
+    height: 280px;
+    margin: 15px 0 30px 0;
+    position: relative;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .demographics-row {
+        flex-direction: column;
+    }
+    
+    .demographics-card {
+        margin-bottom: 20px;
+    }
+    
+    .vital-stats {
+        flex-direction: column;
+    }
+    
+    .vital-divider {
+        width: 80%;
+        height: 1px;
+        margin: 12px 0;
+    }
+    
+    .population-pyramid-container,
+    .gender-chart-container,
+    .income-distribution-container,
+    .occupation-distribution-container {
+        height: 220px; /* Even smaller on mobile */
+    }
+}

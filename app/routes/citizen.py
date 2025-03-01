@@ -20,7 +20,7 @@ def statistics():
     category = request.args.get('category', 'education')
     
     # Validate category
-    valid_categories = ['education', 'health', 'agriculture']
+    valid_categories = ['education', 'health', 'agriculture', 'demographic']
     if category not in valid_categories:
         category = 'education'  # Default to education if invalid
     
@@ -209,6 +209,254 @@ def statistics():
             category_title='Agriculture Statistics',
             stats=agriculture_stats
         )
+    elif category == 'demographic':
+        # Total population query
+        population_query = """
+        SELECT COUNT(*) AS TotalPopulation FROM Citizen;
+        """
+        
+        # Gender distribution query
+        gender_distribution_query = """
+        SELECT Gender, COUNT(*) AS Count
+        FROM Citizen
+        WHERE Gender IS NOT NULL
+        GROUP BY Gender
+        ORDER BY Gender;
+        """
+        
+        # Sex ratio query (females per 1000 males)
+        sex_ratio_query = """
+        SELECT 
+            ROUND((COUNT(CASE WHEN Gender = 'Female' THEN 1 END) * 1000.0) / 
+            NULLIF(COUNT(CASE WHEN Gender = 'Male' THEN 1 END), 0), 2) AS SexRatio
+        FROM Citizen
+        WHERE Gender IN ('Male', 'Female');
+        """
+        
+        # Age group distribution for population pyramid
+        age_distribution_query = """
+        WITH AgeGroups AS (
+            SELECT 
+                Gender,
+                CASE 
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 5 THEN '0-4'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 10 THEN '5-9'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 15 THEN '10-14'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 20 THEN '15-19'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 25 THEN '20-24'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 30 THEN '25-29'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 35 THEN '30-34'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 40 THEN '35-39'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 45 THEN '40-44'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 50 THEN '45-49'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 55 THEN '50-54'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 60 THEN '55-59'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 65 THEN '60-64'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 70 THEN '65-69'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 75 THEN '70-74'
+                    WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 80 THEN '75-79'
+                    ELSE '80+' 
+                END AS AgeGroup,
+                COUNT(*) AS Count
+            FROM Citizen
+            WHERE DOB IS NOT NULL AND Gender IN ('Male', 'Female')
+            GROUP BY Gender, AgeGroup
+        )
+        SELECT AgeGroup, 
+            SUM(CASE WHEN Gender = 'Male' THEN Count ELSE 0 END) AS MaleCount,
+            SUM(CASE WHEN Gender = 'Female' THEN Count ELSE 0 END) AS FemaleCount
+        FROM AgeGroups
+        GROUP BY AgeGroup
+        ORDER BY 
+            CASE 
+                WHEN AgeGroup = '0-4' THEN 1
+                WHEN AgeGroup = '5-9' THEN 2
+                WHEN AgeGroup = '10-14' THEN 3
+                WHEN AgeGroup = '15-19' THEN 4
+                WHEN AgeGroup = '20-24' THEN 5
+                WHEN AgeGroup = '25-29' THEN 6
+                WHEN AgeGroup = '30-34' THEN 7
+                WHEN AgeGroup = '35-39' THEN 8
+                WHEN AgeGroup = '40-44' THEN 9
+                WHEN AgeGroup = '45-49' THEN 10
+                WHEN AgeGroup = '50-54' THEN 11
+                WHEN AgeGroup = '55-59' THEN 12
+                WHEN AgeGroup = '60-64' THEN 13
+                WHEN AgeGroup = '65-69' THEN 14
+                WHEN AgeGroup = '70-74' THEN 15
+                WHEN AgeGroup = '75-79' THEN 16
+                WHEN AgeGroup = '80+' THEN 17
+            END;
+        """
+        
+        # Literacy rate query (we reuse the one from education section)
+        literacy_query = """
+        SELECT ROUND((COUNT(DISTINCT a.CitizenID) * 100.0) / COUNT(DISTINCT c.Aadhaar), 2) AS LiteracyRate
+        FROM Citizen c
+        LEFT JOIN AttendsSchool a
+        ON c.Aadhaar = a.CitizenID;
+        """
+        
+        # Birth rate (births in last year per 1000 population)
+        birth_rate_query = """
+        WITH Births AS (
+            SELECT COUNT(*) AS BirthCount 
+            FROM Citizen 
+            WHERE EXTRACT(YEAR FROM AGE(CURRENT_DATE, DOB)) < 1
+        ),
+        TotalPop AS (
+            SELECT COUNT(*) AS Total FROM Citizen
+        )
+        SELECT ROUND((BirthCount * 1000.0) / NULLIF(Total, 0), 2) AS BirthRate
+        FROM Births, TotalPop;
+        """
+        
+        # Death certificates in the last year (approximate death rate)
+        death_rate_query = """
+        WITH Deaths AS (
+            SELECT COUNT(*) AS DeathCount 
+            FROM Certificates 
+            WHERE Category = 'Death Certificate' 
+            AND DateIssued >= CURRENT_DATE - INTERVAL '1 year'
+        ),
+        TotalPop AS (
+            SELECT COUNT(*) AS Total FROM Citizen
+        )
+        SELECT ROUND((DeathCount * 1000.0) / NULLIF(Total, 0), 2) AS DeathRate
+        FROM Deaths, TotalPop;
+        """
+        
+        # Household statistics
+        household_query = """
+        SELECT 
+            COUNT(DISTINCT HouseholdSizes.HouseholdID) AS TotalHouseholds,
+            ROUND(COUNT(Citizen.Aadhaar) * 1.0 / COUNT(DISTINCT HouseholdSizes.HouseholdID), 2) AS AvgHouseholdSize,
+            MAX(HouseholdCount) AS LargestHouseholdSize
+        FROM (
+            SELECT HouseholdID, COUNT(*) AS HouseholdCount
+            FROM Citizen
+            WHERE HouseholdID IS NOT NULL
+            GROUP BY HouseholdID
+        ) AS HouseholdSizes, Citizen
+        WHERE Citizen.HouseholdID IS NOT NULL;
+        """
+        
+        # Occupation distribution (top 5)
+        occupation_query = """
+        SELECT Occupation, COUNT(*) AS Count
+        FROM Citizen
+        WHERE Occupation IS NOT NULL
+        GROUP BY Occupation
+        ORDER BY Count DESC
+        LIMIT 5;
+        """
+        
+        # Income distribution
+        income_distribution_query = """
+        SELECT * 
+        FROM (
+            SELECT 
+                CASE 
+                    WHEN Income < 50000 THEN 'Below 50K'
+                    WHEN Income < 100000 THEN '50K-1L'
+                    WHEN Income < 300000 THEN '1L-3L'
+                    WHEN Income < 500000 THEN '3L-5L'
+                    WHEN Income < 1000000 THEN '5L-10L'
+                    ELSE 'Above 10L'
+                END AS IncomeGroup,
+                COUNT(*) AS Count
+            FROM Citizen
+            WHERE Income IS NOT NULL
+            GROUP BY IncomeGroup
+        ) AS income_data
+        ORDER BY 
+            CASE 
+                WHEN IncomeGroup = 'Below 50K' THEN 1
+                WHEN IncomeGroup = '50K-1L' THEN 2
+                WHEN IncomeGroup = '1L-3L' THEN 3
+                WHEN IncomeGroup = '3L-5L' THEN 4
+                WHEN IncomeGroup = '5L-10L' THEN 5
+                WHEN IncomeGroup = 'Above 10L' THEN 6
+            END;
+        """
+        
+        # Execute queries
+        total_population = db.execute_query(population_query)[0][0]
+        gender_distribution = db.execute_query(gender_distribution_query)
+        sex_ratio = db.execute_query(sex_ratio_query)[0][0] or 0
+        age_distribution = db.execute_query(age_distribution_query)
+        literacy_rate = db.execute_query(literacy_query)[0][0] or 0
+        birth_rate = db.execute_query(birth_rate_query)[0][0] or 0
+        death_rate = db.execute_query(death_rate_query)[0][0] or 0
+        household_stats = db.execute_query(household_query)
+        occupation_stats = db.execute_query(occupation_query)
+        income_distribution = db.execute_query(income_distribution_query)
+        
+        print(occupation_stats)
+
+        # Format data for population pyramid
+        age_groups = [row[0] for row in age_distribution]
+        male_counts = [-int(row[1]) for row in age_distribution]  # Negative for left side of pyramid
+        female_counts = [int(row[2]) for row in age_distribution]
+        
+        # Format data for gender pie chart
+        gender_labels = [str(row[0]) for row in gender_distribution] 
+        gender_values = [int(row[1]) for row in gender_distribution]
+        
+        print(gender_labels, gender_values)
+
+        # Format data for occupation pie chart
+        occupation_labels = [row[0] for row in occupation_stats]
+        occupation_values = [row[1] for row in occupation_stats]
+        
+        print(occupation_labels, occupation_values)
+        
+        # Format data for income distribution chart
+        income_labels = [row[0] for row in income_distribution]
+        income_values = [row[1] for row in income_distribution]
+        
+        # Prepare demographic statistics
+        total_households = household_stats[0][0] if household_stats else 0
+        avg_household_size = household_stats[0][1] if household_stats else 0
+        largest_household_size = household_stats[0][2] if household_stats else 0
+        
+        demographic_stats = {
+            'total_population': total_population,
+            'gender_distribution': {
+                'labels': gender_labels,
+                'values': gender_values
+            },
+            'sex_ratio': sex_ratio,
+            'population_pyramid': {
+                'age_groups': age_groups,
+                'male_counts': male_counts,
+                'female_counts': female_counts
+            },
+            'literacy_rate': literacy_rate,
+            'birth_rate': birth_rate,
+            'death_rate': death_rate,
+            'household_stats': {
+                'total_households': total_households,
+                'avg_household_size': avg_household_size,
+                'largest_household_size': largest_household_size
+            },
+            'occupation_distribution': {
+                'labels': occupation_labels,
+                'values': occupation_values
+            },
+            'income_distribution': {
+                'labels': income_labels,
+                'values': income_values
+            }
+        }
+        
+        return render_template(
+            'citizen/statistics.html',
+            category=category,
+            category_title='Demographic Statistics',
+            stats=demographic_stats
+        )
+    
 
 @citizen_bp.route('/profile')
 @role_required(['citizen'])

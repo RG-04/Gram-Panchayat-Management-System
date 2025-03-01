@@ -10,6 +10,7 @@
             <a href="{{ url_for('citizen.statistics', category='education') }}" class="category-link {% if category == 'education' %}active{% endif %}">Education</a>
             <a href="{{ url_for('citizen.statistics', category='health') }}" class="category-link {% if category == 'health' %}active{% endif %}">Health</a>
             <a href="{{ url_for('citizen.statistics', category='agriculture') }}" class="category-link {% if category == 'agriculture' %}active{% endif %}">Agriculture</a>
+            <a href="{{ url_for('citizen.statistics', category='demographic') }}" class="category-link {% if category == 'demographic' %}active{% endif %}">Demographic</a>
         </div>
     </div>
 
@@ -280,6 +281,288 @@
                 });
             });
             </script>
+        {% elif category == 'demographic' %}
+        <div class="stats-summary">
+            <div class="summary-card">
+                <div class="summary-value">{{ stats.total_population }}</div>
+                <div class="summary-label">Total Population</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">{{ stats.sex_ratio }}</div>
+                <div class="summary-label">Females per 1000 Males</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">{{ stats.literacy_rate }}%</div>
+                <div class="summary-label">Literacy Rate</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">{{ stats.household_stats.total_households }}</div>
+                <div class="summary-label">Total Households</div>
+            </div>
+        </div>
+
+        <div class="demographics-row">
+            <div class="demographics-card">
+                <h2>Population Pyramid</h2>
+                <div class="population-pyramid-container">
+                    <canvas id="populationPyramid"></canvas>
+                </div>
+            </div>
+            
+            <div class="demographics-card">
+                <h2>Gender Distribution</h2>
+                <div class="gender-chart-container">
+                    <canvas id="genderPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="demographics-row">
+            <div class="demographics-card">
+                <h2>Vital Statistics</h2>
+                <div class="vital-stats">
+                    <div class="vital-stat">
+                        <div class="vital-icon birth-icon">
+                            <i class="fas fa-baby"></i>
+                        </div>
+                        <div class="vital-details">
+                            <div class="vital-value">{{ stats.birth_rate }}</div>
+                            <div class="vital-label">Birth Rate (per 1000)</div>
+                        </div>
+                    </div>
+                    <div class="vital-divider"></div>
+                    <div class="vital-stat">
+                        <div class="vital-icon death-icon">
+                            <i class="fas fa-procedures"></i>
+                        </div>
+                        <div class="vital-details">
+                            <div class="vital-value">{{ stats.death_rate }}</div>
+                            <div class="vital-label">Death Rate (per 1000)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demographics-card">
+                <h2>Household Information</h2>
+                <div class="household-stats">
+                    <div class="household-stat">
+                        <div class="stat-label">Average Household Size</div>
+                        <div class="stat-value">{{ stats.household_stats.avg_household_size }}</div>
+                    </div>
+                    <div class="household-stat">
+                        <div class="stat-label">Largest Household Size</div>
+                        <div class="stat-value">{{ stats.household_stats.largest_household_size }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2>Income Distribution</h2>
+        <div class="income-distribution-container">
+            <canvas id="incomeChart"></canvas>
+        </div>
+
+        <h2>Top Occupations</h2>
+        <div class="occupation-distribution-container">
+            <canvas id="occupationChart"></canvas>
+        </div>
+
+        <!-- Add Chart.js from CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+        <!-- JavaScript for demographic visualizations -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Population Pyramid
+            const ageGroups = {{ stats.population_pyramid.age_groups|tojson }};
+            const maleCounts = {{ stats.population_pyramid.male_counts|tojson }};
+            const femaleCounts = {{ stats.population_pyramid.female_counts|tojson }};
+            
+            const pyramidCtx = document.getElementById('populationPyramid').getContext('2d');
+            
+            const populationPyramid = new Chart(pyramidCtx, {
+                type: 'bar',
+                data: {
+                    labels: ageGroups,
+                    datasets: [
+                        {
+                            label: 'Male',
+                            data: maleCounts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Female',
+                            data: femaleCounts,
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Population'
+                            },
+                            stacked: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return Math.abs(value); // Display absolute values
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Age Group'
+                            },
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += Math.abs(context.raw);
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gender Distribution Pie Chart
+            const genderData = {{stats.gender_distribution|tojson}};
+            const genderCtx = document.getElementById('genderPieChart').getContext('2d');
+            
+            const genderPieChart = new Chart(genderCtx, {
+                type: 'pie',
+                data: {
+                    labels: genderData.labels,
+                    datasets: [{
+                        data: genderData.values,
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)'
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Income Distribution Chart
+            const incomeData = {{ stats.income_distribution|tojson }};
+
+            const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+            
+            const incomeChart = new Chart(incomeCtx, {
+                type: 'bar',
+                data: {
+                    labels: incomeData.labels,
+                    datasets: [{
+                        label: 'Number of Citizens',
+                        data: incomeData.values,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Citizens'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Income Group'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Occupation Chart
+            const occupationData = {{ stats.occupation_distribution|tojson }};
+            
+            const occupationCtx = document.getElementById('occupationChart').getContext('2d');
+            
+            // Update the occupation chart options
+            const occupationChart = new Chart(occupationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: occupationData.labels,
+                    datasets: [{
+                        data: occupationData.values,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',  // Changed from 'right' to 'bottom'
+                            align: 'center',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 11  // Smaller font size
+                                }
+                            }
+                        }
+                    },
+                    cutout: '50%'  // Adjust the size of the center hole
+                }
+            });
+        });
+        </script>
         {% endif %}
     </div>
 
