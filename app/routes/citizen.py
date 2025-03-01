@@ -407,7 +407,7 @@ def panchayat_employees():
 
 
 @citizen_bp.route("/update_password", methods=["GET", "POST"])
-@role_required(["citizen"])
+@role_required(["citizen", "employee"])
 def update_password():
     """Update password page."""
     if request.method == "POST":
