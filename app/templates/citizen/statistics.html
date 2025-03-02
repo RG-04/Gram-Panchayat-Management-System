@@ -148,11 +148,11 @@
             <div class="stats-summary">
                 <div class="summary-card">
                     <div class="summary-value">{{ stats.total_land_area }}</div>
-                    <div class="summary-label">Total Land Area (hectares)</div>
+                    <div class="summary-label">Total Land Area (acres)</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-value">{{ stats.agricultural_area }}</div>
-                    <div class="summary-label">Agricultural Area (hectares)</div>
+                    <div class="summary-label">Agricultural Area (acres)</div>
                 </div>
                 <div class="summary-card">
                     <div class="summary-value">{{ stats.agricultural_percentage }}%</div>
@@ -189,9 +189,9 @@
                         <tr>
                             <th>Crop Name</th>
                             <th>Type</th>
-                            <th>Area (hectares)</th>
+                            <th>Area (acres)</th>
                             <th>Annual Yield (kg)</th>
-                            <th>Yield per Hectare</th>
+                            <th>Yield per acre</th>
                             <th>Organic</th>
                         </tr>
                     </thead>
@@ -202,7 +202,7 @@
                             <td>{{ crop.type }}</td>
                             <td>{{ crop.area }}</td>
                             <td>{{ crop.yield }}</td>
-                            <td>{{ crop.yield_per_hectare }}</td>
+                            <td>{{ crop.yield_per_acre }}</td>
                             <td>{% if crop.organic %}✓{% else %}✗{% endif %}</td>
                         </tr>
                         {% endfor %}
