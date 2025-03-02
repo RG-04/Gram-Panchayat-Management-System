@@ -60,6 +60,16 @@
                 <p>Access detailed scheme enrollment, budget utilization, and impact analysis</p>
             </div>
         </a>
+
+        <a href="{{ url_for('monitor.advanced_stats', category='environment') }}" class="dashboard-card">
+            <div class="card-icon" style="background-color: #4CAF50;">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="card-content">
+                <h2>Environment</h2>
+                <p>View environmental statistics, air quality, rainfall and other details</p>
+            </div>
+        </a>
         {% endif %}
     </div>
 </div>

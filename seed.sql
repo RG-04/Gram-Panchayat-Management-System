@@ -255,3 +255,30 @@ UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 8000
 UPDATE SchemeEnrollment SET EnrollmentStatus = 'Pending', BenefitsReceived = 0.00, LastBenefitDate = NULL WHERE SchemeID = 6 AND CitizenID = '123456789012';
 UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 12000.00, LastBenefitDate = '2024-01-22' WHERE SchemeID = 7 AND CitizenID = '234567890123';
 UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 7500.00, LastBenefitDate = '2024-02-15' WHERE SchemeID = 8 AND CitizenID = '234567890123';
+
+-- Insert sample environmental data
+INSERT INTO EnvironmentalData (TimeFrame, AirQuality, RainfallAmount, GroundwaterLevel, ForestCover, WaterBodyConditions, RecordedBy, Notes) VALUES
+('2025-03-01', 85.20, 12.45, 3.80, 28.50, 'Clear and stable', 1, 'Air quality is decent due to winter winds.'),
+('2025-02-01', 88.10, 8.30, 3.70, 28.40, 'Slight algae growth', 2, 'Low rainfall affecting groundwater levels.'),
+('2025-01-01', 90.50, 5.20, 3.60, 28.30, 'Stable', 3, 'Winter season, stable environmental conditions.'),
+('2024-12-01', 92.00, 3.10, 3.55, 28.20, 'Clear', 1, 'Dry season, minimal rainfall.'),
+('2024-11-01', 93.80, 2.50, 3.50, 28.00, 'Mild contamination', 2, 'Post-monsoon, declining groundwater levels.'),
+('2024-10-01', 95.20, 1.80, 3.45, 27.80, 'Slightly turbid', 3, 'Air quality declining due to crop burning.'),
+('2024-09-01', 82.30, 120.50, 3.90, 30.00, 'Overflowing', 1, 'Heavy monsoon rains replenishing resources.'),
+('2024-08-01', 78.50, 310.20, 4.10, 32.50, 'Flooding in areas', 2, 'Monsoon at peak, water bodies overflowing.'),
+('2024-07-01', 76.00, 410.80, 4.50, 33.00, 'High water levels', 3, 'Strong monsoon impact, good water availability.'),
+('2024-06-01', 85.70, 90.00, 3.70, 31.50, 'Stable', 1, 'Pre-monsoon showers, air quality improving.'),
+('2024-05-01', 97.20, 5.80, 3.30, 27.50, 'Drying up', 2, 'Peak summer, water shortage concerns.'),
+('2024-04-01', 95.90, 3.00, 3.20, 27.80, 'Scarce', 3, 'Severe heatwave, declining water levels.'),
+('2024-03-01', 92.50, 6.50, 3.40, 28.00, 'Minor pollution', 1, 'Summer approaching, moderate dust levels.'),
+('2024-02-01', 90.00, 8.80, 3.50, 28.20, 'Stable', 2, 'Winter air quality still decent.'),
+('2024-01-01', 89.50, 12.10, 3.60, 28.40, 'Clear and stable', 3, 'Cold conditions keep air clean.'),
+('2023-12-01', 91.80, 7.20, 3.55, 28.30, 'Clear', 1, 'Mild winter, good air quality.'),
+('2023-11-01', 93.00, 5.50, 3.50, 28.10, 'Slightly turbid', 2, 'Harvesting season, minor air pollution.'),
+('2023-10-01', 94.50, 3.80, 3.45, 27.90, 'Contaminated', 3, 'Post-monsoon decline in water quality.'),
+('2023-09-01', 82.00, 105.50, 3.85, 29.80, 'Slightly overflowing', 1, 'End of monsoon, good groundwater recharge.'),
+('2023-08-01', 79.50, 290.10, 4.00, 32.00, 'High levels', 2, 'Monsoon strong, replenishing lakes.'),
+('2023-07-01', 77.80, 380.20, 4.30, 33.50, 'Flood-like situation', 3, 'Excess rainfall, some flooding in low areas.'),
+('2023-06-01', 85.50, 95.00, 3.75, 31.80, 'Stable', 1, 'Pre-monsoon showers, improving conditions.'),
+('2023-05-01', 96.80, 4.20, 3.25, 27.40, 'Drying up', 2, 'Heatwave impact, water scarcity observed.'),
+('2023-04-01', 95.50, 3.40, 3.15, 27.60, 'Minimal', 3, 'High summer temperatures, water crisis warning.');

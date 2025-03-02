@@ -35,6 +35,11 @@ Management System{% endblock %} {% block head %}
         class="category-link {% if category == 'schemes' %}active{% endif %}"
         >Schemes</a
       >
+      <a 
+        href="{{ url_for('monitor.advanced_stats', category='environment') }}" 
+        class="category-link {% if category == 'environment' %}active{% endif %}"
+        >Environment</a
+      >
     </div>
   </div>
 
@@ -98,33 +103,33 @@ Management System{% endblock %} {% block head %}
 
     <!-- Add Chart.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
-            <h2>School Financial Information</h2>
-            <div class="stats-table-container">
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>School Name</th>
-                            <th>Annual Income (₹)</th>
-                            <th>Annual Expenditure (₹)</th>
-                            <th>Surplus/Deficit (₹)</th>
-                            <th>Budget Year</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for school in stats.school_finances %}
-                        <tr>
-                            <td>{{ school.name }}</td>
-                            <td>₹{{ "{:,.2f}".format(school.income) }}</td>
-                            <td>₹{{ "{:,.2f}".format(school.expenditure) }}</td>
-                            <td class="{% if school.surplus >= 0 %}positive{% else %}negative{% endif %}">
-                                ₹{{ "{:,.2f}".format(school.surplus) }}
-                            </td>
-                            <td>{{ school.budget_year }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <h2>School Financial Information</h2>
+        <div class="stats-table-container">
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>School Name</th>
+                        <th>Annual Income (₹)</th>
+                        <th>Annual Expenditure (₹)</th>
+                        <th>Surplus/Deficit (₹)</th>
+                        <th>Budget Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for school in stats.school_finances %}
+                    <tr>
+                        <td>{{ school.name }}</td>
+                        <td>₹{{ "{:,.2f}".format(school.income) }}</td>
+                        <td>₹{{ "{:,.2f}".format(school.expenditure) }}</td>
+                        <td class="{% if school.surplus >= 0 %}positive{% else %}negative{% endif %}">
+                            ₹{{ "{:,.2f}".format(school.surplus) }}
+                        </td>
+                        <td>{{ school.budget_year }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
     <!-- JavaScript for education visualizations -->
     <script>
@@ -600,8 +605,225 @@ Management System{% endblock %} {% block head %}
                 });
             });
             </script>
-    <!-- {% elif category == "health" %} -->
-
+        {% elif category == 'environment' %}
+        <div class="stats-summary">
+            <div class="summary-card">
+                <div class="summary-value">
+                    {% if stats.env_summary %}
+                        {{ stats.env_summary.avg_air_quality|round(1) }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="summary-label">Avg Air Quality Index (2025)</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">
+                    {% if stats.env_summary %}
+                        {{ stats.env_summary.avg_rainfall|round(1) }} mm
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="summary-label">Avg Rainfall (2025)</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">
+                    {% if stats.env_summary %}
+                        {{ stats.env_summary.avg_groundwater|round(2) }} m
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="summary-label">Avg Groundwater Level (2025)</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">
+                    {% if stats.env_summary %}
+                        {{ stats.env_summary.avg_forest_cover|round(1) }} ha
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="summary-label">Avg Forest Coverage (2025)</div>
+            </div>
+        </div>
+        
+        <h2>Air Quality Index Trends</h2>
+        {% if stats.aqi_trends and stats.aqi_trends|length > 0 %}
+            <div class="chart-container">
+                <canvas id="airQualityChart"></canvas>
+            </div>
+        {% else %}
+            <div class="no-data-message">No air quality data available</div>
+        {% endif %}
+        
+        <h2>Rainfall Trends</h2>
+        {% if stats.rainfall_trends and stats.rainfall_trends|length > 0 %}
+            <div class="chart-container">
+                <canvas id="rainfallChart"></canvas>
+            </div>
+        {% else %}
+            <div class="no-data-message">No rainfall data available</div>
+        {% endif %}
+        
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            {% if stats.aqi_trends and stats.aqi_trends|length > 0 %}
+            // AQI Chart
+            const aqiTrends = {{ stats.aqi_trends|tojson }};
+            
+            // Find unique years
+            const aqiYears = Array.from(new Set(aqiTrends.map(item => item.year))).sort();
+            
+            // Create datasets for each year
+            const aqiDatasets = [];
+            const colors = [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 206, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)'
+            ];
+            
+            aqiYears.forEach((year, index) => {
+                const yearData = aqiTrends.filter(item => item.year === year);
+                const dataByMonth = Array(12).fill(null);
+                
+                // Fill in data for each month that exists
+                yearData.forEach(item => {
+                    dataByMonth[item.month - 1] = item.avg_aqi;
+                });
+                
+                aqiDatasets.push({
+                    label: `AQI ${year}`,
+                    data: dataByMonth,
+                    borderColor: colors[index % colors.length],
+                    backgroundColor: colors[index % colors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
+                    tension: 0.1
+                });
+            });
+            
+            // Create the chart
+            const aqiChartEl = document.getElementById('airQualityChart');
+            if (aqiChartEl) {
+                const aqiCtx = aqiChartEl.getContext('2d');
+                new Chart(aqiCtx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: aqiDatasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Air Quality Index'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Month'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            {% endif %}
+            
+            {% if stats.rainfall_trends and stats.rainfall_trends|length > 0 %}
+            // Rainfall Chart
+            const rainfallTrends = {{ stats.rainfall_trends|tojson }};
+            
+            // Find unique years
+            const rainfallYears = Array.from(new Set(rainfallTrends.map(item => item.year))).sort();
+            
+            // Create datasets for each year
+            const rainfallDatasets = [];
+            const rainColors = [
+                'rgb(54, 162, 235)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 99, 132)',
+                'rgb(255, 206, 86)'
+            ];
+            
+            rainfallYears.forEach((year, index) => {
+                const yearData = rainfallTrends.filter(item => item.year === year);
+                const dataByMonth = Array(12).fill(null);
+                
+                // Fill in data for each month that exists
+                yearData.forEach(item => {
+                    dataByMonth[item.month - 1] = item.avg_rainfall;
+                });
+                
+                rainfallDatasets.push({
+                    label: `Rainfall ${year}`,
+                    data: dataByMonth,
+                    borderColor: rainColors[index % rainColors.length],
+                    backgroundColor: rainColors[index % rainColors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
+                    tension: 0.1
+                });
+            });
+            
+            // Create the chart
+            const rainfallChartEl = document.getElementById('rainfallChart');
+            if (rainfallChartEl) {
+                const rainfallCtx = rainfallChartEl.getContext('2d');
+                new Chart(rainfallCtx, {
+                    type: 'line',
+                    data: {
+                        labels: months,
+                        datasets: rainfallDatasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Rainfall (mm)'
+                                },
+                                beginAtZero: true
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Month'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            {% endif %}
+        });
+        </script>
+        
+        <style>
+        .chart-container {
+            height: 400px;
+            margin-bottom: 30px;
+        }
+        
+        .no-data-message {
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: #6c757d;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        </style>
     {% endif %}
   </div>
 

@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS Citizen CASCADE;
 DROP TABLE IF EXISTS Households CASCADE;
 DROP TABLE IF EXISTS AssetSurveys CASCADE;
 DROP TABLE IF EXISTS assets CASCADE;
+DROP TABLE IF EXISTS EnvironmentalData CASCADE;
 
 
 -- Create Households table
@@ -85,7 +86,7 @@ CREATE TABLE SchoolAccount (
     SchoolID INTEGER REFERENCES Schools(SchoolID),
     AnnualIncome DECIMAL(15, 2),
     AnnualExpenditure DECIMAL(15, 2),
-    BudgetYear INTEGER
+    BudgetYear INTEGER,
     PRIMARY KEY (SchoolID, BudgetYear)
 );
 
@@ -101,7 +102,7 @@ CREATE TABLE HospitalAccount (
     HospitalID INTEGER REFERENCES Hospitals(HospitalID),
     AnnualIncome DECIMAL(15, 2),
     AnnualExpenditure DECIMAL(15, 2),
-    BudgetYear INTEGER
+    BudgetYear INTEGER,
     PRIMARY KEY (HospitalID, BudgetYear)
 );
 
@@ -189,6 +190,19 @@ CREATE TABLE AssetSurveys (
     SurveyorID INTEGER REFERENCES EmployeeCitizens(EmployeeID),
     SurveyData TEXT,
     PRIMARY KEY (asset_id, SurveyDate)
+);
+
+-- Create Environmental Data table
+CREATE TABLE EnvironmentalData (
+    RecordID SERIAL PRIMARY KEY,
+    TimeFrame DATE NOT NULL,
+    AirQuality DECIMAL(5, 2),  
+    RainfallAmount DECIMAL(8, 2),  
+    GroundwaterLevel DECIMAL(8, 2),  
+    ForestCover DECIMAL(8, 2), 
+    WaterBodyConditions TEXT,
+    RecordedBy INTEGER REFERENCES EmployeeCitizens(EmployeeID),
+    Notes TEXT
 );
 
 
