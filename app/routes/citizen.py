@@ -28,7 +28,7 @@ def dashboard():
 def statistics():
     """Display statistics based on category."""
 
-    role = session['role']
+    role = session["role"]
 
     category = request.args.get("category", "education")
 
@@ -68,7 +68,7 @@ def statistics():
             category=category,
             category_title="Education Statistics",
             stats=education_stats,
-            role = role,
+            role=role,
         )
 
     elif category == "health":
@@ -95,7 +95,7 @@ def statistics():
             category=category,
             category_title="Health Statistics",
             stats=health_stats,
-            role = role,
+            role=role,
         )
 
     elif category == "agriculture":
@@ -166,7 +166,7 @@ def statistics():
             category=category,
             category_title="Agriculture Statistics",
             stats=agriculture_stats,
-            role = role,
+            role=role,
         )
     elif category == "demographic":
         # Execute queries
@@ -244,7 +244,7 @@ def statistics():
             category=category,
             category_title="Demographic Statistics",
             stats=demographic_stats,
-            role = role,
+            role=role,
         )
 
 

@@ -64,8 +64,7 @@ monitor_queries = {
         LEFT JOIN StudentCounts sc ON s.SchoolID = sc.SchoolID
         ORDER BY s.Name
     """,
-    
-    'school_finances': """
+    "school_finances": """
         SELECT 
             Name,
             AnnualIncome,
@@ -74,9 +73,8 @@ monitor_queries = {
         FROM Schools natural join SchoolAccount
         ORDER BY Name
     """,
-    
     # HEALTH ADVANCED STATISTICS QUERIES
-    'hospital_finances': """
+    "hospital_finances": """
         SELECT 
             Name,
             AnnualIncome,
@@ -85,19 +83,16 @@ monitor_queries = {
         FROM Hospitals natural join HospitalAccount
         ORDER BY Name
     """,
-
     "total_doctors": """
         SELECT COUNT(*) 
         FROM Citizen
         WHERE Occupation = 'Doctor'
     """,
-
     "total_nurses": """
         SELECT COUNT(*) 
         FROM Citizen
         WHERE Occupation = 'Nurse'
     """,
-    
     "health_schemes": """
         SELECT 
             s.SchemeID,
@@ -111,9 +106,8 @@ monitor_queries = {
         GROUP BY s.SchemeID, s.Name, s.Description
         ORDER BY enrolled_citizens DESC
     """,
-    
     # AGRICULTURE ADVANCED STATISTICS QUERIES
-    'irrigation_methods': """
+    "irrigation_methods": """
         SELECT 
             IrrigationMethod,
             COUNT(*) as usage_count
@@ -121,8 +115,7 @@ monitor_queries = {
         GROUP BY IrrigationMethod
         ORDER BY usage_count DESC
     """,
-    
-    'water_usage_by_crop': """
+    "water_usage_by_crop": """
         SELECT 
             c.Name as crop_name,
             SUM(lc.Area) as total_area,
@@ -132,9 +125,8 @@ monitor_queries = {
         GROUP BY c.Name
         ORDER BY total_water_usage DESC
     """,
-    
     # DEMOGRAPHIC ADVANCED STATISTICS QUERIES
-    'migration_status': """
+    "migration_status": """
         SELECT 
             MigrationStatus,
             COUNT(*) as citizen_count
@@ -143,8 +135,7 @@ monitor_queries = {
         GROUP BY MigrationStatus
         ORDER BY citizen_count DESC
     """,
-    
-    'residence_duration': """
+    "residence_duration": """
         SELECT 
             CASE
                 WHEN EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM ResidenceSince) < 1 THEN 'Less than 1 year'
@@ -166,9 +157,8 @@ monitor_queries = {
                 ELSE 5
             END
     """,
-    
     # SCHEME ADVANCED STATISTICS QUERIES
-    'scheme_budget_allocation': """
+    "scheme_budget_allocation": """
         SELECT 
             Name as scheme_name,
             AllocatedBudget,
@@ -180,8 +170,7 @@ monitor_queries = {
         JOIN (SELECT SchemeID, COUNT(*) as NumBeneficieries , SUM(BenefitsReceived) as ReceivedBenefits FROM SchemeEnrollment GROUP BY SchemeID) as se ON s.SchemeID = se.SchemeID
         ORDER BY AllocatedBudget DESC
     """,
-    
-    'scheme_enrollment_stats': """
+    "scheme_enrollment_stats": """
         SELECT 
             s.Name as scheme_name,
             COUNT(CASE WHEN se.EnrollmentStatus = 'Active' THEN 1 ELSE NULL END) as active_enrollments,
@@ -193,8 +182,7 @@ monitor_queries = {
         GROUP BY s.Name
         ORDER BY s.Name
     """,
-    
-    'scheme_beneficiary_demographics': """
+    "scheme_beneficiary_demographics": """
         SELECT 
             s.Name as scheme_name,
             c.Gender,
@@ -206,5 +194,5 @@ monitor_queries = {
         WHERE se.EnrollmentStatus = 'Active'
         GROUP BY s.Name, c.Gender
         ORDER BY s.Name, c.Gender
-    """
+    """,
 }
