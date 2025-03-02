@@ -8,6 +8,7 @@ db_config = None
 
 def init_db(app):
     """Initialize the database configuration."""
+
     global db_config
 
     # Store the database configuration
@@ -24,6 +25,7 @@ def init_db(app):
 
 def get_connection():
     """Get the database connection, creating it if necessary."""
+
     global connection
 
     try:
@@ -40,6 +42,7 @@ def get_connection():
 
 def execute_query(query, params=None, fetch=True):
     """Execute a query and optionally fetch results."""
+
     conn = get_connection()
     cursor = None
     results = None
@@ -65,6 +68,7 @@ def execute_query(query, params=None, fetch=True):
 
 def execute_many(query, params_list):
     """Execute a query with multiple parameter sets."""
+
     conn = get_connection()
     cursor = None
 
@@ -84,6 +88,7 @@ def execute_many(query, params_list):
 
 def close_connection():
     """Close the database connection."""
+
     global connection
 
     if connection is not None and not connection.closed:

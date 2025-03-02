@@ -9,12 +9,11 @@ from app import db
 def hash_password(password, salt=None):
     """
     Hash a password using SHA-256 with a salt.
-    If salt is not provided, a new one will be generated.
     """
+
     if salt is None:
         salt = os.urandom(32).hex()
 
-    # Combine password and salt, then hash
     pw_hash = hashlib.sha256((password + salt).encode()).hexdigest()
 
     return pw_hash, salt
@@ -22,6 +21,7 @@ def hash_password(password, salt=None):
 
 def verify_password(password, stored_hash, salt):
     """Verify a password against a stored hash and salt."""
+
     pw_hash, _ = hash_password(password, salt)
     return pw_hash == stored_hash
 
@@ -29,8 +29,8 @@ def verify_password(password, stored_hash, salt):
 def authenticate_user(username, password):
     """
     Authenticate a user with username and password.
-    Returns user data if authentication is successful, None otherwise.
     """
+
     result = db.execute_query(auth_queries["user_query"], (username,))
 
     if result and len(result) > 0:
@@ -90,6 +90,7 @@ def role_required(roles):
 
 def get_current_user():
     """Get the current logged-in user data."""
+
     if "user_id" not in session:
         return None
 

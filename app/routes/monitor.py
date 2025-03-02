@@ -11,6 +11,7 @@ monitor_bp = Blueprint("monitor", __name__)
 @role_required(["monitor"])
 def dashboard():
     """Display the monitor dashboard - redirects to citizen dashboard with monitor role."""
+
     return redirect(url_for("citizen.dashboard"))
 
 
@@ -21,7 +22,6 @@ def advanced_stats():
 
     category = request.args.get("category", "education")
 
-    # Validate category
     valid_categories = [
         "education",
         "health",
@@ -74,11 +74,11 @@ def get_advanced_education_stats():
     stats = {}
 
     try:
-        # 1. Get average school income
+        # Get average school income
         avg_income = db.execute_query(monitor_queries["avg_school_income"])[0][0]
         stats["avg_school_income"] = avg_income or 0
 
-        # 2. Get total capacity and total enrolled students
+        # Get total capacity and total enrolled students
         total_capacity = db.execute_query(monitor_queries["total_school_capacity"])[0][
             0
         ]
@@ -89,21 +89,18 @@ def get_advanced_education_stats():
         ][0]
         stats["total_students"] = total_students or 0
 
-        # 3. Calculate capacity utilization
         stats["capacity_utilization"] = (
             round((total_students / total_capacity) * 100, 1)
             if total_capacity > 0
             else 0
         )
 
-        # 4. Get gender distribution of students
         gender_data = db.execute_query(monitor_queries["gender_distribution"])
         stats["gender_distribution"] = {
             "labels": [row[0] for row in gender_data],
             "values": [row[1] for row in gender_data],
         }
 
-        # 5. Get finance data
         finance_data = db.execute_query(monitor_queries["school_finances"])
         stats["school_finances"] = [
             {
@@ -116,7 +113,7 @@ def get_advanced_education_stats():
             for row in finance_data
         ]
 
-        # 6. Get school capacity utilization details
+        # Get school capacity utilization details
         utilization_data = db.execute_query(monitor_queries["school_utilization"])
         stats["school_utilization"] = [
             {
@@ -190,7 +187,6 @@ def get_advanced_health_stats():
                 }
             )
 
-        # Calculate summary statistics
         total_income = sum(
             hospital["income"] for hospital in stats["hospital_finances"]
         )
@@ -206,7 +202,7 @@ def get_advanced_health_stats():
             else 0
         )
 
-        # Get vaccination coverage statistics (reuse query from citizen stats)
+        # Get vaccination coverage statistics
         vaccination_data = db.execute_query(monitor_queries["vaccination_stats"])
         stats["vaccination_stats"] = [
             {
@@ -313,23 +309,6 @@ def get_advanced_scheme_stats():
             for row in enrollment_data
         ]
 
-        # Calculate target achievement rates
-        # for scheme_budget in stats['scheme_budget']:
-        #     matching_enrollment = next((e for e in stats['enrollment_stats']
-        #                                if e['scheme_name'] == scheme_budget['scheme_name']), None)
-
-        #     if matching_enrollment:
-        #         target = scheme_budget['target_beneficiaries']
-        #         actual = matching_enrollment['total_enrollments']
-        #         scheme_budget['achievement_rate'] = round((actual / target) * 100, 1) if target > 0 else 0
-
-        #         # Calculate cost per beneficiary
-        #         budget = scheme_budget['allocated_budget']
-        #         scheme_budget['cost_per_beneficiary'] = round(budget / actual, 2) if actual > 0 else 0
-        #     else:
-        #         scheme_budget['achievement_rate'] = 0
-        #         scheme_budget['cost_per_beneficiary'] = 0
-
     except Exception as e:
         print(f"Database error in scheme stats: {e}")
 
@@ -342,7 +321,6 @@ def get_environmental_stats():
     stats = {}
 
     try:
-        # Get 2025 environmental summary
         summary_data = db.execute_query(monitor_queries["environmental_summary_2025"])
         if summary_data and len(summary_data) > 0:
             stats["env_summary"] = {
@@ -359,7 +337,7 @@ def get_environmental_stats():
                 "avg_forest_cover": 0,
             }
 
-        # Get AQI monthly trends
+        # Get AQI trends
         aqi_data = db.execute_query(monitor_queries["aqi_monthly_trends"])
         aqi_trends = []
 
@@ -376,7 +354,7 @@ def get_environmental_stats():
 
         stats["aqi_trends"] = aqi_trends
 
-        # Get rainfall monthly trends
+        # Get rainfall trends
         rainfall_data = db.execute_query(monitor_queries["rainfall_monthly_trends"])
         rainfall_trends = []
 

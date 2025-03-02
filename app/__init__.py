@@ -19,10 +19,8 @@ def create_app(config_name=None):
     # Initialize database configuration
     db.init_db(app)
 
-    # Set session timeout
     app.permanent_session_lifetime = timedelta(hours=2)
 
-    # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.citizen import citizen_bp
     from app.routes.employee import employee_bp
@@ -34,11 +32,6 @@ def create_app(config_name=None):
     app.register_blueprint(employee_bp, url_prefix="/employee")
     app.register_blueprint(monitor_bp, url_prefix="/monitor")
     app.register_blueprint(admin_bp)
-
-    # Clean up database connection when the app shuts down
-    # @app.teardown_appcontext
-    # def shutdown_session(exception=None):
-    #     db.close_connection()
 
     atexit.register(db.close_connection)
 

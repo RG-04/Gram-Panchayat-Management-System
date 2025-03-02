@@ -20,6 +20,7 @@ citizen_bp = Blueprint("citizen", __name__)
 @role_required(["citizen", "monitor"])
 def dashboard():
     """Citizen dashboard page."""
+
     return render_template("citizen/dashboard.html")
 
 
@@ -29,15 +30,14 @@ def statistics():
     """Display statistics based on category."""
 
     role = session["role"]
-
     category = request.args.get("category", "education")
 
     # Validate category
     valid_categories = ["education", "health", "agriculture", "demographic"]
     if category not in valid_categories:
-        category = "education"  # Default to education if invalid
+        category = "education"
 
-    # Based on the category, fetch different statistics
+    # Fetch statistics based on category
     if category == "education":
         schools = db.execute_query(citizen_queries["school_query"])
         literacy_rate = db.execute_query(citizen_queries["literacy_query"])[0][0]
@@ -99,7 +99,7 @@ def statistics():
         )
 
     elif category == "agriculture":
-        # Execute queries
+
         total_land = db.execute_query(citizen_queries["total_land_query"])[0][0] or 0
         agricultural_area = (
             db.execute_query(citizen_queries["agricultural_area_query"])[0][0] or 0
@@ -129,7 +129,6 @@ def statistics():
                 }
             )
 
-        # Get top crops for pie chart
         top_crops = db.execute_query(citizen_queries["top_crops_query"])
         crop_pie_data = {
             "labels": [row[0] for row in top_crops],
@@ -140,13 +139,11 @@ def statistics():
         if len(crops) <= 3:
             pass
         else:
-            # Calculate "Others" category
             other_area = float(agricultural_area) - sum(crop_pie_data["values"])
             if other_area > 0:
                 crop_pie_data["labels"].append("Others")
                 crop_pie_data["values"].append(float(other_area))
 
-        # Build agriculture statistics dictionary
         agriculture_stats = {
             "total_land_area": round(total_land, 2),
             "agricultural_area": round(agricultural_area, 2),
@@ -169,7 +166,6 @@ def statistics():
             role=role,
         )
     elif category == "demographic":
-        # Execute queries
         total_population = db.execute_query(citizen_queries["population_query"])[0][0]
         gender_distribution = db.execute_query(
             citizen_queries["gender_distribution_query"]
@@ -189,9 +185,7 @@ def statistics():
 
         # Format data for population pyramid
         age_groups = [row[0] for row in age_distribution]
-        male_counts = [
-            -int(row[1]) for row in age_distribution
-        ]  # Negative for left side of pyramid
+        male_counts = [-int(row[1]) for row in age_distribution]
         female_counts = [int(row[2]) for row in age_distribution]
 
         # Format data for gender pie chart
@@ -200,17 +194,14 @@ def statistics():
 
         print(gender_labels, gender_values)
 
-        # Format data for occupation pie chart
         occupation_labels = [row[0] for row in occupation_stats]
         occupation_values = [row[1] for row in occupation_stats]
 
         print(occupation_labels, occupation_values)
 
-        # Format data for income distribution chart
         income_labels = [row[0] for row in income_distribution]
         income_values = [row[1] for row in income_distribution]
 
-        # Prepare demographic statistics
         total_households = household_stats[0][0] if household_stats else 0
         avg_household_size = household_stats[0][1] if household_stats else 0
         largest_household_size = household_stats[0][2] if household_stats else 0
@@ -252,6 +243,7 @@ def statistics():
 @role_required(["citizen", "employee"])
 def profile():
     """User profile page."""
+
     citizen_id = session["citizen_id"]
 
     profile = db.execute_query(citizen_queries["profile_details_query"], (citizen_id,))
@@ -279,6 +271,7 @@ def profile():
 @role_required(["citizen", "employee"])
 def view_certificate(category, name):
     """View a specific certificate."""
+
     certificate = db.execute_query(
         citizen_queries["cert_details_query"], (category, name, session["citizen_id"])
     )
@@ -294,6 +287,7 @@ def view_certificate(category, name):
 @role_required(["citizen", "employee"])
 def certificate_file(category, name):
     """Get the certificate file."""
+
     result = db.execute_query(
         citizen_queries["cert_file_query"], (category, name, session["citizen_id"])
     )
@@ -304,13 +298,10 @@ def certificate_file(category, name):
             url_for("citizen.view_certificate", category=category, name=name)
         )
 
-    # Convert BYTEA data to bytes
-    file_data = result[0][0]
-
     # Create a file-like object from the bytes
+    file_data = result[0][0]
     file_stream = io.BytesIO(file_data)
 
-    # Return the PDF file
     return send_file(
         file_stream,
         mimetype="application/pdf",
@@ -322,14 +313,14 @@ def certificate_file(category, name):
 @citizen_bp.route("/schemes")
 @role_required(["citizen"])
 def schemes():
-    # Execute queries
+    """View available schemes and enrollments."""
+
     schemes_result = db.execute_query(
         citizen_queries["schemes_query"], (session["citizen_id"],)
     )
     scheme_types_result = db.execute_query(citizen_queries["scheme_types_query"])
     type_count_result = db.execute_query(citizen_queries["type_count_query"])
 
-    # Process the results
     schemes = []
     for row in schemes_result:
         schemes.append(
@@ -365,6 +356,7 @@ def schemes():
 @role_required(["citizen"])
 def education():
     """View education details."""
+
     education_query = """
         SELECT a.CitizenID, a.SchoolID, s.Name as SchoolName, 
                a.Qualification, a.PassDate
@@ -388,11 +380,9 @@ def education():
 @role_required(["citizen", "monitor"])
 def panchayat_employees():
     """View list of panchayat employees, their roles, and contact details."""
-    # Get list of all employees with their details
 
     employees = db.execute_query(citizen_queries["employees_query"])
 
-    # Group employees by role for better organization
     employees_by_role = {}
     for emp in employees:
         role = emp[2]
@@ -417,6 +407,7 @@ def panchayat_employees():
 @role_required(["citizen", "employee"])
 def update_password():
     """Update password page."""
+
     if request.method == "POST":
         current_password = request.form.get("current_password")
         new_password = request.form.get("new_password")
@@ -431,7 +422,7 @@ def update_password():
             flash("New passwords do not match", "error")
             return render_template("citizen/update_password.html")
 
-            # Validate password requirements
+        # Validate password requirements
         password_errors = []
 
         if len(new_password) < 8:
@@ -460,10 +451,8 @@ def update_password():
                 flash(error, "error")
             return render_template("citizen/update_password.html")
 
-        # Verify current password
         from app.utils.auth_utils import verify_password, hash_password
 
-        # Get current password hash and salt
         query = "SELECT password, salt FROM users WHERE UserID = %s"
         result = db.execute_query(query, (session["user_id"],))
 

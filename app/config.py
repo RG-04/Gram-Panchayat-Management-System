@@ -40,7 +40,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     """Production configuration."""
 
-    SECRET_KEY = os.environ.get("SECRET_KEY")  # Must be set in production
+    SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 # Configuration dictionary

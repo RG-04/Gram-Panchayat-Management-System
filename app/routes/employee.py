@@ -108,17 +108,9 @@ def view_citizen(aadhaar):
 @employee_bp.route("/citizen/<aadhaar>/update", methods=["POST"])
 @role_required(["employee"])
 def update_citizen(aadhaar):
-    """
-    Update a citizen's information in the database.
+    """Update a citizen's information in the database."""
 
-    Args:
-        aadhaar: The Aadhaar number of the citizen to update
-
-    Returns:
-        Redirects to the citizen view page with success or error message
-    """
     try:
-        # Get form data
         name = request.form.get("name")
         dob_str = request.form.get("dob")
         gender = request.form.get("gender")
@@ -132,7 +124,6 @@ def update_citizen(aadhaar):
             flash("Name is required", "error")
             return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
 
-        # Convert and validate date
         dob = None
         if dob_str:
             try:
@@ -141,7 +132,6 @@ def update_citizen(aadhaar):
                 flash("Invalid date format", "error")
                 return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
 
-        # Convert and validate income
         income = None
         if income_str:
             try:
@@ -152,12 +142,10 @@ def update_citizen(aadhaar):
                 flash("Invalid income value", "error")
                 return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
 
-        # Convert and validate household ID
         if not household_addr:
             flash("Household address is required", "error")
             return redirect(url_for("employee.view_citizen", aadhaar=aadhaar))
 
-        # Update citizen information
         cursor = db.connection.cursor()
 
         cursor.execute(
@@ -165,7 +153,6 @@ def update_citizen(aadhaar):
             (name, dob, gender, income, occupation, phone, aadhaar),
         )
 
-        # Update household addr if provided
         if household_addr:
             cursor.execute(
                 employee_queries["update_household_query"],
@@ -188,7 +175,7 @@ def update_citizen(aadhaar):
 @role_required(["employee"])
 def citizen_certificates(aadhaar):
     """View and manage citizen certificates."""
-    # Get citizen name
+
     name_query = """
         SELECT Name FROM Citizen WHERE Aadhaar = %s
     """
@@ -198,10 +185,8 @@ def citizen_certificates(aadhaar):
         flash("Citizen not found", "error")
         return redirect(url_for("employee.certificates"))
 
-    # Get citizen certificates
     certificates = db.execute_query(employee_queries["citizen_cert_query"], (aadhaar,))
 
-    # Get list of certificate categories for the form
     categories = set([cert[0] for cert in certificates])
     if not categories:
         # Default categories if none exist yet
@@ -220,6 +205,7 @@ def citizen_certificates(aadhaar):
 @role_required(["employee"])
 def view_certificate(aadhaar, category, name):
     """View a specific certificate."""
+
     certificate = db.execute_query(
         employee_queries["specific_cert_query"], (category, name, aadhaar)
     )
@@ -227,7 +213,6 @@ def view_certificate(aadhaar, category, name):
         flash("Certificate not found", "error")
         return redirect(url_for("employee.citizen_certificates", aadhaar=aadhaar))
 
-    # Get citizen name
     name_query = """
         SELECT Name FROM Citizen WHERE Aadhaar = %s
     """
@@ -244,6 +229,7 @@ def view_certificate(aadhaar, category, name):
 @role_required(["employee"])
 def certificate_file(aadhaar, category, name):
     """Get the certificate file."""
+
     result = db.execute_query(
         employee_queries["cert_file_query"], (category, name, aadhaar)
     )
@@ -259,13 +245,10 @@ def certificate_file(aadhaar, category, name):
             )
         )
 
-    # Convert BYTEA data to bytes
-    file_data = result[0][0]
-
     # Create a file-like object from the bytes
+    file_data = result[0][0]
     file_stream = io.BytesIO(file_data)
 
-    # Return the PDF file
     return send_file(
         file_stream,
         mimetype="application/pdf",
@@ -280,6 +263,7 @@ def certificate_file(aadhaar, category, name):
 @role_required(["employee"])
 def update_certificate_file(aadhaar, category, name):
     """Update the certificate file."""
+
     certificate_file = request.files.get("certificate_file")
 
     if not certificate_file or not certificate_file.filename:
@@ -293,7 +277,6 @@ def update_certificate_file(aadhaar, category, name):
             )
         )
 
-    # Get file data
     file_data = certificate_file.read()
 
     # Update certificate with file
@@ -315,7 +298,7 @@ def update_certificate_file(aadhaar, category, name):
 @role_required(["employee"])
 def upload_certificate(aadhaar):
     """Upload a new certificate for a citizen."""
-    # Get citizen name
+
     name_query = """
         SELECT Name FROM Citizen WHERE Aadhaar = %s
     """
@@ -331,7 +314,6 @@ def upload_certificate(aadhaar):
     """
     existing_categories = db.execute_query(categories_query)
 
-    # Convert to list of strings
     categories = [cat[0] for cat in existing_categories]
     if not categories:
         # Default categories if none exist yet
@@ -354,11 +336,9 @@ def upload_certificate(aadhaar):
                 categories=categories,
             )
 
-        # Use custom category if provided and "Other" is selected
         if category == "Other" and custom_category:
             category = custom_category
 
-        # Check if certificate already exists
         check_query = """
             SELECT COUNT(*) FROM Certificates
             WHERE Category = %s AND Name = %s AND CitizenID = %s
@@ -377,13 +357,10 @@ def upload_certificate(aadhaar):
                 categories=categories,
             )
 
-        # Process file if provided
         file_data = None
         if certificate_file and certificate_file.filename:
-            # Get file data
             file_data = certificate_file.read()
 
-        # Insert certificate
         if file_data:
             insert_query = """
                 INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File)
@@ -419,22 +396,18 @@ def upload_certificate(aadhaar):
 def schemes():
     """Manage government schemes page."""
 
-    # Get unique scheme types
     scheme_types_query = """
     SELECT DISTINCT Type FROM Schemes WHERE Type IS NOT NULL ORDER BY Type;
     """
 
-    # Get total enrollments
     total_enrollments_query = """
     SELECT COUNT(*) FROM SchemeEnrollment;
     """
 
-    # Execute queries
     schemes_result = db.execute_query(employee_queries["schemes_query"])
     scheme_types_result = db.execute_query(scheme_types_query)
     total_enrollments_result = db.execute_query(total_enrollments_query)
 
-    # Process results
     schemes = []
     for row in schemes_result:
         schemes.append(
@@ -470,6 +443,7 @@ def schemes():
 @role_required(["employee"])
 def add_scheme():
     """Add a new scheme."""
+
     name = request.form.get("name")
     type_value = request.form.get("type")
 
@@ -484,7 +458,6 @@ def add_scheme():
         flash("Scheme name and description are required", "error")
         return redirect(url_for("employee.schemes"))
 
-    # Insert new scheme
     try:
         result = db.execute_query(
             employee_queries["scheme_insert_query"], (name, type_value, description)
@@ -506,6 +479,7 @@ def add_scheme():
 @role_required(["employee"])
 def update_scheme():
     """Update an existing scheme."""
+
     scheme_id = request.form.get("scheme_id")
     name = request.form.get("name")
     type_value = request.form.get("type")
@@ -522,7 +496,6 @@ def update_scheme():
         return redirect(url_for("employee.schemes"))
 
     try:
-        # Update scheme
         db.execute_query(
             employee_queries["scheme_update_query"],
             (name, type_value, description, scheme_id),
@@ -560,7 +533,6 @@ def delete_scheme():
             flash("Scheme not found", "error")
             return redirect(url_for("employee.schemes"))
 
-        # Delete scheme
         db.execute_query(
             employee_queries["scheme_delete_query"], (scheme_id), fetch=False
         )
@@ -577,7 +549,7 @@ def delete_scheme():
 @role_required(["employee"])
 def assets():
     """View all assets and their details."""
-    # Get all assets
+
     assets_list = db.execute_query(employee_queries["assets_query"])
 
     return render_template("employee/assets.html", assets=assets_list)
@@ -587,14 +559,13 @@ def assets():
 @role_required(["employee"])
 def view_asset(asset_id):
     """View a specific asset and its survey history."""
-    # Get asset details
+
     asset = db.execute_query(employee_queries["asset_details_query"], (asset_id,))
 
     if not asset:
         flash("Asset not found", "error")
         return redirect(url_for("employee.assets"))
 
-    # Get survey history
     surveys = db.execute_query(employee_queries["surveys_query"], (asset_id,))
 
     return render_template(
@@ -609,7 +580,7 @@ def view_asset(asset_id):
 @role_required(["employee"])
 def survey_asset(asset_id):
     """Survey an asset."""
-    # Get asset details
+
     asset_query = """
         SELECT asset_id, Name, Type, InstallationDate, LastSurveyedDate, Location
         FROM assets
@@ -621,7 +592,6 @@ def survey_asset(asset_id):
         flash("Asset not found", "error")
         return redirect(url_for("employee.assets"))
 
-    # Get employee ID from session
     employee_query = """
         SELECT EmployeeID
         FROM EmployeeCitizens
@@ -636,16 +606,13 @@ def survey_asset(asset_id):
     employee_id = employee[0][0]
 
     if request.method == "POST":
-        # Get survey data from form
         condition = request.form.get("condition")
         issues = request.form.get("issues")
         maintenance_needed = request.form.get("maintenance_needed", "No")
         comments = request.form.get("comments", "")
 
-        # Format survey data as JSON-like string
         survey_data = f"Condition: {condition}; Issues: {issues}; Maintenance Needed: {maintenance_needed}; Comments: {comments}"
 
-        # Insert or update survey
         db.execute_query(
             employee_queries["survey_insert_query"],
             (asset_id, employee_id, survey_data, employee_id, survey_data),
@@ -662,6 +629,7 @@ def survey_asset(asset_id):
 @role_required(["employee"])
 def add_asset():
     """Add a new asset."""
+
     if request.method == "POST":
         name = request.form.get("name")
         asset_type = request.form.get("type")
@@ -672,8 +640,6 @@ def add_asset():
         if not name or not asset_type or not installation_date:
             flash("Name, type, and installation date are required", "error")
             return render_template("employee/add_asset.html")
-
-        # Insert new asset
 
         asset_id = db.execute_query(
             employee_queries["asset_insert_query"],

@@ -8,6 +8,7 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/", methods=["GET"])
 def index():
     """Landing page / redirects to login page."""
+
     if "user_id" in session:
         # Redirect based on user role
         if session["role"] == "citizen":
@@ -23,6 +24,7 @@ def index():
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     """Handle user login."""
+
     if request.method == "GET" and "user_id" in session:
         return redirect(url_for("auth.index"))
 
@@ -67,6 +69,7 @@ def login():
 @auth_bp.route("/logout")
 def logout():
     """Handle user logout."""
+
     session.clear()
     return redirect(url_for("auth.login"))
 
@@ -74,4 +77,5 @@ def logout():
 @auth_bp.route("/unauthorized")
 def unauthorized():
     """Unauthorized access page."""
+
     return render_template("unauthorized.html")

@@ -51,8 +51,8 @@ def logout():
 @admin_required
 def dashboard():
     """Admin dashboard page."""
-    # Get all table names
 
+    # Get all table names
     tables = db.execute_query(admin_queries["tables_query"])
 
     # Get all columns for each table
@@ -79,19 +79,15 @@ def execute_query():
         return redirect(url_for("admin.dashboard"))
 
     try:
-        # Determine if the query is a SELECT query
         is_select = query.strip().upper().startswith("SELECT")
 
-        # Execute the query
         result = db.execute_query(query, fetch=is_select)
 
         if is_select:
             # If it's a SELECT query, get column names
             if result:
-                # Execute a query to get column names for the result set
                 column_names = []
 
-                # Use the column descriptions from the cursor
                 conn = db.get_connection()
                 cursor = conn.cursor()
                 cursor.execute(query)
@@ -132,18 +128,14 @@ def execute_query():
         )
 
 
-# Routes to add to admin.py
-
-
 @admin_bp.route("/users")
 @admin_required
 def manage_users():
     """User management page."""
-    # Get all citizens
 
+    # Get all citizens
     citizens_result = db.execute_query(admin_queries["citizens_query"])
 
-    # Format citizens data
     citizens = []
     for row in citizens_result:
         citizens.append(
@@ -159,7 +151,6 @@ def manage_users():
     # Get all employees
     employees_result = db.execute_query(admin_queries["employees_query"])
 
-    # Format employees data
     employees = []
     for row in employees_result:
         employees.append(
@@ -175,7 +166,6 @@ def manage_users():
     # Get all monitors
     monitors_result = db.execute_query(admin_queries["monitors_query"])
 
-    # Format monitors data
     monitors = []
     for row in monitors_result:
         monitors.append(
@@ -218,12 +208,11 @@ def register_user():
         return redirect(url_for("admin.manage_users"))
 
     try:
-        # Hash the password
         from app.utils.auth_utils import hash_password
 
         password_hash, salt = hash_password(password)
 
-        # Insert new user based on type
+        # Insert new user
         if user_type == "citizen":
             auth_role = "citizen"
             db.execute_query(
@@ -259,8 +248,8 @@ def register_user():
 @admin_required
 def deregister_user(user_id):
     """Deregister a user."""
+
     try:
-        # Get username for confirmation message
         username_query = "SELECT username FROM users WHERE UserID = %s"
         username_result = db.execute_query(username_query, (user_id,))
 
@@ -285,8 +274,8 @@ def deregister_user(user_id):
 @admin_required
 def reset_password(user_id):
     """Reset a user's password to a default value."""
+
     try:
-        # Get username for confirmation message
         username_query = "SELECT username FROM users WHERE UserID = %s"
         username_result = db.execute_query(username_query, (user_id,))
 
@@ -299,7 +288,6 @@ def reset_password(user_id):
         # Default password
         default_password = "Password@123"
 
-        # Hash the password
         from app.utils.auth_utils import hash_password
 
         password_hash, salt = hash_password(default_password)

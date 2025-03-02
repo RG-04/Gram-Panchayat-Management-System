@@ -1,110 +1,110 @@
 /* Dashboard Styles */
 .dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .dashboard-header {
-    text-align: center;
-    margin-bottom: 40px;
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 .dashboard-header h1 {
-    color: #006400;
-    margin-bottom: 10px;
-    font-size: 2.2rem;
+  color: #006400;
+  margin-bottom: 10px;
+  font-size: 2.2rem;
 }
 
 .dashboard-header p {
-    color: #666;
-    font-size: 1.1rem;
+  color: #666;
+  font-size: 1.1rem;
 }
 
 .dashboard-cards {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
 .dashboard-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 350px;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 350px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .card-icon {
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 3rem;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 3rem;
 }
 
 .education-icon {
-    background-color: #4285F4;
+  background-color: #4285f4;
 }
 
 .health-icon {
-    background-color: #db1212;
+  background-color: #db1212;
 }
 
 .agriculture-icon {
-    background-color: #cb5d2e;
+  background-color: #cb5d2e;
 }
 
 .demographic-icon {
-    background-color: #FBBC05;
+  background-color: #fbbc05;
 }
 
 .card-content {
-    padding: 20px;
+  padding: 20px;
 }
 
 .card-content h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #333;
-    font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.5rem;
 }
 
 .card-content p {
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 0;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 0;
 }
 
 .dashboard-footer {
-    text-align: center;
-    color: #888;
-    font-size: 0.9rem;
-    margin-top: 20px;
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 20px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .dashboard-cards {
-        flex-direction: column;
-        align-items: center;
-    }
+  .dashboard-cards {
+    flex-direction: column;
+    align-items: center;
+  }
 
-    .dashboard-card {
-        max-width: 100%;
-    }
+  .dashboard-card {
+    max-width: 100%;
+  }
 }

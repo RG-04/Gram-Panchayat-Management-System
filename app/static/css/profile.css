@@ -1,238 +1,238 @@
 /* Profile Page Styles */
 .profile-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .profile-header {
-    margin-bottom: 30px;
+  margin-bottom: 30px;
 }
 
 .profile-header h1 {
-    color: #006400;
-    margin-bottom: 10px;
-    font-size: 2rem;
-    display: flex;
-    align-items: center;
+  color: #006400;
+  margin-bottom: 10px;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
 }
 
 .profile-header h1 i {
-    margin-right: 15px;
-    color: #006400;
-    font-size: 1.8rem;
+  margin-right: 15px;
+  color: #006400;
+  font-size: 1.8rem;
 }
 
 .profile-sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
 }
 
 .profile-section {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 30px;
 }
 
 .profile-section h2 {
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 20px;
-    font-size: 1.4rem;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e0e0e0;
-    display: flex;
-    align-items: center;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+  display: flex;
+  align-items: center;
 }
 
 .profile-section h2 i {
-    margin-right: 10px;
-    color: #006400;
+  margin-right: 10px;
+  color: #006400;
 }
 
 .personal-info {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 }
 
 .info-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .info-label {
-    font-weight: 600;
-    color: #555;
-    font-size: 0.9rem;
-    margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
 }
 
 .info-value {
-    font-size: 1.1rem;
-    color: #333;
+  font-size: 1.1rem;
+  color: #333;
 }
 
 .certificates-section {
-    grid-column: span 2;
+  grid-column: span 2;
 }
 
 .certificates-tabs {
-    display: flex;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
-    overflow-x: auto;
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  overflow-x: auto;
 }
 
 .certificate-tab {
-    padding: 10px 15px;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    white-space: nowrap;
-    color: #666;
-    font-weight: 500;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  color: #666;
+  font-weight: 500;
 }
 
 .certificate-tab.active {
-    border-bottom-color: #006400;
-    color: #006400;
-    font-weight: 600;
+  border-bottom-color: #006400;
+  color: #006400;
+  font-weight: 600;
 }
 
 .certificate-panel {
-    display: none;
+  display: none;
 }
 
 .certificate-panel.active {
-    display: block;
+  display: block;
 }
 
 .certificate-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .certificate-item {
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background-color 0.2s ease;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
 }
 
 .certificate-item:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .certificate-details {
-    flex: 1;
+  flex: 1;
 }
 
 .certificate-name {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #333;
-    font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 1.1rem;
 }
 
 .certificate-date {
-    color: #666;
-    font-size: 0.9rem;
+  color: #666;
+  font-size: 0.9rem;
 }
 
 .certificate-actions {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
 .certificate-button {
-    background-color: #006400;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
+  background-color: #006400;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .certificate-button i {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .certificate-button:hover {
-    background-color: #004d00;
+  background-color: #004d00;
 }
 
 .certificate-download {
-    background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 .certificate-download:hover {
-    background-color: #0b7dda;
+  background-color: #0b7dda;
 }
 
 .no-certificates {
-    text-align: center;
-    padding: 30px 0;
-    color: #666;
-    font-style: italic;
+  text-align: center;
+  padding: 30px 0;
+  color: #666;
+  font-style: italic;
 }
 
 /* Account info section styles */
 .account-info {
-    background-color: #f9fbff;
+  background-color: #f9fbff;
 }
 
 .account-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 .account-button {
-    padding: 8px 15px;
-    border-radius: 4px;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease;
+  padding: 8px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
 }
 
 .account-button i {
-    margin-right: 5px;
+  margin-right: 5px;
 }
 
 .password-button {
-    background-color: #e0e0e0;
-    color: #333;
+  background-color: #e0e0e0;
+  color: #333;
 }
 
 .password-button:hover {
-    background-color: #d0d0d0;
+  background-color: #d0d0d0;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .profile-sections {
-        grid-template-columns: 1fr;
-    }
-    
-    .certificates-section {
-        grid-column: span 1;
-    }
-    
-    .personal-info {
-        grid-template-columns: 1fr;
-    }
+  .profile-sections {
+    grid-template-columns: 1fr;
+  }
+
+  .certificates-section {
+    grid-column: span 1;
+  }
+
+  .personal-info {
+    grid-template-columns: 1fr;
+  }
 }

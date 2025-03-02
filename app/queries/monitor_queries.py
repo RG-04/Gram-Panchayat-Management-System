@@ -1,27 +1,23 @@
 monitor_queries = {
-    # EDUCATION ADVANCED STATISTICS QUERIES
+    # Education Advanced Statistics Queries
     "avg_school_income": """
         SELECT AVG(Income) 
         FROM Schools
     """,
-    # 2. Get total school capacity
     "total_school_capacity": """
         SELECT SUM(Capacity) 
         FROM Schools
     """,
-    # 3. Get total number of enrolled students
     "total_enrolled_students": """
         SELECT COUNT(DISTINCT CitizenID) 
         FROM AttendsSchool
     """,
-    # 4. Get gender distribution of students
     "gender_distribution": """
         SELECT c.Gender, COUNT(DISTINCT a.CitizenID) 
         FROM AttendsSchool a
         JOIN Citizen c ON a.CitizenID = c.Aadhaar
         GROUP BY c.Gender
     """,
-    # 5. Get school income distribution
     "income_distribution": """
         WITH IncomeGroups AS (
             SELECT 
@@ -46,7 +42,6 @@ monitor_queries = {
                 ELSE 5
             END
     """,
-    # 6. Get school capacity utilization details
     "school_utilization": """
         WITH StudentCounts AS (
             SELECT 
@@ -73,7 +68,7 @@ monitor_queries = {
         FROM Schools natural join SchoolAccount
         ORDER BY Name
     """,
-    # HEALTH ADVANCED STATISTICS QUERIES
+    # Health advanced statistics queries
     "hospital_finances": """
         SELECT 
             Name,
@@ -106,7 +101,7 @@ monitor_queries = {
         GROUP BY s.SchemeID, s.Name, s.Description
         ORDER BY enrolled_citizens DESC
     """,
-    # AGRICULTURE ADVANCED STATISTICS QUERIES
+    # Agriculture advanced statistics queries
     "irrigation_methods": """
         SELECT 
             IrrigationMethod,
@@ -125,7 +120,7 @@ monitor_queries = {
         GROUP BY c.Name
         ORDER BY total_water_usage DESC
     """,
-    # DEMOGRAPHIC ADVANCED STATISTICS QUERIES
+    # Demographic advanced statistics queries
     "migration_status": """
         SELECT 
             MigrationStatus,
@@ -157,7 +152,7 @@ monitor_queries = {
                 ELSE 5
             END
     """,
-    # SCHEME ADVANCED STATISTICS QUERIES
+    # Scheme advanced statistics queries
     "scheme_budget_allocation": """
         SELECT 
             Name as scheme_name,
@@ -195,7 +190,7 @@ monitor_queries = {
         GROUP BY s.Name, c.Gender
         ORDER BY s.Name, c.Gender
     """,
-    # ENVIRONMENTAL DATA QUERIES
+    # Environmental data queries
     "environmental_summary_2025": """
         SELECT 
             ROUND(AVG(AirQuality), 2) as avg_air_quality,
