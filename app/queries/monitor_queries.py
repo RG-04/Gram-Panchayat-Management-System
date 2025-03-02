@@ -1,5 +1,5 @@
 monitor_queries = {
-    # 1. Get average school income
+    # EDUCATION ADVANCED STATISTICS QUERIES
     "avg_school_income": """
         SELECT AVG(Income) 
         FROM Schools
@@ -64,64 +64,144 @@ monitor_queries = {
         LEFT JOIN StudentCounts sc ON s.SchoolID = sc.SchoolID
         ORDER BY s.Name
     """,
-    # 7. Get total doctors
+    
+    'school_finances': """
+        SELECT 
+            Name,
+            AnnualIncome,
+            AnnualExpenditure,
+            BudgetYear
+        FROM Schools natural join SchoolAccount
+        ORDER BY Name
+    """,
+    
+    # HEALTH ADVANCED STATISTICS QUERIES
+    'hospital_finances': """
+        SELECT 
+            Name,
+            AnnualIncome,
+            AnnualExpenditure,
+            BudgetYear
+        FROM Hospitals natural join HospitalAccount
+        ORDER BY Name
+    """,
+
     "total_doctors": """
         SELECT COUNT(*) 
         FROM Citizen
         WHERE Occupation = 'Doctor'
     """,
-    # 8. Get total nurses
+
     "total_nurses": """
         SELECT COUNT(*) 
         FROM Citizen
         WHERE Occupation = 'Nurse'
     """,
-    # 9. Get personnel distribution for chart
-    "personnel_distribution": """
-        SELECT 
-            CASE 
-                WHEN Occupation = 'Doctor' THEN 'Doctors'
-                WHEN Occupation = 'Nurse' THEN 'Nurses'
-                WHEN Occupation = 'Paramedic' THEN 'Paramedics'
-                WHEN Occupation LIKE '%Health%' OR Occupation LIKE '%Medical%' THEN 'Other Healthcare Staff'
-                ELSE NULL
-            END AS personnel_type,
-            COUNT(*) AS count
-        FROM Citizen
-        WHERE 
-            Occupation = 'Doctor' 
-            OR Occupation = 'Nurse'
-            OR Occupation = 'Paramedic'
-            OR Occupation LIKE '%Health%' 
-            OR Occupation LIKE '%Medical%'
-        GROUP BY personnel_type
-        HAVING personnel_type IS NOT NULL
-        ORDER BY count DESC
-    """,
-    # 10. Get health welfare schemes
+    
     "health_schemes": """
         SELECT 
             s.SchemeID,
             s.Name,
             s.Description,
-            COUNT(se.CitizenID) AS enrolled_citizens
+            COUNT(se.CitizenID) AS enrolled_citizens,
+            s.AllocatedBudget
         FROM Schemes s
         LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
         WHERE s.Type = 'Health' OR s.Type = 'Healthcare'
         GROUP BY s.SchemeID, s.Name, s.Description
         ORDER BY enrolled_citizens DESC
     """,
-    # 11. Get citizen count for health scheme by month
-    "scheme_enrollment_by_month": """
+    
+    # AGRICULTURE ADVANCED STATISTICS QUERIES
+    'irrigation_methods': """
         SELECT 
-            TO_CHAR(Date, 'Mon YYYY') AS month,
-            COUNT(*) AS enrollments
-        FROM SchemeEnrollment
-        WHERE 
-            SchemeID = %s AND
-            Date >= %s AND
-            Date <= %s
-        GROUP BY month
-        ORDER BY MIN(Date)
+            IrrigationMethod,
+            COUNT(*) as usage_count
+        FROM LandCrop
+        GROUP BY IrrigationMethod
+        ORDER BY usage_count DESC
     """,
+    
+    'water_usage_by_crop': """
+        SELECT 
+            c.Name as crop_name,
+            SUM(lc.Area) as total_area,
+            SUM(lc.WaterUsage * lc.Area) as total_water_usage
+        FROM LandCrop lc
+        JOIN Crop c ON lc.CropID = c.CropID
+        GROUP BY c.Name
+        ORDER BY total_water_usage DESC
+    """,
+    
+    # DEMOGRAPHIC ADVANCED STATISTICS QUERIES
+    'migration_status': """
+        SELECT 
+            MigrationStatus,
+            COUNT(*) as citizen_count
+        FROM Citizen
+        WHERE MigrationStatus IS NOT NULL
+        GROUP BY MigrationStatus
+        ORDER BY citizen_count DESC
+    """,
+    
+    'residence_duration': """
+        SELECT 
+            CASE
+                WHEN EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM ResidenceSince) < 1 THEN 'Less than 1 year'
+                WHEN EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM ResidenceSince) BETWEEN 1 AND 5 THEN '1-5 years'
+                WHEN EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM ResidenceSince) BETWEEN 6 AND 10 THEN '6-10 years'
+                WHEN EXTRACT(YEAR FROM CURRENT_DATE) - EXTRACT(YEAR FROM ResidenceSince) BETWEEN 11 AND 20 THEN '11-20 years'
+                ELSE 'More than 20 years'
+            END as residence_duration,
+            COUNT(*) as citizen_count
+        FROM Citizen
+        WHERE ResidenceSince IS NOT NULL
+        GROUP BY residence_duration
+        ORDER BY 
+            CASE residence_duration
+                WHEN 'Less than 1 year' THEN 1
+                WHEN '1-5 years' THEN 2
+                WHEN '6-10 years' THEN 3
+                WHEN '11-20 years' THEN 4
+                ELSE 5
+            END
+    """,
+    
+    # SCHEME ADVANCED STATISTICS QUERIES
+    'scheme_budget_allocation': """
+        SELECT 
+            Name as scheme_name,
+            AllocatedBudget,
+            TargetBeneficiaries,
+            BudgetYear
+        FROM Schemes
+        ORDER BY AllocatedBudget DESC
+    """,
+    
+    'scheme_enrollment_stats': """
+        SELECT 
+            s.Name as scheme_name,
+            COUNT(CASE WHEN se.EnrollmentStatus = 'Active' THEN 1 ELSE NULL END) as active_enrollments,
+            COUNT(CASE WHEN se.EnrollmentStatus = 'Inactive' THEN 1 ELSE NULL END) as inactive_enrollments,
+            COUNT(CASE WHEN se.EnrollmentStatus = 'Pending' THEN 1 ELSE NULL END) as pending_enrollments,
+            SUM(se.BenefitsReceived) as total_benefits
+        FROM Schemes s
+        LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
+        GROUP BY s.Name
+        ORDER BY s.Name
+    """,
+    
+    'scheme_beneficiary_demographics': """
+        SELECT 
+            s.Name as scheme_name,
+            c.Gender,
+            COUNT(se.CitizenID) as count,
+            AVG(c.Income) as avg_income
+        FROM SchemeEnrollment se
+        JOIN Schemes s ON se.SchemeID = s.SchemeID
+        JOIN Citizen c ON se.CitizenID = c.Aadhaar
+        WHERE se.EnrollmentStatus = 'Active'
+        GROUP BY s.Name, c.Gender
+        ORDER BY s.Name, c.Gender
+    """
 }

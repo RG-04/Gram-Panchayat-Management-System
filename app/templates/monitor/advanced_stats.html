@@ -4,6 +4,7 @@ Management System{% endblock %} {% block head %}
   rel="stylesheet"
   href="{{ url_for('static', filename='css/advanced_stats.css') }}"
 />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 {% endblock %} {% block content %}
 <div class="statistics-container">
   <div class="statistics-header">
@@ -28,6 +29,11 @@ Management System{% endblock %} {% block head %}
         href="{{ url_for('monitor.advanced_stats', category='demographic') }}"
         class="category-link {% if category == 'demographic' %}active{% endif %}"
         >Demographic</a
+      >
+      <a   
+        href="{{ url_for('monitor.advanced_stats', category='schemes') }}"
+        class="category-link {% if category == 'schemes' %}active{% endif %}"
+        >Schemes</a
       >
     </div>
   </div>
@@ -92,6 +98,33 @@ Management System{% endblock %} {% block head %}
 
     <!-- Add Chart.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+            <h2>School Financial Information</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>School Name</th>
+                            <th>Annual Income (₹)</th>
+                            <th>Annual Expenditure (₹)</th>
+                            <th>Surplus/Deficit (₹)</th>
+                            <th>Budget Year</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for school in stats.school_finances %}
+                        <tr>
+                            <td>{{ school.name }}</td>
+                            <td>₹{{ "{:,.2f}".format(school.income) }}</td>
+                            <td>₹{{ "{:,.2f}".format(school.expenditure) }}</td>
+                            <td class="{% if school.surplus >= 0 %}positive{% else %}negative{% endif %}">
+                                ₹{{ "{:,.2f}".format(school.surplus) }}
+                            </td>
+                            <td>{{ school.budget_year }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
     <!-- JavaScript for education visualizations -->
     <script>
@@ -128,65 +161,478 @@ Management System{% endblock %} {% block head %}
                   }
               }
           });
+            });
+            </script>
+        
+        {% elif category == 'health' %}
+            <div class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_doctors }}</div>
+                    <div class="summary-label">Doctors</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.total_nurses }}</div>
+                    <div class="summary-label">Nurses</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.doctor_citizen_ratio }}</div>
+                    <div class="summary-label">Doctor:Citizen Ratio</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.nurse_citizen_ratio }}</div>
+                    <div class="summary-label">Nurse:Citizen Ratio</div>
+                </div>
+            </div>
+            <div class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-value">₹{{ "{:,.0f}".format(stats.total_income) }}</div>
+                    <div class="summary-label">Total Healthcare Income</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">₹{{ "{:,.0f}".format(stats.total_expenditure) }}</div>
+                    <div class="summary-label">Total Healthcare Expenditure</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">{{ stats.overall_margin }}%</div>
+                    <div class="summary-label">Overall Margin</div>
+                </div>
+            </div>
+            
+            <h2>Hospital Financial Performance</h2>
+            <div class="chart-container">
+                <canvas id="hospitalFinanceChart"></canvas>
+            </div>
+            
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Hospital Name</th>
+                            <th>Income (₹)</th>
+                            <th>Expenditure (₹)</th>
+                            <th>Surplus/Deficit (₹)</th>
+                            <th>Profit Margin</th>
+                            <th>Budget Year</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hospital in stats.hospital_finances %}
+                        <tr>
+                            <td>{{ hospital.name }}</td>
+                            <td>₹{{ "{:,.2f}".format(hospital.income) }}</td>
+                            <td>₹{{ "{:,.2f}".format(hospital.expenditure) }}</td>
+                            <td class="{% if hospital.income - hospital.expenditure >= 0 %}positive{% else %}negative{% endif %}">
+                                ₹{{ "{:,.2f}".format(hospital.income - hospital.expenditure) }}
+                            </td>
+                            <td>{{ hospital.profit_margin }}%</td>
+                            <td>{{ hospital.budget_year }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Welfare Scheme Enrollment -->
+            <h2>Health Welfare Scheme Enrollment</h2>
+            <div class="stats-table-container">
+            <table class="stats-table">
+                <thead>
+                <tr>
+                    <th>Scheme Name</th>
+                    <th>Description</th>
+                    <th>Enrolled Citizens</th>
+                    <th>Budget (₹)</th>
+                    <th>Enrollment Rate</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for scheme in stats.health_schemes %}
+                <tr>
+                    <td>{{ scheme.name }}</td>
+                    <td>{{ scheme.description }}</td>
+                    <td>{{ scheme.enrolled_citizens }}</td>
+                    <td>{{ scheme.budget }}</td>
+                    <td>
+                    <div class="progress-container">
+                        <div
+                        class="progress-bar"
+                        style="width: {{ scheme.enrollment_rate }}%;"
+                        ></div>
+                        <span class="progress-text">{{ scheme.enrollment_rate }}%</span>
+                    </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+
+            <!-- Add Chart.js from CDN -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Hospital Finance Chart
+                const hospitalNames = {{ stats.hospital_finances|map(attribute='name')|list|tojson }};
+                const incomeData = {{ stats.hospital_finances|map(attribute='income')|list|tojson }};
+                const expenditureData = {{ stats.hospital_finances|map(attribute='expenditure')|list|tojson }};
+                
+                const financeCtx = document.getElementById('hospitalFinanceChart').getContext('2d');
+                
+                new Chart(financeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: hospitalNames,
+                        datasets: [
+                            {
+                                label: 'Income',
+                                data: incomeData,
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Expenditure',
+                                data: expenditureData,
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Amount (₹)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            });
+            </script>
+        
+        {% elif category == 'agriculture' %}
+            <h2>Irrigation Methods Distribution</h2>
+            <div class="chart-container">
+                <canvas id="irrigationMethodsChart"></canvas>
+            </div>
+            
+            <h2>Water Usage by Crop</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Crop Name</th>
+                            <th>Total Area (acres)</th>
+                            <th>Total Water Usage (liters)</th>
+                            <th>Water Usage per Acre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for crop in stats.water_usage %}
+                        <tr>
+                            <td>{{ crop.crop_name }}</td>
+                            <td>{{ crop.total_area }}</td>
+                            <td>{{ "{:,.0f}".format(crop.total_water_usage) }}</td>
+                            <td>{{ "{:,.1f}".format(crop.water_per_acre) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Irrigation Methods Chart
+                const irrigationData = {{ stats.irrigation_methods|tojson }};
+                const irrigationCtx = document.getElementById('irrigationMethodsChart').getContext('2d');
+                
+                new Chart(irrigationCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: irrigationData.labels,
+                        datasets: [{
+                            data: irrigationData.values,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Irrigation Methods Usage'
+                            }
+                        }
+                    }
+                });
+                
+            });
+            </script>
+        
+        {% elif category == 'demographic' %}
+            <h2>Migration Status Distribution</h2>
+            <div class="chart-container">
+                <canvas id="migrationStatusChart"></canvas>
+            </div>
+            
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Migration Status Chart
+                const migrationData = {{ stats.migration_status|tojson }};
+                const migrationCtx = document.getElementById('migrationStatusChart').getContext('2d');
+                
+                new Chart(migrationCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: migrationData.labels,
+                        datasets: [{
+                            data: migrationData.values,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)'
+                            ],
+                            borderColor: '#ffffff',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Migration Status of Citizens'
+                            }
+                        }
+                    }
+                });
 
       });
     </script>
-    {% elif category == "health" %}
-    <!-- Health Personnel Summary -->
-    <div class="stats-summary">
-      <div class="summary-card">
-        <div class="summary-value">{{ stats.total_doctors }}</div>
-        <div class="summary-label">Doctors</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-value">{{ stats.total_nurses }}</div>
-        <div class="summary-label">Nurses</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-value">{{ stats.doctor_citizen_ratio }}</div>
-        <div class="summary-label">Doctor:Citizen Ratio</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-value">{{ stats.nurse_citizen_ratio }}</div>
-        <div class="summary-label">Nurse:Citizen Ratio</div>
-      </div>
-    </div>
+        
+        {% elif category == 'schemes' %}
+            <h2>Scheme Budget Allocation and Utilization</h2>
+            <div class="chart-container">
+                <canvas id="schemeBudgetChart"></canvas>
+            </div>
 
-    <!-- Welfare Scheme Enrollment -->
-    <h2>Health Welfare Scheme Enrollment</h2>
-    <div class="stats-table-container">
-      <table class="stats-table">
-        <thead>
-          <tr>
-            <th>Scheme Name</th>
-            <th>Description</th>
-            <th>Enrolled Citizens</th>
-            <th>Enrollment Rate</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for scheme in stats.health_schemes %}
-          <tr>
-            <td>{{ scheme.name }}</td>
-            <td>{{ scheme.description }}</td>
-            <td>{{ scheme.enrolled_citizens }}</td>
-            <td>
-              <div class="progress-container">
-                <div
-                  class="progress-bar"
-                  style="width: {{ scheme.enrollment_rate }}%;"
-                ></div>
-                <span class="progress-text">{{ scheme.enrollment_rate }}%</span>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Scheme Name</th>
+                            <th>Budget Allocated (₹)</th>
+                            <th>Target Beneficiaries</th>
+                            <th>Current Enrollment</th>
+                            <th>Achievement Rate</th>
+                            <th>Cost per Beneficiary (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scheme in stats.scheme_budget %}
+                        <tr>
+                            <td>{{ scheme.scheme_name }}</td>
+                            <td>₹{{ "{:,.2f}".format(scheme.allocated_budget) }}</td>
+                            <td>{{ scheme.target_beneficiaries }}</td>
+                            <td>
+                                {% set enrollment = None %}
+                                {% for e in stats.enrollment_stats %}
+                                    {% if e.scheme_name == scheme.scheme_name %}
+                                        {% set enrollment = e %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ enrollment.total_enrollments if enrollment else 0 }}
+                            </td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: {{ scheme.achievement_rate }}%;"></div>
+                                    <span class="progress-text">{{ scheme.achievement_rate }}%</span>
+                                </div>
+                            </td>
+                            <td>₹{{ "{:,.2f}".format(scheme.cost_per_beneficiary) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-    <!-- Add Chart.js from CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+            <h2>Scheme Enrollment Status</h2>
+            <div class="enrollment-status-container">
+                <div class="chart-container half-width">
+                    <canvas id="enrollmentStatusChart"></canvas>
+                </div>
+                <div class="enrollment-summary">
+                    <div class="summary-row">
+                        <div class="summary-label">Total Active Enrollments:</div>
+                        <div class="summary-value">{{ stats.enrollment_stats|sum(attribute='active_enrollments') }}</div>
+                    </div>
+                    <div class="summary-row">
+                        <div class="summary-label">Total Benefits Distributed:</div>
+                        <div class="summary-value">₹{{ "{:,.2f}".format(stats.enrollment_stats|sum(attribute='total_benefits')) }}</div>
+                    </div>
+                    <div class="summary-row">
+                        <div class="summary-label">Avg. Benefit per Enrollment:</div>
+                        {% set total_beneficiaries = stats.enrollment_stats|sum(attribute='active_enrollments') %}
+                        {% set total_benefits = stats.enrollment_stats|sum(attribute='total_benefits') %}
+                        <div class="summary-value">₹{{ "{:,.2f}".format(total_benefits / total_beneficiaries if total_beneficiaries > 0 else 0) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Scheme Enrollment Details</h2>
+            <div class="stats-table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Scheme Name</th>
+                            <th>Active</th>
+                            <th>Inactive</th>
+                            <th>Pending</th>
+                            <th>Total Enrollments</th>
+                            <th>Total Benefits (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scheme in stats.enrollment_stats %}
+                        <tr>
+                            <td>{{ scheme.scheme_name }}</td>
+                            <td>{{ scheme.active_enrollments }}</td>
+                            <td>{{ scheme.inactive_enrollments }}</td>
+                            <td>{{ scheme.pending_enrollments }}</td>
+                            <td>{{ scheme.total_enrollments }}</td>
+                            <td>₹{{ "{:,.2f}".format(scheme.total_benefits) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Scheme Budget Chart
+                const schemeNames = {{ stats.scheme_budget|map(attribute='scheme_name')|list|tojson }};
+                const allocatedBudgets = {{ stats.scheme_budget|map(attribute='allocated_budget')|list|tojson }};
+                const achievementRates = {{ stats.scheme_budget|map(attribute='achievement_rate')|list|tojson }};
+                
+                const budgetCtx = document.getElementById('schemeBudgetChart').getContext('2d');
+                
+                new Chart(budgetCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: schemeNames,
+                        datasets: [
+                            {
+                                label: 'Budget Allocation (₹)',
+                                data: allocatedBudgets,
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Achievement Rate (%)',
+                                data: achievementRates,
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1,
+                                type: 'line',
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Budget (₹)'
+                                }
+                            },
+                            y1: {
+                                beginAtZero: true,
+                                max: 100,
+                                position: 'right',
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Achievement Rate (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Enrollment Status Chart
+                const pieData = {
+                    labels: [
+                        'Active Enrollments',
+                        'Inactive Enrollments',
+                        'Pending Enrollments'
+                    ],
+                    datasets: [{
+                        data: [
+                            {{ stats.enrollment_stats|sum(attribute='active_enrollments') }},
+                            {{ stats.enrollment_stats|sum(attribute='inactive_enrollments') }},
+                            {{ stats.enrollment_stats|sum(attribute='pending_enrollments') }}
+                        ],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 206, 86, 0.7)'
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 1
+                    }]
+                };
+                
+                const pieCtx = document.getElementById('enrollmentStatusChart').getContext('2d');
+                
+                new Chart(pieCtx, {
+                    type: 'pie',
+                    data: pieData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            });
+            </script>
+    <!-- {% elif category == "health" %} -->
 
     {% endif %}
   </div>

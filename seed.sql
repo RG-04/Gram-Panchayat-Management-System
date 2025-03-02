@@ -12,30 +12,29 @@ INSERT INTO Households (Address) VALUES
 ('House No. 707, East Ward, Sundarpur');
 
 -- Insert sample citizens
-INSERT INTO Citizen (Aadhaar, Name, DOB, MotherID, FatherID, Gender, Income, HouseholdID, Occupation, Phone) VALUES
-('123456789012', 'Amit Patel', '1980-05-15', NULL, NULL, 'Male', 350000, 1, 'Farmer', '9876543213'),
-('234567890123', 'Sunita Sharma', '1985-08-22', NULL, NULL, 'Female', 280000, 2, 'Teacher', '9876543214'),
-('345678901234', 'Mohamed Ali', '1975-02-10', NULL, NULL, 'Male', 320000, 3, 'Shopkeeper', '9876543215'),
-('456789012345', 'Raj Kumar', '1982-11-05', NULL, NULL, 'Male', 420000, 1, 'Government Employee', '9876543216'),
-('567890123456', 'Priya Singh', '1988-04-18', NULL, NULL, 'Female', 450000, 2, 'Government Employee', '9876543217'),
+INSERT INTO Citizen (Aadhaar, Name, DOB, MotherID, FatherID, Gender, Income, HouseholdID, Occupation, MigrationStatus, ResidenceSince, Phone) VALUES
+('123456789012', 'Amit Patel', '1980-05-15', NULL, NULL, 'Male', 350000, 1, 'Farmer', 'Native', '1980-05-15', '9876543213'),
+('234567890123', 'Sunita Sharma', '1985-08-22', NULL, NULL, 'Female', 280000, 2, 'Teacher', 'Native', '1985-08-22', '9876543214'),
+('345678901234', 'Mohamed Ali', '1975-02-10', NULL, NULL, 'Male', 320000, 3, 'Shopkeeper', 'Immigrant', '2010-06-15', '9876543215'),
+('456789012345', 'Raj Kumar', '1982-11-05', NULL, NULL, 'Male', 420000, 1, 'Government Employee', 'Native', '1982-11-05', '9876543216'),
+('567890123456', 'Priya Singh', '1988-04-18', NULL, NULL, 'Female', 450000, 2, 'Government Employee', 'Immigrant', '2015-03-22', '9876543217'),
 -- Parents
-('678901234567', 'Lakshmi Devi', '1979-06-25', NULL, NULL, 'Female', 290000, 4, 'Government Employee', '9876543218'),
-('789012345678', 'Ramesh Kumar', '1977-09-12', NULL, NULL, 'Male', 310000, 4, 'Driver', '9876543219'),
-('890123456789', 'Anita Verma', '1983-01-30', NULL, NULL, 'Female', 275000, 5, 'Nurse', '9876543220'),
-('901234567890', 'Suresh Patel', '1981-07-08', NULL, NULL, 'Male', 330000, 5, 'Electrician', '9876543221'),
+('678901234567', 'Lakshmi Devi', '1979-06-25', NULL, NULL, 'Female', 290000, 4, 'Government Employee', 'Native', '1979-06-25', '9876543218'),
+('789012345678', 'Ramesh Kumar', '1977-09-12', NULL, NULL, 'Male', 310000, 4, 'Driver', 'Native', '1977-09-12', '9876543219'),
+('890123456789', 'Anita Verma', '1983-01-30', NULL, NULL, 'Female', 275000, 5, 'Nurse', 'Native', '1983-01-30', '9876543220'),
+('901234567890', 'Suresh Patel', '1981-07-08', NULL, NULL, 'Male', 330000, 5, 'Electrician', 'Native', '1981-07-08', '9876543221'),
 
 -- School-age children (with parent references)
-('012345678901', 'Ravi Kumar', '2010-03-17', '678901234567', '789012345678', 'Male', 0, 4, 'Student', NULL),
-('123456789013', 'Meena Kumar', '2012-11-05', '678901234567', '789012345678', 'Female', 0, 4, 'Student', NULL),
-('234567890124', 'Ajay Verma', '2013-08-22', '890123456789', '901234567890', 'Male', 0, 5, 'Student', NULL),
-('345678901235', 'Neha Verma', '2009-04-10', '890123456789', '901234567890', 'Female', 0, 5, 'Student', NULL),
+('012345678901', 'Ravi Kumar', '2010-03-17', '678901234567', '789012345678', 'Male', 0, 4, 'Student', 'Native', '2010-03-17', NULL),
+('123456789013', 'Meena Kumar', '2012-11-05', '678901234567', '789012345678', 'Female', 0, 4, 'Student', 'Native', '2012-11-05', NULL),
+('234567890124', 'Ajay Verma', '2013-08-22', '890123456789', '901234567890', 'Male', 0, 5, 'Student', 'Native', '2013-08-22', NULL),
+('345678901235', 'Neha Verma', '2009-04-10', '890123456789', '901234567890', 'Female', 0, 5, 'Student', 'Native', '2009-04-10', NULL),
 
 -- Teenagers/Young adults (some still in school, some recently graduated)
-('456789012346', 'Vikram Singh', '2005-12-03', NULL, NULL, 'Male', 15000, 6, 'Student', '9876543222'),
-('567890123457', 'Pooja Gupta', '2007-05-19', NULL, NULL, 'Female', 0, 7, 'Student', '9876543223'),
-('678901234568', 'Arjun Reddy', '2006-09-27', NULL, NULL, 'Male', 0, 8, 'Student', NULL),
-('789012345679', 'Kavita Rao', '2004-02-14', NULL, NULL, 'Female', 18000, 9, 'Part-time Clerk', '9876543224');
-
+('456789012346', 'Vikram Singh', '2005-12-03', NULL, NULL, 'Male', 15000, 6, 'Student', 'Immigrant', '2005-12-03', '9876543222'),
+('567890123457', 'Pooja Gupta', '2007-05-19', NULL, NULL, 'Female', 0, 7, 'Student', 'Native', '2007-05-19', '9876543223'),
+('678901234568', 'Arjun Reddy', '2006-09-27', NULL, NULL, 'Male', 0, 8, 'Student', 'Immigrant', '2006-09-27', NULL),
+('789012345679', 'Kavita Rao', '2004-02-14', NULL, NULL, 'Female', 18000, 9, 'Part-time Clerk', 'Immigrant', '2023-08-25', '9876543224');
 
 -- Insert monitors
 INSERT INTO Monitors (Name) VALUES
@@ -64,21 +63,33 @@ INSERT INTO Schools (Name, Capacity, Income) VALUES
 ('Sundarpur Primary School', 50, 5000000),
 ('Chandanagar High School', 80, 3000000);
 
+INSERT INTO SchoolAccount (SchoolID, AnnualIncome, AnnualExpenditure, BudgetYear) VALUES
+(1, 5000000, 4500000, 2024),
+(2, 3000000, 2800000, 2024),
+(1, 4500000, 4200000, 2023),
+(2, 2800000, 2300000, 2023);
+
 -- Insert hospitals
 INSERT INTO Hospitals (Name, Address, Beds) VALUES
 ('Sundarpur Primary Health Center', 'Near Bus Stand, Sundarpur', 50),
 ('Chandanagar General Hospital', 'Main Road, Chandanagar', 25);
 
--- Insert schemes
-INSERT INTO Schemes (Name, Type, Description) VALUES
-('Rural Housing Scheme', 'Housing', 'Home for everyone'),
-('Farmers Subsidy Program', 'Agriculture', 'Support for farmers'),
-('Education Scholarship', 'Education', 'Student aid program'),
-('Health Insurance', 'Healthcare', 'Medical coverage'),
-('Skill Development', 'Employment', 'Job training'),
-('Clean Water Mission', 'Infrastructure', 'Safe drinking water'),
-('Solar Energy Rebate', 'Energy', 'Green power subsidy'),
-('Women Empowerment', 'Social Welfare', 'Support for women');
+INSERT INTO HospitalAccount (HospitalID, AnnualIncome, AnnualExpenditure, BudgetYear) VALUES
+(1, 8000000, 7200000, 2024),
+(2, 4000000, 3900000, 2024),
+(1, 7500000, 6800000, 2023),
+(2, 3500000, 3200000, 2023);
+
+-- Insert schemes with financial and targeting data
+INSERT INTO Schemes (Name, Type, Description, AllocatedBudget, TargetBeneficiaries) VALUES
+('Rural Housing Scheme', 'Housing', 'Home for everyone', 5000000.00, 200),
+('Farmers Subsidy Program', 'Agriculture', 'Support for farmers', 3500000.00, 300),
+('Education Scholarship', 'Education', 'Student aid program', 2000000.00, 100),
+('Health Insurance', 'Healthcare', 'Medical coverage', 6000000.00, 500),
+('Skill Development', 'Employment', 'Job training', 1500000.00, 150),
+('Clean Water Mission', 'Infrastructure', 'Safe drinking water', 3000000.00, 400),
+('Solar Energy Rebate', 'Energy', 'Green power subsidy', 2500000.00, 250),
+('Women Empowerment', 'Social Welfare', 'Support for women', 1800000.00, 180);
 
 -- Populate the Land table
 -- We'll create land holdings of varying sizes for different owners
@@ -103,39 +114,40 @@ INSERT INTO Land (OwnerID, Size, Location) VALUES
 -- Now populate the LandCrop table
 -- Ensuring cultivated area is 60-80% of total land size
 
+-- Complete updated LandCrop inserts with IrrigationMethod and WaterUsage
 -- Amit Patel's land (Farmer) - 6.2 acres cultivated out of 8.5 (73%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(1, 1, 3.00, 9000.00, FALSE), -- Rice (non-organic)
-(1, 4, 2.00, 80000.00, FALSE), -- Sugarcane (non-organic)
-(1, 5, 1.20, 1080.00, TRUE);   -- Chickpea (organic)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(1, 1, 3.00, 9000.00, FALSE, 'Canal', 4500.00), -- Rice (non-organic) with canal irrigation
+(1, 4, 2.00, 80000.00, FALSE, 'Drip', 3200.00), -- Sugarcane (non-organic) with drip irrigation
+(1, 5, 1.20, 1080.00, TRUE, 'Sprinkler', 1800.00);   -- Chickpea (organic) with sprinkler irrigation
 
 -- Raj Kumar's land (Government Employee) - 1.9 acres cultivated out of 2.75 (69%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(2, 2, 1.20, 3000.00, FALSE),  -- Wheat (non-organic)
-(2, 3, 0.70, 8400.00, FALSE);  -- Potato (non-organic)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(2, 2, 1.20, 3000.00, FALSE, 'Flood', 3600.00),  -- Wheat (non-organic) with flood irrigation
+(2, 3, 0.70, 8400.00, FALSE, 'Drip', 1050.00);  -- Potato (non-organic) with drip irrigation
 
 -- Mohamed Ali's land (Shopkeeper) - 1.0 acre cultivated out of 1.5 (67%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(3, 3, 1.00, 12000.00, FALSE); -- Potato (non-organic)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(3, 3, 1.00, 12000.00, FALSE, 'Sprinkler', 1500.00); -- Potato (non-organic) with sprinkler irrigation
 
 -- Sunita Sharma's land (Teacher) - 3.3 acres cultivated out of 4.5 (73%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(4, 2, 2.50, 6250.00, FALSE),  -- Wheat (non-organic)
-(4, 5, 0.80, 720.00, TRUE);    -- Chickpea (organic)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(4, 2, 2.50, 6250.00, FALSE, 'Canal', 3750.00),  -- Wheat (non-organic) with canal irrigation
+(4, 5, 0.80, 720.00, TRUE, 'Drip', 960.00);    -- Chickpea (organic) with drip irrigation
 
--- Lakshmi Devi's land (Tailor) - 0.5 acre cultivated out of 0.75 (67%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(5, 3, 0.50, 6000.00, TRUE);   -- Potato (organic)
+-- Lakshmi Devi's land (Government Employee) - 0.5 acre cultivated out of 0.75 (67%)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(5, 3, 0.50, 6000.00, TRUE, 'Drip', 600.00);   -- Potato (organic) with drip irrigation
 
 -- Suresh Patel's land (Electrician) - 2.8 acres cultivated out of 3.8 (74%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(6, 4, 1.80, 72000.00, FALSE), -- Sugarcane (non-organic)
-(6, 1, 1.00, 3000.00, FALSE);  -- Rice (non-organic)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(6, 4, 1.80, 72000.00, FALSE, 'Flood', 5400.00), -- Sugarcane (non-organic) with flood irrigation
+(6, 1, 1.00, 3000.00, FALSE, 'Canal', 1500.00);  -- Rice (non-organic) with canal irrigation
 
 -- Anita Verma's land (Nurse) - 0.8 acre cultivated out of 1.2 (67%)
-INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic) VALUES
-(7, 3, 0.50, 6000.00, FALSE),  -- Potato (non-organic)
-(7, 5, 0.30, 270.00, TRUE);    -- Chickpea (organic)
+INSERT INTO LandCrop (LandID, CropID, Area, AnnualYield, isOrganic, IrrigationMethod, WaterUsage) VALUES
+(7, 3, 0.50, 6000.00, FALSE, 'Sprinkler', 750.00),  -- Potato (non-organic) with sprinkler irrigation
+(7, 5, 0.30, 270.00, TRUE, 'Drip', 360.00);    -- Chickpea (organic) with drip irrigation
 
 -- Insert certificates
 INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File) VALUES
@@ -233,3 +245,13 @@ INSERT INTO AssetSurveys (asset_id, SurveyDate, SurveyorID, SurveyData) VALUES
 (2, '2024-01-10', 3, 'Water level adequate'),
 (3, '2023-12-20', 1, 'Cleanliness maintained'),
 (4, '2023-11-05', 2, 'Pump handle repaired');
+
+-- Modify SchemeEnrollment table to add the new columns
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 25000.00, LastBenefitDate = '2024-01-15' WHERE SchemeID = 1 AND CitizenID = '123456789012';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 15000.00, LastBenefitDate = '2024-02-10' WHERE SchemeID = 2 AND CitizenID = '123456789012';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 10000.00, LastBenefitDate = '2024-01-05' WHERE SchemeID = 3 AND CitizenID = '234567890123';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Inactive', BenefitsReceived = 5000.00, LastBenefitDate = '2023-10-20' WHERE SchemeID = 4 AND CitizenID = '123456789012';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 8000.00, LastBenefitDate = '2024-02-12' WHERE SchemeID = 5 AND CitizenID = '234567890123';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Pending', BenefitsReceived = 0.00, LastBenefitDate = NULL WHERE SchemeID = 6 AND CitizenID = '123456789012';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 12000.00, LastBenefitDate = '2024-01-22' WHERE SchemeID = 7 AND CitizenID = '234567890123';
+UPDATE SchemeEnrollment SET EnrollmentStatus = 'Active', BenefitsReceived = 7500.00, LastBenefitDate = '2024-02-15' WHERE SchemeID = 8 AND CitizenID = '234567890123';
