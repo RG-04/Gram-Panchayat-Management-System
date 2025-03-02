@@ -195,9 +195,8 @@ monitor_queries = {
         GROUP BY s.Name, c.Gender
         ORDER BY s.Name, c.Gender
     """,
-
     # ENVIRONMENTAL DATA QUERIES
-    'environmental_summary_2025': """
+    "environmental_summary_2025": """
         SELECT 
             ROUND(AVG(AirQuality), 2) as avg_air_quality,
             ROUND(AVG(RainfallAmount), 2) as avg_rainfall,
@@ -206,8 +205,7 @@ monitor_queries = {
         FROM EnvironmentalData
         WHERE EXTRACT(YEAR FROM TimeFrame) = 2025
     """,
-
-    'aqi_monthly_trends': """
+    "aqi_monthly_trends": """
         SELECT 
             EXTRACT(YEAR FROM TimeFrame) as year,
             EXTRACT(MONTH FROM TimeFrame) as month,
@@ -217,8 +215,7 @@ monitor_queries = {
         GROUP BY EXTRACT(YEAR FROM TimeFrame), EXTRACT(MONTH FROM TimeFrame), TO_CHAR(TimeFrame, 'Month')
         ORDER BY year, month
     """,
-
-    'rainfall_monthly_trends': """
+    "rainfall_monthly_trends": """
         SELECT 
             EXTRACT(YEAR FROM TimeFrame) as year,
             EXTRACT(MONTH FROM TimeFrame) as month,
@@ -227,5 +224,5 @@ monitor_queries = {
         FROM EnvironmentalData
         GROUP BY EXTRACT(YEAR FROM TimeFrame), EXTRACT(MONTH FROM TimeFrame), TO_CHAR(TimeFrame, 'Month')
         ORDER BY year, month
-    """
+    """,
 }

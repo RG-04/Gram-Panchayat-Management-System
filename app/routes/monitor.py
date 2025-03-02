@@ -22,7 +22,14 @@ def advanced_stats():
     category = request.args.get("category", "education")
 
     # Validate category
-    valid_categories = ["education", "health", "agriculture", "demographic", "schemes", "environment"]
+    valid_categories = [
+        "education",
+        "health",
+        "agriculture",
+        "demographic",
+        "schemes",
+        "environment",
+    ]
     if category not in valid_categories:
         flash(f"Invalid category: {category}", "danger")
         return redirect(url_for("citizen.dashboard"))
@@ -331,59 +338,63 @@ def get_advanced_scheme_stats():
 
 def get_environmental_stats():
     """Fetch environmental statistics using simplified db queries."""
-    
+
     stats = {}
-    
+
     try:
         # Get 2025 environmental summary
-        summary_data = db.execute_query(monitor_queries['environmental_summary_2025'])
+        summary_data = db.execute_query(monitor_queries["environmental_summary_2025"])
         if summary_data and len(summary_data) > 0:
-            stats['env_summary'] = {
-                'avg_air_quality': summary_data[0][0] or 0,
-                'avg_rainfall': summary_data[0][1] or 0,
-                'avg_groundwater': summary_data[0][2] or 0,
-                'avg_forest_cover': summary_data[0][3] or 0
+            stats["env_summary"] = {
+                "avg_air_quality": summary_data[0][0] or 0,
+                "avg_rainfall": summary_data[0][1] or 0,
+                "avg_groundwater": summary_data[0][2] or 0,
+                "avg_forest_cover": summary_data[0][3] or 0,
             }
         else:
-            stats['env_summary'] = {
-                'avg_air_quality': 0,
-                'avg_rainfall': 0,
-                'avg_groundwater': 0,
-                'avg_forest_cover': 0
+            stats["env_summary"] = {
+                "avg_air_quality": 0,
+                "avg_rainfall": 0,
+                "avg_groundwater": 0,
+                "avg_forest_cover": 0,
             }
-        
+
         # Get AQI monthly trends
-        aqi_data = db.execute_query(monitor_queries['aqi_monthly_trends'])
+        aqi_data = db.execute_query(monitor_queries["aqi_monthly_trends"])
         aqi_trends = []
-        
+
         if aqi_data:
             for row in aqi_data:
-                aqi_trends.append({
-                    'year': int(row[0]),
-                    'month': int(row[1]),
-                    'month_name': row[2].strip(),
-                    'avg_aqi': float(row[3] or 0)
-                })
-        
-        stats['aqi_trends'] = aqi_trends
-        
+                aqi_trends.append(
+                    {
+                        "year": int(row[0]),
+                        "month": int(row[1]),
+                        "month_name": row[2].strip(),
+                        "avg_aqi": float(row[3] or 0),
+                    }
+                )
+
+        stats["aqi_trends"] = aqi_trends
+
         # Get rainfall monthly trends
-        rainfall_data = db.execute_query(monitor_queries['rainfall_monthly_trends'])
+        rainfall_data = db.execute_query(monitor_queries["rainfall_monthly_trends"])
         rainfall_trends = []
-        
+
         if rainfall_data:
             for row in rainfall_data:
-                rainfall_trends.append({
-                    'year': int(row[0]),
-                    'month': int(row[1]),
-                    'month_name': row[2].strip(),
-                    'avg_rainfall': float(row[3] or 0)
-                })
-        
-        stats['rainfall_trends'] = rainfall_trends
-        
+                rainfall_trends.append(
+                    {
+                        "year": int(row[0]),
+                        "month": int(row[1]),
+                        "month_name": row[2].strip(),
+                        "avg_rainfall": float(row[3] or 0),
+                    }
+                )
+
+        stats["rainfall_trends"] = rainfall_trends
+
     except Exception as e:
         print(f"Database error in environmental stats: {e}")
         stats = {}
-    
+
     return stats
