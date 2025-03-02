@@ -90,8 +90,8 @@ employee_queries = {
         ORDER BY s.Name;
     """,
     "scheme_insert_query": """
-        INSERT INTO Schemes (Name, Type, Description)
-        VALUES (%s, %s, %s)
+        INSERT INTO Schemes (Name, Type, Description, AllocatedBudget, TargetBeneficiaries)
+        VALUES (%s, %s, %s, %s, %s)
         RETURNING SchemeID;
     """,
     "scheme_update_query": """
