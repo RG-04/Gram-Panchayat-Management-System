@@ -22,6 +22,7 @@ employee_bp = Blueprint("employee", __name__)
 @role_required(["employee"])
 def dashboard():
     """Employee dashboard page."""
+
     employee_info = db.execute_query(
         employee_queries["employee_query"], (session["citizen_id"],)
     )
@@ -42,6 +43,7 @@ def dashboard():
 @role_required(["employee"])
 def certificates():
     """View and manage citizens."""
+
     citizens_list = db.execute_query(employee_queries["citizens_query"])
     return render_template("employee/certificates.html", citizens=citizens_list)
 
@@ -50,6 +52,7 @@ def certificates():
 @role_required(["employee"])
 def view_citizen(aadhaar):
     """View citizen details."""
+
     citizen = db.execute_query(employee_queries["citizen_one_query"], (aadhaar,))
 
     if not citizen:
@@ -176,10 +179,9 @@ def update_citizen(aadhaar):
 def citizen_certificates(aadhaar):
     """View and manage citizen certificates."""
 
-    name_query = """
-        SELECT Name FROM Citizen WHERE Aadhaar = %s
-    """
-    citizen_name = db.execute_query(name_query, (aadhaar,))
+    citizen_name = db.execute_query(
+        employee_queries["citizen_by_aadhaar_query"], (aadhaar,)
+    )
 
     if not citizen_name:
         flash("Citizen not found", "error")
@@ -213,10 +215,9 @@ def view_certificate(aadhaar, category, name):
         flash("Certificate not found", "error")
         return redirect(url_for("employee.citizen_certificates", aadhaar=aadhaar))
 
-    name_query = """
-        SELECT Name FROM Citizen WHERE Aadhaar = %s
-    """
-    citizen_name = db.execute_query(name_query, (aadhaar,))
+    citizen_name = db.execute_query(
+        employee_queries["citizen_by_aadhaar_query"], (aadhaar,)
+    )
 
     return render_template(
         "employee/view_certificate.html",
@@ -299,20 +300,18 @@ def update_certificate_file(aadhaar, category, name):
 def upload_certificate(aadhaar):
     """Upload a new certificate for a citizen."""
 
-    name_query = """
-        SELECT Name FROM Citizen WHERE Aadhaar = %s
-    """
-    citizen_name = db.execute_query(name_query, (aadhaar,))
+    citizen_name = db.execute_query(
+        employee_queries["citizen_by_aadhaar_query"], (aadhaar,)
+    )
 
     if not citizen_name:
         flash("Citizen not found", "error")
         return redirect(url_for("employee.certificates"))
 
     # Get existing certificate categories
-    categories_query = """
-        SELECT DISTINCT Category FROM Certificates ORDER BY Category
-    """
-    existing_categories = db.execute_query(categories_query)
+    existing_categories = db.execute_query(
+        employee_queries["certificate_categories_query"]
+    )
 
     categories = [cat[0] for cat in existing_categories]
     if not categories:
@@ -339,11 +338,9 @@ def upload_certificate(aadhaar):
         if category == "Other" and custom_category:
             category = custom_category
 
-        check_query = """
-            SELECT COUNT(*) FROM Certificates
-            WHERE Category = %s AND Name = %s AND CitizenID = %s
-        """
-        count = db.execute_query(check_query, (category, name, aadhaar))[0][0]
+        count = db.execute_query(
+            employee_queries["specific_cert_count_query"], (category, name, aadhaar)
+        )[0][0]
 
         if count > 0:
             flash(
@@ -362,22 +359,16 @@ def upload_certificate(aadhaar):
             file_data = certificate_file.read()
 
         if file_data:
-            insert_query = """
-                INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File)
-                VALUES (%s, %s, %s, %s, %s)
-            """
             db.execute_query(
-                insert_query,
+                employee_queries["insert_certificate_with_file_query"],
                 (category, name, aadhaar, date_issued, file_data),
                 fetch=False,
             )
         else:
-            insert_query = """
-                INSERT INTO Certificates (Category, Name, CitizenID, DateIssued)
-                VALUES (%s, %s, %s, %s)
-            """
             db.execute_query(
-                insert_query, (category, name, aadhaar, date_issued), fetch=False
+                employee_queries["insert_certificate_query"],
+                (category, name, aadhaar, date_issued),
+                fetch=False,
             )
 
         flash("Certificate added successfully", "success")
@@ -396,17 +387,11 @@ def upload_certificate(aadhaar):
 def schemes():
     """Manage government schemes page."""
 
-    scheme_types_query = """
-    SELECT DISTINCT Type FROM Schemes WHERE Type IS NOT NULL ORDER BY Type;
-    """
-
-    total_enrollments_query = """
-    SELECT COUNT(*) FROM SchemeEnrollment;
-    """
-
     schemes_result = db.execute_query(employee_queries["schemes_query"])
-    scheme_types_result = db.execute_query(scheme_types_query)
-    total_enrollments_result = db.execute_query(total_enrollments_query)
+    scheme_types_result = db.execute_query(employee_queries["scheme_types_query"])
+    total_enrollments_result = db.execute_query(
+        employee_queries["scheme_enrollment_count_query"]
+    )
 
     schemes = []
     for row in schemes_result:
@@ -512,6 +497,7 @@ def update_scheme():
 @role_required(["employee"])
 def delete_scheme():
     """Delete a scheme and all associated enrollments and forms."""
+
     scheme_id = request.form.get("scheme_id")
 
     if not scheme_id:
@@ -520,11 +506,7 @@ def delete_scheme():
 
     try:
 
-        query1 = """
-        SELECT Name FROM Schemes WHERE SchemeID = %s;
-        """
-
-        result1 = db.execute_query(query1, (scheme_id))
+        result1 = db.execute_query(employee_queries["scheme_name_query"], (scheme_id))
         scheme_name = result1[0][0] if result1 else None
 
         print(scheme_name)
@@ -581,23 +563,15 @@ def view_asset(asset_id):
 def survey_asset(asset_id):
     """Survey an asset."""
 
-    asset_query = """
-        SELECT asset_id, Name, Type, InstallationDate, LastSurveyedDate, Location
-        FROM assets
-        WHERE asset_id = %s
-    """
-    asset = db.execute_query(asset_query, (asset_id,))
+    asset = db.execute_query(employee_queries["asset_details_query"], (asset_id,))
 
     if not asset:
         flash("Asset not found", "error")
         return redirect(url_for("employee.assets"))
 
-    employee_query = """
-        SELECT EmployeeID
-        FROM EmployeeCitizens
-        WHERE CitizenID = %s
-    """
-    employee = db.execute_query(employee_query, (session["citizen_id"],))
+    employee = db.execute_query(
+        employee_queries["get_employee_query"], (session["citizen_id"],)
+    )
 
     if not employee:
         flash("Employee record not found", "error")

@@ -64,9 +64,17 @@ employee_queries = {
         SET Address = %s
         WHERE HouseholdID = (SELECT HouseholdID FROM Citizen WHERE Aadhaar = %s)
     """,
+    "citizen_by_aadhaar_query": """
+        SELECT Name FROM Citizen WHERE Aadhaar = %s
+    """,
     # Citizen Certificate Queries
     "specific_cert_query": """
         SELECT Category, Name, CitizenID, DateIssued, File
+        FROM Certificates
+        WHERE Category = %s AND Name = %s AND CitizenID = %s
+    """,
+    "specific_cert_count_query": """
+        SELECT COUNT(*)
         FROM Certificates
         WHERE Category = %s AND Name = %s AND CitizenID = %s
     """,
@@ -79,6 +87,17 @@ employee_queries = {
         UPDATE Certificates
         SET File = %s
         WHERE Category = %s AND Name = %s AND CitizenID = %s
+    """,
+    "certificate_categories_query": """
+        SELECT DISTINCT Category FROM Certificates ORDER BY Category
+    """,
+    "insert_certificate_with_file_query": """
+        INSERT INTO Certificates (Category, Name, CitizenID, DateIssued, File)
+        VALUES (%s, %s, %s, %s, %s)
+    """,
+    "insert_certificate_query": """
+        INSERT INTO Certificates (Category, Name, CitizenID, DateIssued)
+        VALUES (%s, %s, %s, %s)
     """,
     # Schemes
     "schemes_query": """
@@ -101,6 +120,15 @@ employee_queries = {
     """,
     "scheme_delete_query": """
         DELETE FROM Schemes WHERE SchemeID = %s;
+    """,
+    "scheme_types_query": """
+        SELECT DISTINCT Type FROM Schemes WHERE Type IS NOT NULL ORDER BY Type;
+    """,
+    "scheme_enrollment_count_query": """
+        SELECT COUNT(*) FROM SchemeEnrollment;
+    """,
+    "scheme_name_query": """
+        SELECT Name FROM Schemes WHERE SchemeID = %s;
     """,
     # Assets & Surveys Queries
     "assets_query": """
@@ -134,5 +162,11 @@ employee_queries = {
         INSERT INTO assets (Name, Type, InstallationDate, Location)
         VALUES (%s, %s, %s, %s)
         RETURNING asset_id
+    """,
+    # Employee queries
+    "get_employee_query": """
+        SELECT EmployeeID
+        FROM EmployeeCitizens
+        WHERE CitizenID = %s
     """,
 }
