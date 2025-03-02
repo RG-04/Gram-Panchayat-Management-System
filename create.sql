@@ -86,6 +86,7 @@ CREATE TABLE SchoolAccount (
     AnnualIncome DECIMAL(15, 2),
     AnnualExpenditure DECIMAL(15, 2),
     BudgetYear INTEGER
+    PRIMARY KEY (SchoolID, BudgetYear)
 );
 
 -- Create Hospitals table
@@ -101,6 +102,7 @@ CREATE TABLE HospitalAccount (
     AnnualIncome DECIMAL(15, 2),
     AnnualExpenditure DECIMAL(15, 2),
     BudgetYear INTEGER
+    PRIMARY KEY (HospitalID, BudgetYear)
 );
 
 -- Create Schemes 
