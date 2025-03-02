@@ -103,8 +103,7 @@ CREATE TABLE Schemes (
     Description TEXT NOT NULL,
     Type VARCHAR(100),
     AllocatedBudget DECIMAL(15, 2),
-    TargetBeneficiaries INTEGER,
-    BudgetYear INTEGER
+    TargetBeneficiaries INTEGER
 );
 
 CREATE TABLE Land (

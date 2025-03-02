@@ -158,20 +158,19 @@ monitor_queries = {
             Name as scheme_name,
             AllocatedBudget,
             TargetBeneficiaries,
-            BudgetYear,
-            se.NumBeneficieries as total_enrollments,
-            se.ReceivedBenefits as total_benefits
+            COALESCE(se.NumBeneficieries, 0) as total_enrollments,
+            COALESCE(se.ReceivedBenefits, 0) as total_benefits
         FROM Schemes as s
-        JOIN (SELECT SchemeID, COUNT(*) as NumBeneficieries , SUM(BenefitsReceived) as ReceivedBenefits FROM SchemeEnrollment GROUP BY SchemeID) as se ON s.SchemeID = se.SchemeID
+        LEFT JOIN (SELECT SchemeID, COUNT(*) as NumBeneficieries, SUM(COALESCE(BenefitsReceived, 0)) as ReceivedBenefits FROM SchemeEnrollment GROUP BY SchemeID) as se ON s.SchemeID = se.SchemeID
         ORDER BY AllocatedBudget DESC
     """,
     "scheme_enrollment_stats": """
         SELECT 
             s.Name as scheme_name,
-            COUNT(CASE WHEN se.EnrollmentStatus = 'Active' THEN 1 ELSE NULL END) as active_enrollments,
-            COUNT(CASE WHEN se.EnrollmentStatus = 'Inactive' THEN 1 ELSE NULL END) as inactive_enrollments,
-            COUNT(CASE WHEN se.EnrollmentStatus = 'Pending' THEN 1 ELSE NULL END) as pending_enrollments,
-            SUM(se.BenefitsReceived) as total_benefits
+            COUNT(CASE WHEN se.EnrollmentStatus = 'Active' THEN 1 ELSE 0 END) as active_enrollments,
+            COUNT(CASE WHEN se.EnrollmentStatus = 'Inactive' THEN 1 ELSE 0 END) as inactive_enrollments,
+            COUNT(CASE WHEN se.EnrollmentStatus = 'Pending' THEN 1 ELSE 0 END) as pending_enrollments,
+            COALESCE(SUM(se.BenefitsReceived), 0) as total_benefits
         FROM Schemes s
         LEFT JOIN SchemeEnrollment se ON s.SchemeID = se.SchemeID
         GROUP BY s.Name

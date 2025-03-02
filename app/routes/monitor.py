@@ -287,10 +287,9 @@ def get_advanced_scheme_stats():
                 "scheme_name": row[0],
                 "allocated_budget": row[1],
                 "target_beneficiaries": row[2],
-                "beneficiaries_enrolled": row[4],
-                "achievement_rate": row[4] * 100 / row[2] if row[2] > 0 else 0,
-                "benefits_received": row[5],
-                "budget_year": row[3],
+                "beneficiaries_enrolled": row[3],
+                "achievement_rate": row[3] * 100 / row[2] if row[2] > 0 else 0,
+                "benefits_received": row[4],
             }
             for row in scheme_budget_data
         ]
