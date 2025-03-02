@@ -1,9 +1,7 @@
--- Drop tables if they exist (for clean setup)
 DROP TABLE IF EXISTS AttendsSchool CASCADE;
 DROP TABLE IF EXISTS SchemeEnrollment CASCADE;
 DROP TABLE IF EXISTS EmployeeCitizens CASCADE;
 DROP TABLE IF EXISTS Certificates CASCADE;
-DROP TABLE IF EXISTS Forms CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS Schemes CASCADE;
 DROP TABLE IF EXISTS LandCrop CASCADE;
@@ -21,14 +19,12 @@ DROP TABLE IF EXISTS assets CASCADE;
 DROP TABLE IF EXISTS EnvironmentalData CASCADE;
 
 
--- Create Households table
 CREATE TABLE Households (
     HouseholdID SERIAL PRIMARY KEY,
     Address TEXT NOT NULL,
     Income DECIMAL(12, 2)
 );
 
--- Create Citizen table
 CREATE TABLE Citizen (
     Aadhaar VARCHAR(16) PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
@@ -44,13 +40,11 @@ CREATE TABLE Citizen (
     Phone VARCHAR(20)
 );
 
--- Create Monitors table
 CREATE TABLE Monitors (
     MonitorID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL
 );
 
--- Create User table
 CREATE TABLE users (
     UserID SERIAL PRIMARY KEY,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
@@ -65,16 +59,14 @@ CREATE TABLE users (
     )
 );
 
--- Create Employee-Citizens table
 CREATE TABLE EmployeeCitizens (
     EmployeeID SERIAL PRIMARY KEY,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     StartDate DATE NOT NULL,
     TermDuration INTEGER, -- in months
-    Role VARCHAR(50) -- employee role in panchayat
+    Role VARCHAR(50)
 );
 
--- Create Schools table
 CREATE TABLE Schools (
     SchoolID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
@@ -90,7 +82,6 @@ CREATE TABLE SchoolAccount (
     PRIMARY KEY (SchoolID, BudgetYear)
 );
 
--- Create Hospitals table
 CREATE TABLE Hospitals (
     HospitalID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
@@ -106,7 +97,6 @@ CREATE TABLE HospitalAccount (
     PRIMARY KEY (HospitalID, BudgetYear)
 );
 
--- Create Schemes 
 CREATE TABLE Schemes (
     SchemeID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
@@ -117,7 +107,6 @@ CREATE TABLE Schemes (
     BudgetYear INTEGER
 );
 
--- Create Land table
 CREATE TABLE Land (
     LandID SERIAL PRIMARY KEY,
     OwnerID VARCHAR(16) REFERENCES Citizen(Aadhaar),
@@ -142,9 +131,7 @@ CREATE TABLE LandCrop (
     PRIMARY KEY (LandID, CropID)
 );
 
--- Create Certificates table
 CREATE TABLE Certificates (
-    -- CertificateID SERIAL PRIMARY KEY,
     Category VARCHAR(100) NOT NULL,
     Name VARCHAR(100) NOT NULL,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
@@ -153,7 +140,6 @@ CREATE TABLE Certificates (
     PRIMARY KEY (Category, Name, CitizenID)
 );
 
--- Create Scheme-Enrollment table
 CREATE TABLE SchemeEnrollment (
     SchemeID INTEGER,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
@@ -165,9 +151,7 @@ CREATE TABLE SchemeEnrollment (
     FOREIGN KEY (SchemeID) REFERENCES Schemes(SchemeID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create Attends-School table
 CREATE TABLE AttendsSchool (
-    -- AttendanceID SERIAL PRIMARY KEY,
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     SchoolID INTEGER REFERENCES Schools(SchoolID),
     Qualification VARCHAR(100),
@@ -192,7 +176,6 @@ CREATE TABLE AssetSurveys (
     PRIMARY KEY (asset_id, SurveyDate)
 );
 
--- Create Environmental Data table
 CREATE TABLE EnvironmentalData (
     RecordID SERIAL PRIMARY KEY,
     TimeFrame DATE NOT NULL,
@@ -212,7 +195,6 @@ DROP FUNCTION IF EXISTS update_last_surveyed();
 CREATE OR REPLACE FUNCTION update_last_surveyed()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Update LastSurveyedDate for all assets based on the most recent survey, or default to InstallationDate
     UPDATE assets
     SET LastSurveyedDate = (
         SELECT COALESCE(MAX(SurveyDate), InstallationDate)
@@ -224,7 +206,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create the trigger to fire on insert, update, and delete
 CREATE TRIGGER trigger_update_last_surveyed
 AFTER INSERT OR UPDATE OR DELETE
 ON AssetSurveys
