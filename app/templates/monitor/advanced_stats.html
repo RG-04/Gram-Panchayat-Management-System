@@ -440,6 +440,7 @@ Management System{% endblock %} {% block head %}
                 <canvas id="schemeBudgetChart"></canvas>
             </div>
 
+            <h2>Scheme Enrollment Details</h2>
             <div class="stats-table-container">
                 <table class="stats-table">
                     <thead>
@@ -449,7 +450,7 @@ Management System{% endblock %} {% block head %}
                             <th>Target Beneficiaries</th>
                             <th>Current Enrollment</th>
                             <th>Achievement Rate</th>
-                            <th>Cost per Beneficiary (₹)</th>
+                            <th>Total Benefits (₹)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -459,21 +460,15 @@ Management System{% endblock %} {% block head %}
                             <td>₹{{ "{:,.2f}".format(scheme.allocated_budget) }}</td>
                             <td>{{ scheme.target_beneficiaries }}</td>
                             <td>
-                                {% set enrollment = None %}
-                                {% for e in stats.enrollment_stats %}
-                                    {% if e.scheme_name == scheme.scheme_name %}
-                                        {% set enrollment = e %}
-                                    {% endif %}
-                                {% endfor %}
-                                {{ enrollment.total_enrollments if enrollment else 0 }}
+                                {{ scheme.beneficiaries_enrolled }}
                             </td>
                             <td>
                                 <div class="progress-container">
                                     <div class="progress-bar" style="width: {{ scheme.achievement_rate }}%;"></div>
-                                    <span class="progress-text">{{ scheme.achievement_rate }}%</span>
+                                    <span class="progress-text">{{ "{:,.2f}".format(scheme.achievement_rate) }}%</span>
                                 </div>
                             </td>
-                            <td>₹{{ "{:,.2f}".format(scheme.cost_per_beneficiary) }}</td>
+                            <td>₹{{ "{:,.2f}".format(scheme.benefits_received) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -503,33 +498,6 @@ Management System{% endblock %} {% block head %}
                 </div>
             </div>
 
-            <h2>Scheme Enrollment Details</h2>
-            <div class="stats-table-container">
-                <table class="stats-table">
-                    <thead>
-                        <tr>
-                            <th>Scheme Name</th>
-                            <th>Active</th>
-                            <th>Inactive</th>
-                            <th>Pending</th>
-                            <th>Total Enrollments</th>
-                            <th>Total Benefits (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for scheme in stats.enrollment_stats %}
-                        <tr>
-                            <td>{{ scheme.scheme_name }}</td>
-                            <td>{{ scheme.active_enrollments }}</td>
-                            <td>{{ scheme.inactive_enrollments }}</td>
-                            <td>{{ scheme.pending_enrollments }}</td>
-                            <td>{{ scheme.total_enrollments }}</td>
-                            <td>₹{{ "{:,.2f}".format(scheme.total_benefits) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
 
             <script>
             document.addEventListener('DOMContentLoaded', function() {

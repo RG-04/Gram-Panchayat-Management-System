@@ -173,8 +173,11 @@ monitor_queries = {
             Name as scheme_name,
             AllocatedBudget,
             TargetBeneficiaries,
-            BudgetYear
-        FROM Schemes
+            BudgetYear,
+            se.NumBeneficieries as total_enrollments,
+            se.ReceivedBenefits as total_benefits
+        FROM Schemes as s
+        JOIN (SELECT SchemeID, COUNT(*) as NumBeneficieries , SUM(BenefitsReceived) as ReceivedBenefits FROM SchemeEnrollment GROUP BY SchemeID) as se ON s.SchemeID = se.SchemeID
         ORDER BY AllocatedBudget DESC
     """,
     

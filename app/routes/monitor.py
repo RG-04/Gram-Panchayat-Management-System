@@ -254,6 +254,9 @@ def get_advanced_scheme_stats():
                 'scheme_name': row[0],
                 'allocated_budget': row[1],
                 'target_beneficiaries': row[2],
+                'beneficiaries_enrolled': row[4],
+                'achievement_rate': row[4]*100/row[2] if row[2] > 0 else 0,
+                'benefits_received': row[5],
                 'budget_year': row[3]
             }
             for row in scheme_budget_data
@@ -274,21 +277,21 @@ def get_advanced_scheme_stats():
         ]
         
         # Calculate target achievement rates
-        for scheme_budget in stats['scheme_budget']:
-            matching_enrollment = next((e for e in stats['enrollment_stats'] 
-                                       if e['scheme_name'] == scheme_budget['scheme_name']), None)
+        # for scheme_budget in stats['scheme_budget']:
+        #     matching_enrollment = next((e for e in stats['enrollment_stats'] 
+        #                                if e['scheme_name'] == scheme_budget['scheme_name']), None)
             
-            if matching_enrollment:
-                target = scheme_budget['target_beneficiaries']
-                actual = matching_enrollment['total_enrollments']
-                scheme_budget['achievement_rate'] = round((actual / target) * 100, 1) if target > 0 else 0
+        #     if matching_enrollment:
+        #         target = scheme_budget['target_beneficiaries']
+        #         actual = matching_enrollment['total_enrollments']
+        #         scheme_budget['achievement_rate'] = round((actual / target) * 100, 1) if target > 0 else 0
                 
-                # Calculate cost per beneficiary
-                budget = scheme_budget['allocated_budget']
-                scheme_budget['cost_per_beneficiary'] = round(budget / actual, 2) if actual > 0 else 0
-            else:
-                scheme_budget['achievement_rate'] = 0
-                scheme_budget['cost_per_beneficiary'] = 0
+        #         # Calculate cost per beneficiary
+        #         budget = scheme_budget['allocated_budget']
+        #         scheme_budget['cost_per_beneficiary'] = round(budget / actual, 2) if actual > 0 else 0
+        #     else:
+        #         scheme_budget['achievement_rate'] = 0
+        #         scheme_budget['cost_per_beneficiary'] = 0
         
     except Exception as e:
         print(f"Database error in scheme stats: {e}")
