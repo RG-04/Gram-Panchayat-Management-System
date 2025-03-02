@@ -452,15 +452,16 @@ def add_scheme():
         type_value = request.form.get("new_type")
 
     description = request.form.get("description")
-
+    allocated_budget = request.form.get("allocated_budget")
+    target_beneficiaries = request.form.get("target_beneficiaries")
     # Validate inputs
-    if not name or not description:
-        flash("Scheme name and description are required", "error")
+    if not name or not description or not allocated_budget or not target_beneficiaries:
+        flash("Scheme name, description, allocated budget and target beneficiaries", "error")
         return redirect(url_for("employee.schemes"))
 
     try:
         result = db.execute_query(
-            employee_queries["scheme_insert_query"], (name, type_value, description)
+            employee_queries["scheme_insert_query"], (name, type_value, description, allocated_budget, target_beneficiaries)
         )
         scheme_id = result[0][0] if result else None
 
