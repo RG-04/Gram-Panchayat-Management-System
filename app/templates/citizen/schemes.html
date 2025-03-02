@@ -23,29 +23,6 @@
         font-size: 1.8rem;
     }
 
-    .category-nav {
-        display: flex;
-        gap: 15px;
-    }
-
-    .category-link {
-        text-decoration: none;
-        color: #666;
-        font-weight: 500;
-        padding: 8px 15px;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-    }
-
-    .category-link:hover {
-        background-color: #f0f0f0;
-    }
-
-    .category-link.active {
-        background-color: #006400;
-        color: white;
-    }
-
     .controls-container {
         display: flex;
         flex-direction: column;
@@ -169,11 +146,6 @@
             align-items: flex-start;
             gap: 15px;
         }
-
-        .category-nav {
-            width: 100%;
-            justify-content: space-between;
-        }
     }
 </style>
 {% endblock %}
@@ -182,11 +154,6 @@
 <div class="statistics-container">
     <div class="statistics-header">
         <h1>Government Schemes</h1>
-        <div class="category-nav">
-            <a href="{{ url_for('citizen.dashboard') }}" class="category-link">Dashboard</a>
-            <a href="{{ url_for('citizen.schemes') }}" class="category-link active">Schemes</a>
-            <a href="{{ url_for('citizen.statistics', category='education') }}" class="category-link">Statistics</a>
-        </div>
     </div>
 
     <div class="controls-container">

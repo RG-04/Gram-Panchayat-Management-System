@@ -42,8 +42,8 @@ employee_queries = {
         WHERE c.MotherID = %s OR c.FatherID = %s
     """,
     "citizen_family_income_query": """
-        SELECT SUM(c.Income) as FamilyIncome
-        FROM Citizen c
+        SELECT Income as FamilyIncome
+        FROM Households
         WHERE HouseholdID = %s
     """,
     "citizen_cert_query": """

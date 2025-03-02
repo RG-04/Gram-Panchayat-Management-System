@@ -166,18 +166,21 @@
 
             <h2>Main Crops</h2>
             <div class="crop-distribution">
-                <div class="crop-chart-container">
-                    <canvas id="cropPieChart"></canvas>
-                </div>
-                <div class="crop-filter-container">
-                    <h3>Filter by Crop Type</h3>
-                    <div class="crop-type-filters">
-                        <button class="crop-filter-btn active" data-type="all">All</button>
-                        {% for type in stats.crop_types %}
-                        <button class="crop-filter-btn" data-type="{{ type }}">{{ type }}</button>
-                        {% endfor %}
-                    </div>
-                </div>
+            <div class="crop-chart-container">
+                <canvas id="cropPieChart"></canvas>
+            </div>
+            </div>
+
+            <div class="crop-filter-container">
+            <h3>Filter by Crop Type</h3>
+            <div class="crop-type-filters">
+                <button class="crop-filter-btn active" data-type="all">All</button>
+                {% for type in stats.crop_types %}
+                <button class="crop-filter-btn" data-type="{{ type }}">
+                {{ type }}
+                </button>
+                {% endfor %}
+            </div>
             </div>
 
             <div class="stats-table-container">

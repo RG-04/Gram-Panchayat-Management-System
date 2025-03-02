@@ -312,6 +312,7 @@
     flex-wrap: wrap;
     gap: 30px;
     margin-bottom: 30px;
+    justify-content: center;
 }
 
 .crop-chart-container {
@@ -334,6 +335,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    margin-bottom: 20px;
 }
 
 .crop-filter-container h3 {

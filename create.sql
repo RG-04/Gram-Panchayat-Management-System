@@ -23,7 +23,8 @@ DROP TABLE IF EXISTS assets CASCADE;
 -- Create Households table
 CREATE TABLE Households (
     HouseholdID SERIAL PRIMARY KEY,
-    Address TEXT NOT NULL
+    Address TEXT NOT NULL,
+    Income DECIMAL(12, 2)
 );
 
 -- Create Citizen table
@@ -155,7 +156,7 @@ CREATE TABLE SchemeEnrollment (
     CitizenID VARCHAR(16) REFERENCES Citizen(Aadhaar),
     Date DATE NOT NULL,
     PRIMARY KEY (SchemeID, CitizenID),
-    EnrollmentStatus VARCHAR(50) DEFAULT 'Active',
+    EnrollmentStatus VARCHAR(50) DEFAULT 'Active' CHECK (EnrollmentStatus IN ('Active', 'Inactive', 'Pending')),
     BenefitsReceived DECIMAL(15, 2) DEFAULT 0,
     LastBenefitDate DATE,
     FOREIGN KEY (SchemeID) REFERENCES Schemes(SchemeID) ON DELETE CASCADE ON UPDATE CASCADE
@@ -214,4 +215,23 @@ ON AssetSurveys
 FOR EACH STATEMENT
 EXECUTE FUNCTION update_last_surveyed();
 
+
+DROP TRIGGER IF EXISTS trigger_update_household_income ON Citizen;
+DROP FUNCTION IF EXISTS update_household_income();
+
+CREATE OR REPLACE FUNCTION update_household_income()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE Households
+    SET Income = (SELECT COALESCE(SUM(Income), 0) FROM Citizen WHERE HouseholdID = NEW.HouseholdID)
+    WHERE HouseholdID = NEW.HouseholdID;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_household_income
+AFTER INSERT OR UPDATE OR DELETE ON Citizen
+FOR EACH ROW
+EXECUTE FUNCTION update_household_income();
 
