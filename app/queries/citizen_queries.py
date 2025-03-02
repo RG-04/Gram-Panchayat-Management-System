@@ -28,6 +28,20 @@ citizen_queries = {
         FROM Certificates
         WHERE Category = %s AND Name = %s AND CitizenID = %s
     """,
+    "citizen_education_query": """
+        SELECT a.CitizenID, a.SchoolID, s.Name as SchoolName, 
+               a.Qualification, a.PassDate
+        FROM AttendsSchool a
+        JOIN Schools s ON a.SchoolID = s.SchoolID
+        WHERE a.CitizenID = %s
+        ORDER BY a.PassDate DESC
+    """,
+    # update password
+    "update_password_query": """
+        UPDATE users
+        SET password = %s, salt = %s
+        WHERE UserID = %s
+    """,
     # Statistics queries
     # Education queries
     "school_query": """

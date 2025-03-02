@@ -357,15 +357,9 @@ def schemes():
 def education():
     """View education details."""
 
-    education_query = """
-        SELECT a.CitizenID, a.SchoolID, s.Name as SchoolName, 
-               a.Qualification, a.PassDate
-        FROM AttendsSchool a
-        JOIN Schools s ON a.SchoolID = s.SchoolID
-        WHERE a.CitizenID = %s
-        ORDER BY a.PassDate DESC
-    """
-    education = db.execute_query(education_query, (session["citizen_id"],))
+    education = db.execute_query(
+        citizen_queries["citizen_education_query"], (session["citizen_id"],)
+    )
 
     # Get list of schools for form
     schools_query = "SELECT SchoolID, Name FROM Schools ORDER BY Name"
@@ -469,13 +463,10 @@ def update_password():
         # Update password
         new_hash, new_salt = hash_password(new_password)
 
-        update_query = """
-            UPDATE users
-            SET password = %s, salt = %s
-            WHERE UserID = %s
-        """
         db.execute_query(
-            update_query, (new_hash, new_salt, session["user_id"]), fetch=False
+            citizen_queries["update_password_query"],
+            (new_hash, new_salt, session["user_id"]),
+            fetch=False,
         )
 
         flash("Password updated successfully", "success")
